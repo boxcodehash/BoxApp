@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>MuzzSnap | Private</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+body {
+    background:#0b0b0f;
+    color:#fff;
+    font-family:Arial, sans-serif;
+    padding:40px;
+}
+.denied {
+    text-align:center;
+    margin-top:20vh;
+}
+</style>
+</head>
+
+<body>
+
+<div id="content" style="display:none;">
+    <h1>Welcome to MuzzSnap</h1>
+    <p>Exclusive content for verified MUZZLE holders.</p>
+</div>
+
+<div id="denied" class="denied" style="display:none;">
+    <h2>Access denied</h2>
+    <p>Access denied due to privacy policy.</p>
+</div>
+
+<script>
+const SESSION_KEY = "muzzsnap_session";
+
+try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) throw 0;
+
+    const session = JSON.parse(atob(raw));
+    if (new Date(session.exp) < new Date()) throw 0;
+
+    document.getElementById("content").style.display = "block";
+} catch {
+    document.getElementById("denied").style.display = "block";
+}
+</script>
+
+</body>
+</html>
