@@ -2,45 +2,151 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MuzzSnap | Wallet Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MuzzSnap</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
 <style>
-body{
-  background:#000;
-  color:#fff;
-  font-family:Inter,system-ui;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+body { font-family: 'Inter', sans-serif; overflow-x: hidden; background-color: #0a0a0a; }
+.muzz-background {
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(circle at 10% 50%, rgba(100,100,100,.08) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(50,50,50,.1) 0%, transparent 60%);
 }
-button{
-  background:linear-gradient(135deg,#dc2626,#991b1b);
-}
+#logoButton { cursor: pointer; transition: all .3s ease; }
+#logoButton:hover { opacity:.9; transform:scale(1.02); }
 </style>
 </head>
 
-<body>
+<body class="p-4 text-white">
+<div class="muzz-background"></div>
 
-<div class="text-center max-w-md">
-  <h1 class="text-4xl font-bold mb-4">MUZZSNAP</h1>
-  <p class="text-gray-400 mb-6">
-    Private access for MUZZLE holders
-    <br>Minimum: 20,000,000 MUZZLE
-  </p>
-
-  <button id="connect"
-    class="px-8 py-3 rounded-full text-lg">
-    Connect Wallet
-  </button>
-
-  <p id="error" class="text-red-500 mt-4 hidden"></p>
+<div class="absolute top-4 right-4 z-20">
+  <span id="walletStatus"
+    class="py-2 px-4 text-xs font-medium text-gray-400 bg-gray-800 rounded-lg border border-gray-700">
+    Disconnected
+  </span>
 </div>
 
-<script src="index.js"></script>
+<div class="relative z-10 flex flex-col items-center justify-center min-h-[80vh] max-w-sm mx-auto text-center">
+
+<div id="logoButton" onclick="handleLogin()" class="mb-6 relative group">
+<img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440"
+     class="w-40 h-40 rounded-2xl shadow-2xl group-hover:rotate-2 transition duration-500">
+
+<div id="loadingSpinner"
+     class="hidden absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl backdrop-blur-sm">
+<i class="fas fa-spinner fa-spin text-4xl"></i>
+</div>
+</div>
+
+<p class="text-xs text-gray-500 mb-8 tracking-widest uppercase">
+Secure Decentralized Chat<br>単なるアプリ以上のもの。
+</p>
+
+<div id="messageArea"
+ class="hidden w-full mb-8 p-4 bg-gray-900/80 border border-gray-800 rounded-xl backdrop-blur-md">
+<p id="messageTitle" class="text-sm font-bold text-red-400 mb-1">Error</p>
+<p id="messageText" class="text-xs text-gray-400"></p>
+</div>
+
+<p class="text-xs text-gray-600 animate-pulse mt-4">
+Click the logo to connect wallet<br>
+ロゴをクリックしてウォレットを接続
+</p>
+
+<footer class="mt-16 text-[10px] text-gray-700 font-mono">
+MuzzSnap 2025™ • By.Ryachu
+</footer>
+</div>
+
+<script>
+/* ========= CONFIG ========= */
+const CONTRACT = "0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0";
+const MIN_BALANCE = 40000000;
+const ETH_CHAIN_ID = 1;
+
+const ERC20_ABI = [
+ "function balanceOf(address) view returns (uint256)",
+ "function decimals() view returns (uint8)"
+];
+
+/* ========= UI ========= */
+const status = document.getElementById('walletStatus');
+const spinner = document.getElementById('loadingSpinner');
+const msgArea = document.getElementById('messageArea');
+const msgTitle = document.getElementById('messageTitle');
+const msgText = document.getElementById('messageText');
+
+const setStatus = (t,c='gray')=>{
+ status.textContent=t;
+ status.className=`py-2 px-4 text-xs font-medium rounded-lg border bg-gray-900 border-${c}-700 text-${c}-400`;
+};
+
+const showMsg=(t,m,ok=false)=>{
+ msgArea.classList.remove('hidden');
+ msgTitle.textContent=t;
+ msgTitle.className=`text-sm font-bold mb-1 ${ok?'text-green-400':'text-red-400'}`;
+ msgText.textContent=m;
+};
+
+/* ========= LOGIN ========= */
+async function handleLogin(){
+ try{
+  if(!window.ethereum){
+    showMsg("Wallet Missing","Please install MetaMask");
+    return;
+  }
+
+  spinner.classList.remove('hidden');
+  msgArea.classList.add('hidden');
+  setStatus('Connecting','yellow');
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const accounts = await provider.send("eth_requestAccounts",[]);
+  const address = accounts[0];
+
+  const network = await provider.getNetwork();
+  if(network.chainId !== ETH_CHAIN_ID){
+    throw new Error("Connect to Ethereum Mainnet");
+  }
+
+  setStatus('Checking balance','blue');
+
+  const token = new ethers.Contract(CONTRACT, ERC20_ABI, provider);
+  const decimals = await token.decimals();
+  const raw = await token.balanceOf(address);
+  const balance = Number(ethers.utils.formatUnits(raw,decimals));
+
+  if(balance < MIN_BALANCE){
+    throw new Error("Minimum 40,000,000 MUZZ required");
+  }
+
+  const signer = provider.getSigner();
+  await signer.signMessage("MuzzSnap Login");
+
+  sessionStorage.setItem('muzzsnap_access', JSON.stringify({
+    address,
+    timestamp: Date.now()
+  }));
+
+  setStatus('Success','green');
+  showMsg("Authenticated","Redirecting…",true);
+
+  setTimeout(()=>location.href="pagina_segura.html",900);
+
+ }catch(e){
+  setStatus('Denied','red');
+  showMsg("Access Denied", e.message);
+ }finally{
+  spinner.classList.add('hidden');
+ }
+}
+</script>
 </body>
 </html>
