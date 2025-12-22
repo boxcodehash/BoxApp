@@ -1,150 +1,218 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MuzzSnap</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-body { font-family: 'Inter', sans-serif; overflow-x: hidden; background-color:#0a0a0a; }
-.muzz-background {
-  position: fixed; inset:0; z-index:-1;
-  background:
-    radial-gradient(circle at 10% 50%, rgba(100,100,100,.08) 0%, transparent 50%),
-    radial-gradient(circle at 90% 80%, rgba(50,50,50,.1) 0%, transparent 60%);
-}
-#logoButton { cursor:pointer; transition:all .3s ease }
-#logoButton:hover { opacity:.9; transform:scale(1.02) }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MuzzSnap | Web3 Social</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e5e5e5; overflow-x: hidden; }
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+        
+        /* Fondo Neón */
+        .bg-glow { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(185, 28, 28, 0.1) 0%, transparent 70%); z-index: -1; }
+        
+        /* Estilo Glassmorphism */
+        .glass-card { background: rgba(23, 23, 23, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); }
+        
+        /* Animaciones */
+        .hidden-section { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-in forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        #logoButton { cursor: pointer; transition: all 0.3s ease; }
+        #logoButton:hover { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(220,38,38,0.3)); }
+    </style>
 </head>
+<body class="min-h-screen">
+    <div class="bg-glow"></div>
 
-<body class="p-4 text-white">
-<div class="muzz-background"></div>
+    <section id="loginView" class="flex flex-col items-center justify-center min-h-screen max-w-sm mx-auto text-center px-4">
+        <div id="logoButton" onclick="handleLogin()" class="mb-6 relative group">
+            <img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png" 
+                 alt="MuzzSnap" class="w-40 h-40 rounded-2xl shadow-2xl">
+            <div id="loadingSpinner" class="hidden absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl backdrop-blur-sm">
+                <i class="fas fa-spinner fa-spin text-4xl text-red-600"></i>
+            </div>
+        </div>
 
-<div class="absolute top-4 right-4 z-20">
-  <span id="walletStatus"
-    class="py-2 px-4 text-xs font-medium text-gray-400 bg-gray-800 rounded-lg border border-gray-700">
-    Disconnected
-  </span>
-</div>
+        <h1 class="orbitron text-2xl font-black mb-2 tracking-tighter">MUZZSNAP</h1>
+        <p class="text-[10px] text-gray-500 mb-8 tracking-widest uppercase leading-relaxed">
+            Secure Decentralized Social Network<br>単なるアプリ以上のもの
+        </p>
 
-<div class="relative z-10 flex flex-col items-center justify-center min-h-[80vh] max-w-sm mx-auto text-center">
+        <div id="walletStatus" class="mb-4 py-2 px-4 text-[10px] font-mono bg-gray-900 border border-gray-800 rounded-lg text-gray-400">
+            DISCONNECTED
+        </div>
 
-<div id="logoButton" onclick="handleLogin()" class="mb-6 relative group">
-<img id="muzzLogo"
-src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440"
-class="w-40 h-40 rounded-2xl shadow-2xl group-hover:rotate-2 transition duration-500">
+        <div id="messageArea" class="hidden w-full mb-6 p-4 bg-red-900/10 border border-red-900/20 rounded-xl">
+            <p id="messageTitle" class="text-xs font-bold text-red-500 mb-1">ACCESS DENIED</p>
+            <p id="messageText" class="text-[10px] text-gray-400 font-mono"></p>
+        </div>
 
-<div id="loadingSpinner"
-class="hidden absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl backdrop-blur-sm">
-<i class="fas fa-spinner fa-spin text-4xl"></i>
-</div>
-</div>
+        <p class="text-[10px] text-gray-600 animate-pulse">
+            Click logo to verify 40M $MUZZ balance<br>ロゴをクリックしてウォレットを接続
+        </p>
+    </section>
 
-<p class="text-xs text-gray-500 mb-8 tracking-widest uppercase">
-Secure Decentralized Chat<br>単なるアプリ以上のもの。
-</p>
+    <section id="appView" class="hidden-section fade-in">
+        <header class="sticky top-0 z-50 bg-[#0a0a0a]/80 border-b border-white/10 backdrop-blur-xl">
+            <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png" class="w-8 h-8 rounded-md">
+                    <span class="orbitron text-md tracking-tighter text-white">MUZZSNAP</span>
+                </div>
+                <div id="userBadge" class="text-[10px] font-mono bg-red-600/10 text-red-500 border border-red-500/20 px-3 py-1 rounded-full"></div>
+            </div>
+        </header>
 
-<div id="messageArea"
-class="hidden w-full mb-8 p-4 bg-gray-900/80 border border-gray-800 rounded-xl">
-<p id="messageTitle" class="text-sm font-bold text-red-400 mb-1"></p>
-<p id="messageText" class="text-xs text-gray-400"></p>
-</div>
+        <main class="max-w-2xl mx-auto px-4 py-8 space-y-6">
+            <div class="glass-card rounded-2xl p-5 border-l-2 border-red-600">
+                <div class="flex gap-4">
+                    <div id="myAvatar" class="w-10 h-10 rounded-full bg-red-900/20 flex items-center justify-center text-[10px] font-bold text-red-500 border border-red-500/30"></div>
+                    <div class="flex-1">
+                        <textarea id="postContent" placeholder="¿Qué estás pensando?" class="w-full bg-transparent border-none focus:ring-0 text-gray-200 text-md resize-none h-20 placeholder:text-gray-700"></textarea>
+                        <div class="flex justify-end pt-3 border-t border-white/5">
+                            <button id="btnPost" class="bg-red-600 px-6 py-2 rounded-full text-xs font-black text-white hover:scale-105 transition-all">POST</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<p class="text-xs text-gray-600 animate-pulse">
-Click the logo to connect wallet<br>ロゴをクリックしてウォレットを接続
-</p>
+            <div id="feed" class="space-y-4"></div>
+        </main>
+    </section>
 
-<footer class="mt-16 text-[10px] text-gray-700 font-mono">
-MuzzSnap 2025™ • By Ryachu
-</footer>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, doc, increment } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<script>
-/* ================= CONFIG ================= */
-const CONTRACT_ADDRESS = "0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0";
-const MIN_REQUIRED_TOKENS = 20000000; // 20M
-const ERC20_ABI = [
- "function balanceOf(address) view returns (uint256)",
- "function decimals() view returns (uint8)"
-];
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAKdLm7lf32hPPJJ_pyr1Wxj_dYgLnviY",
+            authDomain: "connect-74a76.firebaseapp.com",
+            projectId: "connect-74a76",
+            storageBucket: "connect-74a76.firebasestorage.app",
+            messagingSenderId: "126156115472",
+            appId: "1:126156115472:web:8c1131ea34c9069b4dc495"
+        };
 
-/* ================= UI ================= */
-const ui = {
- spinner: document.getElementById("loadingSpinner"),
- status: document.getElementById("walletStatus"),
- msgArea: document.getElementById("messageArea"),
- msgTitle: document.getElementById("messageTitle"),
- msgText: document.getElementById("messageText")
-};
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const postsCol = collection(db, "posts");
 
-function setStatus(text,color="gray"){
- ui.status.textContent=text;
- ui.status.className=`py-2 px-4 text-xs font-medium rounded-lg border bg-gray-900 border-${color}-700 text-${color}-400`;
-}
+        // Configuración de Token Gating
+        const CONTRACT_ADDRESS = "0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0";
+        const MIN_REQUIRED_TOKENS = 40000000; 
+        const ERC20_ABI = ["function balanceOf(address owner) view returns (uint256)", "function decimals() view returns (uint8)"];
 
-function showMsg(title,text){
- ui.msgArea.classList.remove("hidden");
- ui.msgTitle.textContent=title;
- ui.msgText.textContent=text;
-}
+        let userWallet = "";
 
-/* ================= LOGIN ================= */
-async function handleLogin(){
- if(!window.ethereum){
-   showMsg("Wallet missing","Install or open a Web3 wallet");
-   if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
-     location.href=`https://metamask.app.link/dapp/${location.host}${location.pathname}`;
-   }
-   return;
- }
+        // Función de Login adaptada
+        window.handleLogin = async () => {
+            if (typeof window.ethereum === 'undefined') {
+                alert("Please install MetaMask");
+                return;
+            }
 
- ui.spinner.classList.remove("hidden");
- setStatus("Connecting…","yellow");
+            const spinner = document.getElementById('loadingSpinner');
+            const msgArea = document.getElementById('messageArea');
+            spinner.classList.remove('hidden');
 
- try{
-   const provider=new ethers.providers.Web3Provider(window.ethereum);
-   const [address]=await provider.send("eth_requestAccounts",[]);
-   const network=await provider.getNetwork();
-   if(network.chainId!==1) throw Error("Use Ethereum Mainnet");
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const accounts = await provider.send("eth_requestAccounts", []);
+                userWallet = accounts[0];
 
-   setStatus("Checking balance…","blue");
-   const contract=new ethers.Contract(CONTRACT_ADDRESS,ERC20_ABI,provider);
-   const decimals=await contract.decimals();
-   const balance=await contract.balanceOf(address);
-   const formatted=Number(ethers.utils.formatUnits(balance,decimals));
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, ERC20_ABI, provider);
+                const decimals = await contract.decimals();
+                const balanceBN = await contract.balanceOf(userWallet);
+                const balanceFormatted = ethers.utils.formatUnits(balanceBN, decimals);
 
-   if(formatted<MIN_REQUIRED_TOKENS)
-     throw Error("Access denied by privacy policy");
+                if (parseFloat(balanceFormatted) < MIN_REQUIRED_TOKENS) {
+                    throw new Error("MINIMUM 40M $MUZZ REQUIRED");
+                }
 
-   setStatus("Sign message…","yellow");
-   const signer=provider.getSigner();
-   await signer.signMessage("MuzzSnap authentication");
+                // Autenticación Exitosa
+                document.getElementById('loginView').classList.add('hidden-section');
+                document.getElementById('appView').classList.remove('hidden-section');
+                
+                const nick = userWallet.slice(-6).toUpperCase();
+                document.getElementById('userBadge').innerText = `WALLET: ...${nick}`;
+                document.getElementById('myAvatar').innerText = nick.substring(0,2);
+                
+                initFeed(); // Cargar la red social
 
-   sessionStorage.setItem("muzzsnap_access",JSON.stringify({
-     address,
-     timestamp:Date.now()
-   }));
+            } catch (error) {
+                msgArea.classList.remove('hidden');
+                document.getElementById('messageText').innerText = error.message;
+                console.error(error);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        };
 
-   setStatus("Authenticated","green");
-   showMsg("Access granted","Redirecting…");
-   setTimeout(()=>location.href="pagina_segura.html",800);
+        // Lógica de la Red Social
+        function initFeed() {
+            const q = query(postsCol, orderBy("timestamp", "desc"));
+            onSnapshot(q, (snap) => {
+                const feed = document.getElementById('feed');
+                feed.innerHTML = "";
+                snap.forEach((post) => {
+                    const d = post.data();
+                    const nick = d.author.slice(-6).toUpperCase();
+                    feed.innerHTML += `
+                        <article class="glass-card rounded-2xl p-5 border border-white/5">
+                            <div class="flex gap-4">
+                                <div class="w-10 h-10 rounded-full bg-red-600/10 flex items-center justify-center text-[10px] font-bold text-red-500 border border-red-500/20">
+                                    ${nick.substring(0,2)}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs font-bold text-white tracking-tight">@${nick}</span>
+                                        <span class="text-[9px] text-gray-600 font-mono">${d.timestamp ? "VERIFIED" : "PENDING"}</span>
+                                    </div>
+                                    <p class="text-gray-300 mt-2 text-sm leading-relaxed">${d.content}</p>
+                                    <div class="flex items-center gap-6 mt-4 text-gray-600">
+                                        <button onclick="socialAction('${post.id}', 'likes')" class="flex items-center gap-1 hover:text-red-500 transition-colors">
+                                            <i data-lucide="heart" class="w-4 h-4"></i> <span class="text-[10px]">${d.likes || 0}</span>
+                                        </button>
+                                        <button onclick="socialAction('${post.id}', 'retweets')" class="flex items-center gap-1 hover:text-green-500 transition-colors">
+                                            <i data-lucide="repeat" class="w-4 h-4"></i> <span class="text-[10px]">${d.retweets || 0}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                });
+                lucide.createIcons();
+            });
+        }
 
- }catch(e){
-   setStatus("Access denied","red");
-   showMsg("Denied",e.message);
- }finally{
-   ui.spinner.classList.add("hidden");
- }
-}
+        document.getElementById('btnPost').addEventListener('click', async () => {
+            const content = document.getElementById('postContent').value.trim();
+            if(!content || !userWallet) return;
+            await addDoc(postsCol, {
+                content,
+                author: userWallet,
+                timestamp: serverTimestamp(),
+                likes: 0,
+                retweets: 0
+            });
+            document.getElementById('postContent').value = "";
+        });
 
-/* 🔑 expose for onclick */
-window.handleLogin = handleLogin;
-</script>
+        window.socialAction = async (id, field) => {
+            const ref = doc(db, "posts", id);
+            await updateDoc(ref, { [field]: increment(1) });
+        };
+    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
