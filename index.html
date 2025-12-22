@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MuzzSnap | Web3 Social</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -11,29 +12,22 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e5e5e5; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e5e5e5; overflow-x: hidden; margin: 0; }
         .orbitron { font-family: 'Orbitron', sans-serif; }
-        
-        /* Fondo Neón */
-        .bg-glow { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(185, 28, 28, 0.1) 0%, transparent 70%); z-index: -1; }
-        
-        /* Estilo Glassmorphism */
+        .bg-glow { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(185, 28, 28, 0.1) 0%, transparent 70%); z-index: -1; pointer-events: none; }
         .glass-card { background: rgba(23, 23, 23, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); }
-        
-        /* Animaciones */
         .hidden-section { display: none !important; }
         .fade-in { animation: fadeIn 0.5s ease-in forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         #logoButton { cursor: pointer; transition: all 0.3s ease; }
         #logoButton:hover { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(220,38,38,0.3)); }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
     <div class="bg-glow"></div>
 
     <section id="loginView" class="flex flex-col items-center justify-center min-h-screen max-w-sm mx-auto text-center px-4">
-        <div id="logoButton" onclick="handleLogin()" class="mb-6 relative group">
+        <div id="logoButton" class="mb-6 relative group">
             <img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png" 
                  alt="MuzzSnap" class="w-40 h-40 rounded-2xl shadow-2xl">
             <div id="loadingSpinner" class="hidden absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl backdrop-blur-sm">
@@ -41,22 +35,18 @@
             </div>
         </div>
 
-        <h1 class="orbitron text-2xl font-black mb-2 tracking-tighter">MUZZSNAP</h1>
+        <h1 class="orbitron text-2xl font-black mb-2 tracking-tighter text-white">MUZZSNAP</h1>
         <p class="text-[10px] text-gray-500 mb-8 tracking-widest uppercase leading-relaxed">
             Secure Decentralized Social Network<br>単なるアプリ以上のもの
         </p>
 
-        <div id="walletStatus" class="mb-4 py-2 px-4 text-[10px] font-mono bg-gray-900 border border-gray-800 rounded-lg text-gray-400">
-            DISCONNECTED
-        </div>
-
         <div id="messageArea" class="hidden w-full mb-6 p-4 bg-red-900/10 border border-red-900/20 rounded-xl">
-            <p id="messageTitle" class="text-xs font-bold text-red-500 mb-1">ACCESS DENIED</p>
+            <p id="messageTitle" class="text-xs font-bold text-red-500 mb-1">ACCESO DENEGADO</p>
             <p id="messageText" class="text-[10px] text-gray-400 font-mono"></p>
         </div>
 
         <p class="text-[10px] text-gray-600 animate-pulse">
-            Click logo to verify 40M $MUZZ balance<br>ロゴをクリックしてウォレットを接続
+            Click logo to verify 40M $MUZZ balance<br>ロゴをクリックして接続
         </p>
     </section>
 
@@ -74,24 +64,22 @@
         <main class="max-w-2xl mx-auto px-4 py-8 space-y-6">
             <div class="glass-card rounded-2xl p-5 border-l-2 border-red-600">
                 <div class="flex gap-4">
-                    <div id="myAvatar" class="w-10 h-10 rounded-full bg-red-900/20 flex items-center justify-center text-[10px] font-bold text-red-500 border border-red-500/30"></div>
+                    <div id="myAvatar" class="w-10 h-10 rounded-full bg-red-900/20 flex items-center justify-center text-[10px] font-bold text-red-500 border border-red-500/20"></div>
                     <div class="flex-1">
-                        <textarea id="postContent" placeholder="¿Qué estás pensando?" class="w-full bg-transparent border-none focus:ring-0 text-gray-200 text-md resize-none h-20 placeholder:text-gray-700"></textarea>
+                        <textarea id="postContent" placeholder="¿Qué estás pensando?" class="w-full bg-transparent border-none focus:ring-0 text-white text-md resize-none h-20 placeholder:text-gray-700"></textarea>
                         <div class="flex justify-end pt-3 border-t border-white/5">
                             <button id="btnPost" class="bg-red-600 px-6 py-2 rounded-full text-xs font-black text-white hover:scale-105 transition-all">POST</button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div id="feed" class="space-y-4"></div>
+            <div id="feed" class="space-y-4 pb-20"></div>
         </main>
     </section>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, doc, increment } 
-        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDAKdLm7lf32hPPJJ_pyr1Wxj_dYgLnviY",
@@ -106,28 +94,33 @@
         const db = getFirestore(app);
         const postsCol = collection(db, "posts");
 
-        // Configuración de Token Gating
         const CONTRACT_ADDRESS = "0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0";
         const MIN_REQUIRED_TOKENS = 40000000; 
         const ERC20_ABI = ["function balanceOf(address owner) view returns (uint256)", "function decimals() view returns (uint8)"];
 
         let userWallet = "";
 
-        // Función de Login adaptada
-        window.handleLogin = async () => {
+        // Función de Login
+        async function handleLogin() {
             if (typeof window.ethereum === 'undefined') {
-                alert("Please install MetaMask");
+                if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                    window.location.href = `https://metamask.app.link/dapp/boxcodehash.github.io/MuzzSnap/`;
+                    return;
+                }
+                alert("Instala MetaMask para continuar.");
                 return;
             }
 
             const spinner = document.getElementById('loadingSpinner');
             const msgArea = document.getElementById('messageArea');
             spinner.classList.remove('hidden');
+            msgArea.classList.add('hidden');
 
             try {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const accounts = await provider.send("eth_requestAccounts", []);
-                userWallet = accounts[0];
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                userWallet = await signer.getAddress();
 
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ERC20_ABI, provider);
                 const decimals = await contract.decimals();
@@ -135,10 +128,9 @@
                 const balanceFormatted = ethers.utils.formatUnits(balanceBN, decimals);
 
                 if (parseFloat(balanceFormatted) < MIN_REQUIRED_TOKENS) {
-                    throw new Error("MINIMUM 40M $MUZZ REQUIRED");
+                    throw new Error("Necesitas al menos 40M de $MUZZ.");
                 }
 
-                // Autenticación Exitosa
                 document.getElementById('loginView').classList.add('hidden-section');
                 document.getElementById('appView').classList.remove('hidden-section');
                 
@@ -146,18 +138,18 @@
                 document.getElementById('userBadge').innerText = `WALLET: ...${nick}`;
                 document.getElementById('myAvatar').innerText = nick.substring(0,2);
                 
-                initFeed(); // Cargar la red social
-
+                initFeed();
             } catch (error) {
                 msgArea.classList.remove('hidden');
-                document.getElementById('messageText').innerText = error.message;
-                console.error(error);
+                document.getElementById('messageText').innerText = error.message || "Error de conexión";
             } finally {
                 spinner.classList.add('hidden');
             }
-        };
+        }
 
-        // Lógica de la Red Social
+        // Asignar al click del logo
+        document.getElementById('logoButton').onclick = handleLogin;
+
         function initFeed() {
             const q = query(postsCol, orderBy("timestamp", "desc"));
             onSnapshot(q, (snap) => {
@@ -165,24 +157,24 @@
                 feed.innerHTML = "";
                 snap.forEach((post) => {
                     const d = post.data();
-                    const nick = d.author.slice(-6).toUpperCase();
+                    const nick = d.author ? d.author.slice(-6).toUpperCase() : "ANON";
                     feed.innerHTML += `
-                        <article class="glass-card rounded-2xl p-5 border border-white/5">
+                        <article class="glass-card rounded-2xl p-5 mb-4">
                             <div class="flex gap-4">
                                 <div class="w-10 h-10 rounded-full bg-red-600/10 flex items-center justify-center text-[10px] font-bold text-red-500 border border-red-500/20">
                                     ${nick.substring(0,2)}
                                 </div>
                                 <div class="flex-1">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-xs font-bold text-white tracking-tight">@${nick}</span>
-                                        <span class="text-[9px] text-gray-600 font-mono">${d.timestamp ? "VERIFIED" : "PENDING"}</span>
+                                        <span class="text-xs font-bold text-white">@${nick}</span>
+                                        <span class="text-[9px] text-gray-600">VERIFICADO</span>
                                     </div>
-                                    <p class="text-gray-300 mt-2 text-sm leading-relaxed">${d.content}</p>
+                                    <p class="text-gray-300 mt-2 text-sm">${d.content}</p>
                                     <div class="flex items-center gap-6 mt-4 text-gray-600">
-                                        <button onclick="socialAction('${post.id}', 'likes')" class="flex items-center gap-1 hover:text-red-500 transition-colors">
+                                        <button onclick="socialAction('${post.id}', 'likes')" class="flex items-center gap-1 hover:text-red-500">
                                             <i data-lucide="heart" class="w-4 h-4"></i> <span class="text-[10px]">${d.likes || 0}</span>
                                         </button>
-                                        <button onclick="socialAction('${post.id}', 'retweets')" class="flex items-center gap-1 hover:text-green-500 transition-colors">
+                                        <button onclick="socialAction('${post.id}', 'retweets')" class="flex items-center gap-1 hover:text-green-500">
                                             <i data-lucide="repeat" class="w-4 h-4"></i> <span class="text-[10px]">${d.retweets || 0}</span>
                                         </button>
                                     </div>
@@ -195,7 +187,7 @@
             });
         }
 
-        document.getElementById('btnPost').addEventListener('click', async () => {
+        document.getElementById('btnPost').onclick = async () => {
             const content = document.getElementById('postContent').value.trim();
             if(!content || !userWallet) return;
             await addDoc(postsCol, {
@@ -206,13 +198,16 @@
                 retweets: 0
             });
             document.getElementById('postContent').value = "";
-        });
+        };
 
         window.socialAction = async (id, field) => {
             const ref = doc(db, "posts", id);
             await updateDoc(ref, { [field]: increment(1) });
         };
+
+        lucide.createIcons();
     </script>
-    <script>lucide.createIcons();</script>
+</body>
+</html>
 </body>
 </html>
