@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>MuzzSnap Secure Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <!-- ethers -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
-<!-- Firebase -->
+<!-- WalletConnect v2 -->
+<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.1/dist/index.umd.js"></script>
+
+<!-- Firebase (HTML COMPAT) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -21,6 +24,7 @@ body {
   align-items:center;
   justify-content:center;
   height:100vh;
+  margin:0;
 }
 .box {
   background:#111;
@@ -32,20 +36,20 @@ body {
 button {
   width:100%;
   padding:14px;
-  margin-top:20px;
-  font-size:16px;
+  margin-top:14px;
   background:#6d28d9;
   color:#fff;
   border:none;
   border-radius:8px;
+  font-size:16px;
 }
 button:disabled {
-  opacity:0.4;
+  opacity:0.5;
 }
 #status {
-  margin-top:15px;
+  margin-top:12px;
   font-size:14px;
-  opacity:0.9;
+  min-height:18px;
 }
 .small {
   font-size:12px;
@@ -58,30 +62,36 @@ button:disabled {
 <body>
 <div class="box">
   <h2>MuzzSnap Access</h2>
-  <p>Wallet connection required</p>
-  <button id="loginBtn">Connect Wallet</button>
+
+  <!-- Desktop -->
+  <button onclick="loginDesktop()">MetaMask (Desktop)</button>
+
+  <!-- Mobile -->
+  <button onclick="loginMobile()">WalletConnect (Mobile)</button>
+
   <div id="status"></div>
+
   <div class="small">
-    Desktop: Chrome / Brave / Edge<br>
-    Mobile: MetaMask Browser
+    Brave · Chrome · Safari (Mobile)<br>
+    MetaMask · Trust · OKX · Rainbow
   </div>
 </div>
 
 <script>
 /* =========================
-   🔥 FIREBASE CONFIG
+   🔥 FIREBASE CONFIG (PULSARI)
 ========================= */
 firebase.initializeApp({
-  apiKey: "YOUR_API_KEY",
-  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
+  databaseURL: "https://pulsari-default-rtdb.firebaseio.com",
+  projectId: "pulsari"
 });
 const db = firebase.database();
 
 /* =========================
    🪙 TOKEN CONFIG
 ========================= */
-const TOKEN_ADDRESS = "0xEF3DAA5FDA8AD7AABFF4658F1F78061FD626B8F0";
+const TOKEN_ADDRESS = "0xEF3DAA5FDA8AD7AABFF4658F1F78061FD626B8F0"; // MUZZLE
 const MIN_BALANCE = 20000000;
 const TOKEN_ABI = [
   "function balanceOf(address) view returns (uint256)",
@@ -89,44 +99,51 @@ const TOKEN_ABI = [
 ];
 
 /* =========================
-   🦊 WALLET DETECTION (FIX REAL)
+   🔗 WALLETCONNECT CONFIG
 ========================= */
-function getEthereumProvider() {
-  if (typeof window.ethereum !== "undefined") return window.ethereum;
-  if (window.web3 && window.web3.currentProvider) return window.web3.currentProvider;
-  return null;
+const WC_PROJECT_ID = "cbb8c131e6f916a235b0825e181ab0c9";
+let wcProvider;
+
+/* =========================
+   DESKTOP LOGIN (MetaMask)
+========================= */
+async function loginDesktop() {
+  if (!window.ethereum) {
+    alert("MetaMask not detected. Use desktop browser with MetaMask.");
+    return;
+  }
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+  await provider.send("eth_requestAccounts", []);
+  connect(provider);
 }
 
 /* =========================
-   🔐 LOGIN FLOW
+   MOBILE LOGIN (WalletConnect)
 ========================= */
-const btn = document.getElementById("loginBtn");
-const statusEl = document.getElementById("status");
+async function loginMobile() {
+  wcProvider = await window.WalletConnectEthereumProvider.init({
+    projectId: WC_PROJECT_ID,
+    chains: [1],
+    showQrModal: true
+  });
 
-btn.onclick = async () => {
+  await wcProvider.enable();
+  const provider = new ethers.providers.Web3Provider(wcProvider, "any");
+  connect(provider);
+}
+
+/* =========================
+   CORE LOGIN LOGIC
+========================= */
+async function connect(provider) {
   try {
-    const eth = getEthereumProvider();
-
-    if (!eth) {
-      alert(
-        "Wallet not detected.\n\n" +
-        "✔ Desktop: Chrome / Brave with MetaMask\n" +
-        "✔ Mobile: Open inside MetaMask Browser\n\n" +
-        "❌ In-app browsers not supported"
-      );
-      return;
-    }
-
-    btn.disabled = true;
-    statusEl.innerText = "Requesting wallet access…";
-
-    const provider = new ethers.providers.Web3Provider(eth, "any");
-    await provider.send("eth_requestAccounts", []);
+    status("Connecting wallet…");
 
     const signer = provider.getSigner();
     const address = await signer.getAddress();
 
-    statusEl.innerText = "Checking MUZZLE balance…";
+    status("Checking MUZZLE balance…");
 
     const token = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
     const raw = await token.balanceOf(address);
@@ -137,7 +154,7 @@ btn.onclick = async () => {
       throw "Minimum 20,000,000 MUZZLE required";
     }
 
-    statusEl.innerText = "Signing message…";
+    status("Signing message…");
 
     const nonce = Date.now();
     const message =
@@ -152,7 +169,7 @@ btn.onclick = async () => {
       throw "Signature verification failed";
     }
 
-    statusEl.innerText = "Creating secure session…";
+    status("Creating secure session…");
 
     await db.ref("sessions/" + address.toLowerCase()).set({
       wallet: address.toLowerCase(),
@@ -162,7 +179,8 @@ btn.onclick = async () => {
 
     localStorage.setItem("wallet", address.toLowerCase());
 
-    statusEl.innerText = "Access granted ✔";
+    status("Access granted ✔");
+
     setTimeout(() => {
       window.location.href = "chat.html";
     }, 700);
@@ -170,10 +188,13 @@ btn.onclick = async () => {
   } catch (err) {
     console.error(err);
     alert(err);
-    statusEl.innerText = "Access denied";
-    btn.disabled = false;
+    status("Access denied");
   }
-};
+}
+
+function status(text) {
+  document.getElementById("status").innerText = text;
+}
 </script>
 </body>
 </html>
