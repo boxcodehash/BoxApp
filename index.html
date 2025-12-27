@@ -2,194 +2,91 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>MuzzSnap Secure Login</title>
+<title>Pulsari Secure Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Ethers -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-
-<!-- WalletConnect v2 -->
 <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.1/dist/index.umd.js"></script>
 
-<!-- Firebase (HTML compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
 
 <style>
-body {
-  margin:0;
-  background:#000;
-  color:#fff;
-  font-family:Arial, sans-serif;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-.box {
-  background:#111;
-  padding:30px;
-  border-radius:16px;
-  width:340px;
-  text-align:center;
-}
-button {
-  width:100%;
-  padding:14px;
-  margin-top:14px;
-  background:#6d28d9;
-  border:none;
-  border-radius:8px;
-  font-size:16px;
-  color:#fff;
-}
-button:disabled {
-  opacity:.5;
-}
-#status {
-  margin-top:12px;
-  min-height:18px;
-  font-size:14px;
-}
-.small {
-  font-size:12px;
-  opacity:.6;
-  margin-top:10px;
-}
+body{background:#000;color:#fff;font-family:Arial;display:flex;align-items:center;justify-content:center;height:100vh}
+.box{background:#111;padding:30px;border-radius:14px;width:340px;text-align:center}
+button{width:100%;padding:14px;background:#6d28d9;border:none;border-radius:8px;color:#fff;font-size:16px}
+#status{margin-top:12px;font-size:14px}
 </style>
 </head>
 
 <body>
 <div class="box">
-  <h2>MuzzSnap Access</h2>
-
-  <button onclick="loginDesktop()">MetaMask (Desktop)</button>
-  <button onclick="loginMobile()">WalletConnect (Mobile)</button>
-
-  <div id="status"></div>
-
-  <div class="small">
-    Brave · Chrome · Safari<br>
-    MetaMask · Trust · OKX · Rainbow
-  </div>
+<h2>Pulsari Access</h2>
+<button onclick="login()">Connect Wallet</button>
+<div id="status"></div>
 </div>
 
 <script>
-/* =========================
-   🔥 FIREBASE CONFIG (PULSARI)
-========================= */
 firebase.initializeApp({
   apiKey: "AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
-  databaseURL: "https://pulsari-default-rtdb.firebaseio.com",
   projectId: "pulsari"
 });
-const db = firebase.database();
+const auth = firebase.auth();
+const functions = firebase.functions();
 
-/* =========================
-   🪙 TOKEN CONFIG
-========================= */
-const TOKEN_ADDRESS = "0xEF3DAA5FDA8AD7AABFF4658F1F78061FD626B8F0"; // MUZZLE
-const MIN_BALANCE = 20000000;
-const TOKEN_ABI = [
-  "function balanceOf(address) view returns (uint256)",
-  "function decimals() view returns (uint8)"
-];
-
-/* =========================
-   🔗 WALLETCONNECT CONFIG
-========================= */
 const WC_PROJECT_ID = "cbb8c131e6f916a235b0825e181ab0c9";
-let wcProvider;
 
-/* =========================
-   🖥️ DESKTOP LOGIN
-========================= */
-async function loginDesktop() {
-  if (!window.ethereum) {
-    alert("MetaMask not detected. Use desktop browser.");
-    return;
-  }
-  const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-  await provider.send("eth_requestAccounts", []);
-  await processLogin(provider);
-}
-
-/* =========================
-   📱 MOBILE LOGIN
-========================= */
-async function loginMobile() {
-  wcProvider = await window.WalletConnectEthereumProvider.init({
-    projectId: WC_PROJECT_ID,
-    chains: [1],
-    showQrModal: true
-  });
-  await wcProvider.enable();
-  const provider = new ethers.providers.Web3Provider(wcProvider, "any");
-  await processLogin(provider);
-}
-
-/* =========================
-   🔐 CORE LOGIN LOGIC
-========================= */
-async function processLogin(provider) {
+async function login() {
   try {
-    setStatus("Connecting wallet…");
+    set("Connecting wallet…");
+
+    let provider;
+    if (window.ethereum) {
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+    } else {
+      const wc = await WalletConnectEthereumProvider.init({
+        projectId: WC_PROJECT_ID,
+        chains:[1]
+      });
+      await wc.enable();
+      provider = new ethers.providers.Web3Provider(wc);
+    }
 
     const signer = provider.getSigner();
-    const address = await signer.getAddress();
+    const wallet = await signer.getAddress();
 
-    setStatus("Checking MUZZLE balance…");
-
-    const token = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
-    const raw = await token.balanceOf(address);
-    const dec = await token.decimals();
-    const balance = parseFloat(ethers.utils.formatUnits(raw, dec));
-
-    if (balance < MIN_BALANCE) {
-      throw "Minimum 20,000,000 MUZZLE required";
-    }
-
-    setStatus("Signing message…");
-
-    const nonce = Date.now();
+    const nonce = Math.random().toString(36).substring(2);
     const message =
-      "MuzzSnap Login\n" +
-      "Wallet: " + address + "\n" +
-      "Nonce: " + nonce;
+`pulsari.app wants you to sign in with your Ethereum account:
+${wallet}
 
+URI: https://pulsari.app
+Version: 1
+Chain ID: 1
+Nonce: ${nonce}
+Issued At: ${new Date().toISOString()}`;
+
+    set("Signing message…");
     const signature = await signer.signMessage(message);
-    const recovered = ethers.utils.verifyMessage(message, signature);
 
-    if (recovered.toLowerCase() !== address.toLowerCase()) {
-      throw "Signature verification failed";
-    }
-
-    setStatus("Creating secure session…");
-
-    await db.ref("sessions/" + address.toLowerCase()).set({
-      wallet: address.toLowerCase(),
-      createdAt: Date.now(),
-      nonce
+    const result = await functions.httpsCallable("loginSIWE")({
+      wallet, message, signature
     });
 
-    localStorage.setItem("wallet", address.toLowerCase());
+    await auth.signInWithCustomToken(result.data.token);
 
-    setStatus("Access granted ✔");
+    set("Access granted ✔");
+    setTimeout(()=>location.href="chat.html",500);
 
-    setTimeout(() => {
-      window.location.href = "chat.html";
-    }, 700);
-
-  } catch (err) {
-    console.error(err);
-    alert(err);
-    setStatus("Access denied");
+  } catch(e) {
+    alert(e.message || e);
+    set("Access denied");
   }
 }
 
-function setStatus(text) {
-  document.getElementById("status").innerText = text;
-}
+function set(t){document.getElementById("status").innerText=t}
 </script>
 </body>
 </html>
