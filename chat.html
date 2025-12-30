@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - Terminal Edition</title>
+  <title>MuzzSnap - Final Fix</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -26,25 +26,8 @@
     .bubble-3d.me { background: linear-gradient(145deg, #ff0000, #990000); align-self: flex-end; border-bottom-right-radius: 2px; }
     .bubble-3d.other { background: #1a1a1a; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.05); }
 
-    /* ESTILO SELECTOR EMOJI MINI */
-    .emoji-picker-container {
-      position: absolute;
-      bottom: 80px;
-      left: 10px;
-      z-index: 100;
-      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
-    }
-
-    em-emoji-picker {
-      width: 260px !important;
-      height: 300px !important;
-      zoom: 0.8; /* Reducción visual para que sea "mini" */
-      --border-radius: 12px;
-      --rgb-background: 12, 12, 12;
-      --rgb-accent: 255, 0, 0;
-      border: 1px solid rgba(255, 0, 0, 0.4);
-    }
-
+    .emoji-picker-container { position: absolute; bottom: 80px; left: 10px; z-index: 100; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8)); }
+    em-emoji-picker { width: 260px !important; height: 300px !important; zoom: 0.8; --border-radius: 12px; --rgb-background: 12, 12, 12; --rgb-accent: 255, 0, 0; border: 1px solid rgba(255, 0, 0, 0.4); }
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-thumb { background: var(--muzz-red); }
   </style>
@@ -69,38 +52,41 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // Wallets Especiales
     const RYACHU_WALLET = "0x208157b5ec396759e8754058108ecf53e32392ff".toLowerCase();
     const ITSUKI_WALLET = "0xfab5835ca14fb3f9f478c5e4d733734e6394e03f".toLowerCase();
+
+    const CHANNELS = [
+      { id: "general", name: "GENERAL" },
+      { id: "spanish", name: "SPANISH" },
+      { id: "english", name: "ENGLISH" },
+      { id: "crypto", name: "CRYPTO" }
+    ];
 
     function App() {
       const [user, setUser] = useState(null);
       const [inputText, setInputText] = useState("");
       const [messages, setMessages] = useState([]);
-      const [onlineUsers, setOnlineUsers] = useState([]);
+      const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0]);
       const [showEmojis, setShowEmojis] = useState(false);
+      const [isMobileMenu, setIsMobileMenu] = useState(false);
       const pickerRef = useRef(null);
       const dummyRef = useRef(null);
 
-      // SOLUCIÓN AL CLIC DEL EMOJI
+      // FIX EMOJIS: Listener nativo con actualización forzada de estado
       useEffect(() => {
         const handleEmojiClick = (event) => {
-          // El emoji seleccionado viene en event.detail.native
           if (event.detail && event.detail.native) {
-            setInputText((prev) => prev + event.detail.native);
+            setInputText(prev => prev + event.detail.native);
           }
         };
-
         const picker = pickerRef.current;
         if (picker) {
           picker.addEventListener('emoji-select', handleEmojiClick);
         }
-
-        return () => {
-          if (picker) picker.removeEventListener('emoji-select', handleEmojiClick);
-        };
+        return () => { if (picker) picker.removeEventListener('emoji-select', handleEmojiClick); };
       }, [showEmojis]);
 
+      // Auth y Presencia
       useEffect(() => {
         const wallet = sessionStorage.getItem('muzz_wallet_address');
         if (!wallet) { window.location.href = 'index.html'; return; }
@@ -112,31 +98,35 @@
           database.ref(".info/connected").on("value", (snap) => {
             if (snap.val() === true) {
               let name = `Node_${wallet.slice(-4)}`;
-              let isAdmin = false;
+              let isAdmin = (walletKey === RYACHU_WALLET || walletKey === ITSUKI_WALLET);
+              if (walletKey === RYACHU_WALLET) name = "Ryachu";
+              if (walletKey === ITSUKI_WALLET) name = "Itsuki";
 
-              if (walletKey === RYACHU_WALLET) { name = "Ryachu"; isAdmin = true; }
-              if (walletKey === ITSUKI_WALLET) { name = "Itsuki"; isAdmin = true; }
-
-              const userData = { username: name, wallet: walletKey, uid: uid, isRyachu: isAdmin };
+              const userData = { username: name, wallet: walletKey, uid: uid, isRyachu: isAdmin, address: wallet };
               database.ref(`presence/${uid}`).set({ ...userData, online: true });
               database.ref(`presence/${uid}`).onDisconnect().remove();
-              setUser({ ...userData, address: wallet });
+              setUser(userData);
             }
           });
         });
+      }, []);
 
-        database.ref('presence').on('value', s => setOnlineUsers(s.val() ? Object.values(s.val()) : []));
-        database.ref('messages/general').limitToLast(50).on('value', s => {
+      // Carga de mensajes por Canal
+      useEffect(() => {
+        if (!user) return;
+        const msgRef = database.ref(`messages/${selectedChannel.id}`).limitToLast(50);
+        msgRef.on('value', s => {
           const data = s.val();
           setMessages(data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : []);
         });
-      }, []);
+        return () => msgRef.off();
+      }, [selectedChannel, user]);
 
       useEffect(() => { dummyRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
       const handleSend = async () => {
         if (!inputText.trim()) return;
-        await database.ref('messages/general').push({
+        await database.ref(`messages/${selectedChannel.id}`).push({
           content: inputText,
           userId: user.uid,
           username: user.username,
@@ -147,15 +137,39 @@
         setShowEmojis(false);
       };
 
-      if (!user) return <div className="h-screen bg-black flex items-center justify-center text-red-600">LOADING...</div>;
+      if (!user) return <div className="h-screen bg-black flex items-center justify-center text-red-600 font-mono">INITIALIZING...</div>;
 
       return (
-        <div className="flex h-screen bg-[#050505] p-2 overflow-hidden">
+        <div className="flex h-screen bg-[#050505] p-2 lg:p-4 gap-4 overflow-hidden">
+          
+          {/* SIDEBAR - CANALES RESTAURADOS */}
+          <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-64 panel-3d rounded-3xl p-6 flex flex-col transition-transform duration-300 ${isMobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+            <div className="mb-8 flex items-center gap-3">
+              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center"><i className="fas fa-ghost text-white"></i></div>
+              <h1 className="font-bold text-xl italic tracking-tighter uppercase">MUZZ<span className="text-red-600">SNAP</span></h1>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <p className="text-[9px] text-gray-600 font-bold mb-4 uppercase tracking-widest">Channels</p>
+              {CHANNELS.map(ch => (
+                <button 
+                  key={ch.id} 
+                  onClick={() => { setSelectedChannel(ch); setIsMobileMenu(false); }} 
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all ${selectedChannel.id === ch.id ? 'bg-red-600/10 text-red-600 border border-red-600/20' : 'text-gray-500 hover:text-gray-300'}`}
+                >
+                  # {ch.name}
+                </button>
+              ))}
+            </div>
+          </aside>
+
+          {/* MAIN CHAT */}
           <main className="flex-1 panel-3d rounded-3xl flex flex-col relative overflow-hidden">
-            
             <header className="h-14 flex items-center justify-between px-6 border-b border-white/5 bg-black/40">
-              <h2 className="text-red-600 font-bold tracking-widest text-xs"># GENERAL</h2>
-              <div className="text-[9px] font-mono text-gray-500 uppercase">
+              <div className="flex items-center gap-4">
+                <button onClick={() => setIsMobileMenu(true)} className="lg:hidden text-red-600"><i className="fas fa-bars"></i></button>
+                <h2 className="text-red-600 font-bold tracking-widest text-xs uppercase"># {selectedChannel.name}</h2>
+              </div>
+              <div className="text-[9px] font-mono text-gray-500">
                 {user.isRyachu ? "ROOT_ADMIN" : `ADDR: ${user.address.slice(0,6)}...`}
               </div>
             </header>
@@ -163,7 +177,7 @@
             <div className="flex-1 overflow-y-auto p-4 flex flex-col">
               {messages.map(msg => (
                 <div key={msg.id} className={`flex flex-col ${msg.userId === user.uid ? 'items-end' : 'items-start'} mb-4`}>
-                  {msg.userId !== user.uid && <span className={`text-[10px] mb-1 ${msg.isRyachu ? 'ryachu-name' : 'text-gray-500'}`}>{msg.username}</span>}
+                  {msg.userId !== user.uid && <span className={`text-[10px] mb-1 font-bold ${msg.isRyachu ? 'ryachu-name' : 'text-gray-600'}`}>{msg.username}</span>}
                   <div className={`bubble-3d ${msg.userId === user.uid ? 'me' : 'other'}`}>
                     {msg.content}
                   </div>
@@ -173,7 +187,6 @@
             </div>
 
             <div className="p-4 bg-black/40 relative">
-              {/* SELECTOR EMOJI */}
               {showEmojis && (
                 <div className="emoji-picker-container">
                   <em-emoji-picker 
@@ -186,11 +199,8 @@
                 </div>
               )}
 
-              <div className="flex items-center bg-black/60 border border-white/10 rounded-2xl p-2 pl-4">
-                <button 
-                  onClick={() => setShowEmojis(!showEmojis)}
-                  className={`mr-3 text-lg transition-colors ${showEmojis ? 'text-red-600' : 'text-gray-500 hover:text-red-500'}`}
-                >
+              <div className="flex items-center bg-black/60 border border-white/10 rounded-2xl p-2 pl-4 shadow-inner">
+                <button onClick={() => setShowEmojis(!showEmojis)} className={`mr-3 text-lg ${showEmojis ? 'text-red-600' : 'text-gray-500'}`}>
                   <i className="far fa-smile"></i>
                 </button>
                 <input 
@@ -201,11 +211,12 @@
                   className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-green-400 font-mono"
                 />
                 <button onClick={handleSend} className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center ml-2 shadow-lg active:scale-95 transition-transform">
-                  <i className="fas fa-paper-plane text-xs"></i>
+                  <i className="fas fa-paper-plane text-xs text-white"></i>
                 </button>
               </div>
             </div>
           </main>
+          {isMobileMenu && <div onClick={() => setIsMobileMenu(false)} className="fixed inset-0 bg-black/80 z-40 lg:hidden backdrop-blur-sm"></div>}
         </div>
       );
     }
