@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - Enterprise Communication</title>
+  <title>MuzzSnap - Multi-Theme Enterprise</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -17,302 +16,231 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    :root {
-      --primary: #e11d48;
-      --sidebar-bg: #0f172a;
-      --body-bg: #f8fafc;
-      --text-dark: #1e293b;
+
+    /* TEMA CLARO (Corporativo) */
+    .theme-light {
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #0f172a;
+      --text-main: #1e293b; /* Azul marino profundo */
       --text-muted: #64748b;
-      --border-color: #e2e8f0;
+      --primary: #e11d48; /* Rojo Rose profesional */
+      --border: #e2e8f0;
+      --bubble-me: #e11d48;
+      --bubble-other: #ffffff;
+      --text-bubble-me: #ffffff;
+    }
+
+    /* TEMA OSCURO (Táctico) */
+    .theme-dark {
+      --bg-main: #000000;
+      --bg-card: #0a0a0a;
+      --bg-sidebar: #050505;
+      --text-main: #ff3131; /* Letras Rojas */
+      --text-muted: #880000;
+      --primary: #ff0000;
+      --border: #330000;
+      --bubble-me: #ff0000;
+      --bubble-other: #111111;
+      --text-bubble-me: #ffffff;
     }
 
     body { 
       font-family: 'Inter', sans-serif; 
-      background-color: var(--body-bg); 
-      color: var(--text-dark); 
       margin: 0; 
-      overflow: hidden;
+      transition: all 0.3s ease;
+      background-color: var(--bg-main);
+      color: var(--text-main);
     }
 
-    /* Scrollbar Profesional */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-    /* Estilos de Burbujas */
-    .bubble-pro {
-      padding: 12px 16px;
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.5;
-      max-width: 75%;
-      position: relative;
+    .app-shell { background-color: var(--bg-main); }
+    .sidebar { background-color: var(--bg-sidebar); border-right: 1px solid var(--border); }
+    .main-content { background-color: var(--bg-card); border-left: 1px solid var(--border); }
+    
+    .bubble-pro { 
+      padding: 12px 16px; border-radius: 14px; font-size: 14px; 
+      transition: all 0.2s;
     }
-    .bubble-pro.me {
-      background: var(--primary);
-      color: white;
+    .bubble-pro.me { 
+      background-color: var(--bubble-me); color: var(--text-bubble-me); 
       border-bottom-right-radius: 2px;
-      box-shadow: 0 4px 12px rgba(225, 29, 72, 0.15);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    .bubble-pro.other {
-      background: white;
-      color: var(--text-dark);
-      border-bottom-left-radius: 2px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    .bubble-pro.other { 
+      background-color: var(--bubble-other); color: var(--text-main); 
+      border: 1px solid var(--border); border-bottom-left-radius: 2px; 
     }
 
-    /* Animación de Carga */
-    .spinner-modern {
-      width: 40px; height: 40px;
-      border: 3px solid #f1f5f9;
-      border-top: 3px solid var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-    .admin-badge {
-      background: #fef3c7; color: #92400e;
-      padding: 2px 8px; border-radius: 4px;
-      font-size: 10px; font-weight: 700;
-      text-transform: uppercase;
+    .notification-toast {
+      position: fixed; top: 20px; right: 20px; z-index: 100;
+      background: var(--bg-card); border-left: 4px solid var(--primary);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+      color: var(--text-main);
     }
   </style>
 </head>
-<body>
+<body class="theme-light" id="body-theme">
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
+    // Configuración Firebase (Misma que antes)
     const firebaseConfig = {
       apiKey: "AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
       authDomain: "pulsari.firebaseapp.com",
       databaseURL: "https://pulsari-default-rtdb.firebaseio.com",
       projectId: "pulsari",
-      storageBucket: "pulsari.firebasestorage.app",
-      messagingSenderId: "824306321233",
-      appId: "1:824306321233:web:2c9bfa02170a17d560b570"
+      databaseURL: "https://pulsari-default-rtdb.firebaseio.com",
     };
 
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const database = firebase.database();
-
     const RYACHU_WALLET = "0x208157b5ec396759e8754058108ecf53e32392ff".toLowerCase();
-    const ITSUKI_WALLET = "0xfab5835ca14fb3f9f478c5e4d733734e6394e03f".toLowerCase();
-
-    const CHANNELS = [
-      { id: "general", name: "GENERAL", icon: "fa-globe" },
-      { id: "announcements", name: "ANNOUNCEMENTS", icon: "fa-bullhorn" },
-      { id: "dev-core", name: "DEV_CORE", icon: "fa-code" },
-      { id: "crypto", name: "MARKET_DATA", icon: "fa-chart-line" }
-    ];
 
     function App() {
       const [user, setUser] = useState(null);
-      const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0]);
+      const [theme, setTheme] = useState('light'); // 'light' o 'dark'
       const [messages, setMessages] = useState([]);
-      const [onlineUsers, setOnlineUsers] = useState([]);
       const [inputText, setInputText] = useState("");
-      const [isMobileMenu, setIsMobileMenu] = useState(false);
+      const [typingUsers, setTypingUsers] = useState([]);
+      const [alert, setAlert] = useState(null);
       const dummyRef = useRef(null);
+
+      // Cambiar clase del body cuando cambie el tema
+      useEffect(() => {
+        document.getElementById('body-theme').className = theme === 'light' ? 'theme-light' : 'theme-dark';
+      }, [theme]);
 
       useEffect(() => {
         const wallet = sessionStorage.getItem('muzz_wallet_address');
         if (!wallet) { window.location.href = 'index.html'; return; }
-
-        auth.signInAnonymously().then(async (userCredential) => {
-          const uid = userCredential.user.uid;
-          const walletKey = wallet.toLowerCase();
-          const myPresenceRef = database.ref(`presence/${uid}`);
-          const connectedRef = database.ref(".info/connected");
-
-          connectedRef.on("value", (snap) => {
-            if (snap.val() === true) {
-              myPresenceRef.onDisconnect().remove();
-              let isAdmin = (walletKey === RYACHU_WALLET || walletKey === ITSUKI_WALLET);
-              let name = isAdmin ? (walletKey === RYACHU_WALLET ? "Ryachu" : "Itsuki") : `User_${wallet.slice(-4)}`;
-              
-              const userData = { username: name, wallet: walletKey, online: true, uid: uid, isRyachu: isAdmin };
-              myPresenceRef.set(userData);
-              setUser({ ...userData, address: wallet });
-            }
-          });
+        
+        firebase.auth().signInAnonymously().then(cred => {
+          const userData = {
+            uid: cred.user.uid,
+            username: wallet.toLowerCase() === RYACHU_WALLET ? "Ryachu" : `User_${wallet.slice(-4)}`,
+            address: wallet
+          };
+          setUser(userData);
+          database.ref(`presence/${cred.user.uid}`).set({...userData, online: true});
         });
 
-        database.ref('presence').on('value', snap => {
-          const data = snap.val();
-          setOnlineUsers(data ? Object.values(data) : []);
-        });
-      }, []);
-
-      useEffect(() => {
-        if (!user) return;
-        const msgRef = database.ref('messages/' + selectedChannel.id).limitToLast(50);
+        // Listeners de Firebase
+        const msgRef = database.ref('messages/general').limitToLast(50);
         msgRef.on('value', snap => {
           const data = snap.val();
           setMessages(data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : []);
         });
-        return () => msgRef.off();
-      }, [selectedChannel, user]);
+
+        database.ref('typing/general').on('value', snap => {
+          const data = snap.val() || {};
+          setTypingUsers(Object.keys(data).filter(id => id !== user?.uid).map(id => data[id].name));
+        });
+
+        return () => { msgRef.off(); database.ref('typing/general').off(); };
+      }, [user?.uid]);
 
       useEffect(() => { dummyRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-      const handleSend = async () => {
+      const handleSend = () => {
         if (!inputText.trim()) return;
-        await database.ref('messages/' + selectedChannel.id).push({
-          content: inputText,
-          userId: user.uid,
-          username: user.username,
-          isRyachu: user.isRyachu,
+        database.ref('messages/general').push({
+          content: inputText, userId: user.uid, username: user.username,
           timestamp: firebase.database.ServerValue.TIMESTAMP
         });
         setInputText("");
+        database.ref(`typing/general/${user.uid}`).remove();
       };
 
-      if (!user) return (
-        <div className="h-screen w-full flex flex-col items-center justify-center bg-white">
-          <div className="spinner-modern"></div>
-          <p className="mt-6 text-slate-800 font-semibold tracking-tight">Establishing Secure Connection</p>
-          <p className="text-slate-400 text-xs mt-2">Verifying node integrity with MuzzSnap Network...</p>
-        </div>
-      );
+      if (!user) return <div className="h-screen flex items-center justify-center bg-white"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-rose-600"></div></div>;
 
       return (
-        <div className="flex h-screen bg-slate-100 p-0 lg:p-6 overflow-hidden">
-          <div className="flex w-full max-w-7xl mx-auto bg-white rounded-none lg:rounded-2xl overflow-hidden shadow-2xl border border-slate-200">
+        <div className="flex h-screen app-shell p-0 lg:p-4 overflow-hidden">
+          {alert && <div className="notification-toast p-4 rounded-lg flex items-center gap-3 w-80">...</div>}
+
+          <div className="flex w-full max-w-7xl mx-auto rounded-none lg:rounded-3xl shadow-2xl overflow-hidden border border-[var(--border)]">
             
-            {/* SIDEBAR CORPORATIVO */}
-            <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-72 bg-[#0f172a] p-6 flex flex-col transition-transform duration-300 ${isMobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-              <div className="mb-10 flex items-center gap-3 px-2">
-                <div className="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-rose-900/20">
-                  <i className="fas fa-shield-check text-white text-lg"></i>
+            {/* SIDEBAR */}
+            <aside className="w-20 lg:w-64 sidebar flex flex-col p-4 lg:p-6 transition-all">
+              <div className="flex items-center gap-3 mb-10 px-2">
+                <div className="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <i className="fas fa-shield-halved text-white"></i>
                 </div>
-                <div>
-                  <h1 className="font-bold text-lg text-white tracking-tight leading-none">MuzzSnap</h1>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Enterprise</span>
-                </div>
+                <h1 className="hidden lg:block font-bold text-white text-xl">MuzzSnap</h1>
               </div>
 
-              <nav className="flex-1 overflow-y-auto space-y-8">
-                <div>
-                  <h3 className="text-[11px] text-slate-500 font-bold tracking-wider uppercase mb-4 px-2">Workspaces</h3>
-                  {CHANNELS.map(ch => (
-                    <button key={ch.id} onClick={() => { setSelectedChannel(ch); setIsMobileMenu(false); }} 
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all mb-1 ${selectedChannel.id === ch.id ? 'bg-white/10 text-white font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
-                      <i className={`fas ${ch.icon} w-5 opacity-70`}></i> {ch.name}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex-1 space-y-4">
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">Workspace</div>
+                <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-white/10 text-white text-sm">
+                  <i className="fas fa-hashtag text-rose-500"></i> <span className="hidden lg:block">General</span>
+                </button>
+              </div>
 
-                <div>
-                  <h3 className="text-[11px] text-slate-500 font-bold tracking-wider uppercase mb-4 px-2">Online Members ({onlineUsers.length})</h3>
-                  <div className="space-y-2">
-                    {onlineUsers.map((u, i) => (
-                      <div key={i} className="flex items-center gap-3 px-3 py-1.5 text-sm text-slate-300">
-                        <div className={`w-2 h-2 rounded-full ${u.isRyachu ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]' : 'bg-emerald-500'}`}></div>
-                        <span className="truncate">{u.username}</span>
-                        {u.isRyachu && <span className="admin-badge ml-auto">Admin</span>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </nav>
-
-              <button onClick={() => {sessionStorage.clear(); window.location.reload()}} 
-                className="mt-6 w-full py-3 text-xs font-bold text-slate-400 border border-slate-700 rounded-xl hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all uppercase tracking-widest">
-                Disconnect
-              </button>
+              {/* TEMA SWITCHER - BOTÓN LLAMATIVO */}
+              <div className="mt-auto">
+                <button 
+                  onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                  className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 py-3 rounded-2xl border border-white/10 hover:bg-white/5 transition-all text-white"
+                >
+                  <i className={`fas ${theme === 'light' ? 'fa-moon' : 'fa-sun text-amber-400'}`}></i>
+                  <span className="hidden lg:block text-xs font-bold uppercase tracking-tighter">
+                    {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                  </span>
+                </button>
+              </div>
             </aside>
 
-            {/* CHAT MAIN */}
-            <main className="flex-1 flex flex-col bg-white relative">
-              <header className="h-20 flex items-center justify-between px-8 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-10">
-                <div className="flex items-center gap-4">
-                  <button onClick={() => setIsMobileMenu(true)} className="lg:hidden text-slate-600 px-2"><i className="fas fa-bars"></i></button>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-800 uppercase tracking-widest">#{selectedChannel.name}</h2>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-tighter">Network Node Active</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="hidden md:block">
-                  <span className="text-[11px] font-mono bg-slate-50 px-4 py-2 rounded-lg text-slate-500 border border-slate-100">
-                    ID: {user.address.slice(0,6)}...{user.address.slice(-4)}
-                  </span>
+            {/* CHAT AREA */}
+            <main className="flex-1 flex flex-col main-content">
+              <header className="h-20 border-b border-[var(--border)] flex items-center px-8 justify-between">
+                <div>
+                  <h2 className="font-bold text-[var(--text-main)] text-sm tracking-widest uppercase">#GENERAL_CHANNEL</h2>
+                  <span className="text-[10px] text-emerald-500 font-bold uppercase">● Encrypted Node</span>
                 </div>
               </header>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#fcfdfe]">
-                {messages.map(msg => {
-                  const isMe = msg.userId === user.uid;
-                  return (
-                    <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                      {!isMe && (
-                        <div className="flex items-center gap-2 ml-1 mb-1.5">
-                          <span className={`text-[11px] font-bold uppercase tracking-tight ${msg.isRyachu ? 'text-amber-600' : 'text-slate-500'}`}>{msg.username}</span>
-                          {msg.isRyachu && <span className="admin-badge">Staff</span>}
-                        </div>
-                      )}
-                      <div className={`bubble-pro ${isMe ? 'me' : 'other'}`}>
-                        <p>{msg.content}</p>
-                      </div>
-                      
-                      {/* Visual de Reacciones */}
-                      <div className={`flex gap-1.5 mt-2 ${isMe ? 'flex-row-reverse' : ''}`}>
-                         <button className="h-6 px-2 rounded-md border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 transition-all text-[10px] flex items-center gap-1">
-                           <i className="fas fa-plus"></i>
-                         </button>
-                      </div>
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {messages.map(m => (
+                  <div key={m.id} className={`flex flex-col ${m.userId === user.uid ? 'items-end' : 'items-start'}`}>
+                    <span className="text-[10px] font-bold mb-1 px-1 opacity-50 uppercase tracking-tighter" style={{color: 'var(--text-main)'}}>{m.username}</span>
+                    <div className={`bubble-pro ${m.userId === user.uid ? 'me' : 'other'}`}>
+                      {m.content}
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
                 
-                {/* Visual de Indicador de Escritura */}
-                <div className="flex items-center gap-2 ml-2 text-slate-400 animate-pulse">
-                   <div className="flex gap-1">
-                      <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
-                      <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
-                      <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
-                   </div>
-                   <span className="text-[10px] font-medium italic">Itsuki is preparing a response...</span>
-                </div>
-                
+                {typingUsers.length > 0 && (
+                  <div className="flex items-center gap-2 animate-pulse">
+                    <div className="w-1 h-1 bg-[var(--primary)] rounded-full"></div>
+                    <span className="text-[10px] italic opacity-60" style={{color: 'var(--text-main)'}}>{typingUsers[0]} is drafting...</span>
+                  </div>
+                )}
                 <div ref={dummyRef}></div>
               </div>
 
               {/* INPUT AREA */}
-              <div className="p-6 border-t border-slate-100 bg-white">
-                <div className="max-w-4xl mx-auto flex items-center gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-200 focus-within:border-rose-300 focus-within:ring-4 focus-within:ring-rose-50 transition-all">
+              <div className="p-6 border-t border-[var(--border)]">
+                <div className="max-w-4xl mx-auto flex items-center gap-4 bg-[var(--bg-main)] p-2 rounded-2xl border border-[var(--border)] focus-within:ring-2 focus-within:ring-rose-500/20 transition-all">
                   <input 
                     value={inputText} 
-                    onChange={e => setInputText(e.target.value)} 
-                    onKeyDown={e => e.key === 'Enter' && handleSend()} 
-                    placeholder="Type your message here..." 
-                    className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-4 py-2 text-slate-700" 
+                    onChange={e => setInputText(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSend()}
+                    placeholder="Type your message..." 
+                    className="flex-1 bg-transparent border-none text-sm px-4 focus:ring-0"
+                    style={{color: 'var(--text-main)'}}
                   />
-                  <button onClick={handleSend} className="bg-rose-600 hover:bg-rose-700 text-white w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-lg shadow-rose-200 active:scale-95">
+                  <button onClick={handleSend} className="w-12 h-12 bg-rose-600 rounded-xl text-white shadow-lg hover:scale-105 transition-transform">
                     <i className="fas fa-paper-plane"></i>
                   </button>
                 </div>
-                <p className="text-center text-[10px] text-slate-400 mt-4 uppercase tracking-[0.2em] font-medium">End-to-End Encrypted Session</p>
               </div>
             </main>
-            
-            {isMobileMenu && <div onClick={() => setIsMobileMenu(false)} className="fixed inset-0 bg-slate-900/60 z-40 lg:hidden backdrop-blur-sm"></div>}
           </div>
         </div>
       );
     }
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
