@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - Terminal 3D Edition</title>
+  <title>MuzzSnap - Terminal God Edition</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -16,168 +16,45 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Orbitron:wght@700;900&family=Inter:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Orbitron:wght@900&display=swap');
     
     :root { --muzz-red: #ff0000; --neon-green: #39ff14; --ryachu-gold: #ffcc00; }
-    * { box-sizing: border-box; }
+    body { background: #050505; color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; }
+
+    /* CRT Overlay */
+    .crt::after {
+      content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      z-index: 100; background-size: 100% 3px, 2px 100%; pointer-events: none;
+    }
+
+    .panel-god { 
+      background: rgba(15, 5, 5, 0.95); border: 1px solid rgba(255, 0, 0, 0.3);
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.2); backdrop-filter: blur(15px);
+    }
+
+    .bubble-god { border-radius: 12px; padding: 12px; margin: 4px 0; max-width: 75%; border: 1px solid rgba(255,255,255,0.05); }
+    .bubble-god.me { background: linear-gradient(135deg, #ff0000 0%, #440000 100%); align-self: flex-end; box-shadow: 0 4px 15px rgba(255,0,0,0.2); }
+    .bubble-god.other { background: rgba(30, 30, 30, 0.8); align-self: flex-start; }
+
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+      100% { transform: translate(0); }
+    }
+    .logo-glitch:hover { animation: glitch 0.3s infinite; }
     
-    body { 
-      font-family: 'Inter', sans-serif; 
-      overflow: hidden; 
-      margin: 0;
-      position: relative;
-      transition: background 0.5s ease, color 0.5s ease;
-    }
-
-    body.theme-dark { background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0f 100%); color: white; }
-    body.theme-light { background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); color: #000; }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-size: 50px 50px;
-      animation: gridMove 20s linear infinite;
-      opacity: 0.3;
-      z-index: 0;
-      transition: background-image 0.5s ease;
-    }
-
-    body.theme-dark::before {
-      background-image: linear-gradient(rgba(255, 0, 0, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 0, 0.15) 1px, transparent 1px);
-    }
-
-    body.theme-light::before {
-      background-image: linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
-    }
-
-    body::after {
-      content: '';
-      position: fixed;
-      top: 10%;
-      left: 5%;
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
-      filter: blur(60px);
-      animation: floatOrb 10s ease-in-out infinite;
-      z-index: 0;
-      transition: background 0.5s ease;
-    }
-
-    body.theme-dark::after { background: radial-gradient(circle, rgba(255,0,0,0.3) 0%, transparent 70%); }
-    body.theme-light::after { background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, transparent 70%); }
-
-    @keyframes gridMove { 0% { transform: translate(0, 0); } 100% { transform: translate(50px, 50px); } }
-    @keyframes floatOrb { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(100px, 50px) scale(1.2); } }
-    @keyframes textGlow { 0%, 100% { text-shadow: 0 0 20px rgba(255, 0, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.4); } 50% { text-shadow: 0 0 30px rgba(255, 0, 0, 1), 0 0 60px rgba(255, 0, 0, 0.6); } }
-    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-    @keyframes slideIn { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
-    @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-
-    .panel-3d {
-      backdrop-filter: blur(20px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.05);
-      border-radius: 24px;
-      position: relative;
-      transform-style: preserve-3d;
-      z-index: 1;
-      transition: all 0.5s ease;
-    }
-
-    body.theme-dark .panel-3d { background: rgba(12, 12, 12, 0.8); border: 1px solid rgba(255, 0, 0, 0.1); }
-    body.theme-light .panel-3d { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.05); }
-
-    .logo-3d {
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 900;
-      font-size: 1.5rem;
-      letter-spacing: -0.05em;
-      background-size: 200% 200%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: gradientShift 3s ease infinite;
-      transition: all 0.5s ease;
-    }
-
-    body.theme-dark .logo-3d { background: linear-gradient(135deg, #fff 0%, #ff0000 50%, #fff 100%); }
-    body.theme-light .logo-3d { background: linear-gradient(135deg, #000 0%, #ff0000 50%, #000 100%); }
-
-    .ryachu-name {
-      color: var(--ryachu-gold);
-      text-shadow: 0 0 15px rgba(255, 204, 0, 0.8), 0 0 30px rgba(255, 204, 0, 0.4);
-      font-weight: 900;
-      animation: textGlow 2s ease-in-out infinite;
-    }
-
-    .channel-btn-3d { position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); animation: slideIn 0.5s ease-out forwards; }
-    .channel-btn-3d::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,0,0,0.2), transparent); transform: translateX(-100%); transition: transform 0.5s; }
-    .channel-btn-3d:hover::after { transform: translateX(100%); }
-
-    body.theme-dark .channel-btn-3d.active {
-      background: linear-gradient(135deg, rgba(255,0,0,0.2), rgba(0,0,0,0.4));
-      border: 2px solid rgba(255,0,0,0.6);
-      color: var(--muzz-red);
-      box-shadow: 0 0 20px rgba(255,0,0,0.3), inset 0 0 20px rgba(255,0,0,0.1);
-      transform: translateX(5px) scale(1.05);
-    }
-
-    body.theme-light .channel-btn-3d.active {
-      background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(0,0,0,0.05));
-      border: 2px solid rgba(255,0,0,0.4);
-      color: #ff0000;
-      box-shadow: 0 0 15px rgba(255,0,0,0.2), inset 0 0 15px rgba(255,0,0,0.05);
-      transform: translateX(5px) scale(1.05);
-    }
-
-    .bubble-3d { padding: 12px 18px; border-radius: 20px; margin-bottom: 6px; max-width: 85%; word-wrap: break-word; position: relative; animation: fadeIn 0.3s ease-out; transform-style: preserve-3d; transition: all 0.3s ease; }
-
-    body.theme-dark .bubble-3d.me { background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-    body.theme-light .bubble-3d.me { background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.2); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-    body.theme-dark .bubble-3d.other { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(10px); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); color: white; }
-    body.theme-light .bubble-3d.other { background: rgba(240, 240, 240, 0.9); backdrop-filter: blur(10px); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); color: #000; }
-
-    .hacker-input { font-family: 'Fira Code', monospace; transition: all 0.3s ease; }
-    body.theme-dark .hacker-input { color: var(--neon-green) !important; text-shadow: 0 0 10px rgba(57, 255, 20, 0.3); }
-    body.theme-light .hacker-input { color: #000 !important; }
-    body.theme-light .hacker-input::placeholder { color: #666 !important; }
-
-    .icon-glow { filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.6)); animation: float 3s ease-in-out infinite; }
-
-    .send-btn-3d {
-      background: linear-gradient(135deg, #ff0000 0%, #990000 100%);
-      box-shadow: 0 0 20px rgba(255, 0, 0, 0.4), 0 10px 20px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.2);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .send-btn-3d::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.3), transparent); transform: translateX(-100%); transition: transform 0.5s; }
-    .send-btn-3d:hover { transform: scale(1.1); box-shadow: 0 0 30px rgba(255, 0, 0, 0.6), 0 15px 30px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.3); }
-    .send-btn-3d:hover::before { transform: translateX(100%); }
-    .send-btn-3d:active { transform: scale(0.95); }
-
-    .emoji-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); filter: grayscale(1); }
-    .emoji-btn:hover { transform: scale(1.3) rotate(10deg); filter: grayscale(0) drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); }
-
-    .user-dot { animation: float 2s ease-in-out infinite; box-shadow: 0 0 10px currentColor; }
-    .loading-screen { animation: fadeIn 0.5s ease-out; }
-
-    .theme-toggle { position: relative; width: 100%; height: 40px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }
-    body.theme-dark .theme-toggle { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); }
-    body.theme-light .theme-toggle { background: rgba(0, 0, 0, 0.1); border: 1px solid rgba(0, 0, 0, 0.2); }
-    .theme-toggle:hover { transform: scale(1.05); }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 10px; }
-    body.theme-dark ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--muzz-red), #990000); border-radius: 10px; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
-    body.theme-light ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #ff0000, #cc0000); border-radius: 10px; box-shadow: 0 0 5px rgba(255, 0, 0, 0.3); }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muzz-red); }
+    .alert-banner { background: #ff0000; color: white; padding: 4px; text-align: center; font-size: 10px; font-weight: bold; animation: pulse 1s infinite; z-index: 50; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #ff0000; border-radius: 10px; }
   </style>
 </head>
-<body class="theme-dark">
+<body class="crt">
   <div id="root"></div>
 
   <script type="text/babel">
@@ -194,180 +71,225 @@
     };
 
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
     const auth = firebase.auth();
-    const database = firebase.database();
 
-    const RYACHU_WALLET = "0x208157b5ec396759e8754058108ecf53e32392ff".toLowerCase();
-    const ITSUKI_WALLET = "0xfab5835ca14fb3f9f478c5e4d733734e6394e03f".toLowerCase();
-    const QUICK_EMOJIS = ["🔥", "🚀", "💎", "💻", "⚡", "🤖", "🔴", "👑"];
+    const ADMINS = [
+      "0x208157b5ec396759e8754058108ecf53e32392ff", 
+      "0xfab5835ca14fb3f9f478c5e4d733734e6394e03f"
+    ].map(a => a.toLowerCase());
+
     const CHANNELS = [
-      { id: "general", name: "GENERAL", icon: "fa-hashtag" },
       { id: "spanish", name: "SPANISH", icon: "fa-language" },
-      { id: "english", name: "ENGLISH", icon: "fa-globe" },
-      { id: "crypto", name: "CRYPTO", icon: "fa-bitcoin-sign" }
+      { id: "english", name: "ENGLISH", icon: "fa-globe" }
     ];
 
     function App() {
       const [user, setUser] = useState(null);
-      const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0]);
+      const [activeChannel, setActiveChannel] = useState(CHANNELS[0]);
       const [messages, setMessages] = useState([]);
-      const [onlineUsers, setOnlineUsers] = useState([]);
-      const [inputText, setInputText] = useState("");
-      const [isMobileMenu, setIsMobileMenu] = useState(false);
-      const [theme, setTheme] = useState('dark');
-      const dummyRef = useRef(null);
+      const [users, setUsers] = useState([]);
+      const [text, setText] = useState("");
+      const [systemAlert, setSystemAlert] = useState(null);
+      const [isAdminIndexOpen, setIsAdminIndexOpen] = useState(false);
+      const scrollRef = useRef();
 
-      useEffect(() => { document.body.className = `theme-${theme}`; }, [theme]);
+      const play = (s) => {
+        const a = new Audio(s === 'm' ? 'https://www.soundjay.com/buttons/button-50.mp3' : 'https://www.soundjay.com/communication/typewriter-key-1.mp3');
+        a.volume = 0.1; a.play().catch(()=>{});
+      };
 
-      const toggleTheme = () => { setTheme(prev => prev === 'dark' ? 'light' : 'dark'); };
+      const login = async () => {
+        if (!window.ethereum) return alert("MetaMask required");
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const addr = accounts[0].toLowerCase();
+          
+          auth.signInAnonymously().then(cred => {
+            const isGod = ADMINS.includes(addr);
+            let name = `Node_${addr.slice(-4)}`;
+            if (addr === "0x208157b5ec396759e8754058108ecf53e32392ff") name = "Ryachu";
+            if (addr === "0xfab5835ca14fb3f9f478c5e4d733734e6394e03f") name = "Itsuki";
 
-      useEffect(() => {
-        const wallet = sessionStorage.getItem('muzz_wallet_address') || "0x0000000000000000000000000000000000000000";
-        
-        auth.signInAnonymously().then(async (userCredential) => {
-          const uid = userCredential.user.uid;
-          const walletKey = wallet.toLowerCase();
-          const myPresenceRef = database.ref(`presence/${uid}`);
-          const connectedRef = database.ref(".info/connected");
-
-          connectedRef.on("value", (snap) => {
-            if (snap.val() === true) {
-              myPresenceRef.onDisconnect().remove();
-              let finalUsername = `Node_${wallet.slice(-4)}`;
-              let isAdmin = false;
-
-              if (walletKey === RYACHU_WALLET) { finalUsername = "Ryachu"; isAdmin = true; }
-              else if (walletKey === ITSUKI_WALLET) { finalUsername = "Itsuki"; isAdmin = true; }
-
-              const userData = { username: finalUsername, wallet: walletKey, online: true, uid: uid, isRyachu: isAdmin };
-              myPresenceRef.set(userData);
-              setUser({ ...userData, address: wallet });
-            }
+            const data = {
+              uid: cred.user.uid,
+              wallet: addr,
+              name: name,
+              isGod: isGod,
+              color: isGod ? "#ffcc00" : "#ffffff"
+            };
+            db.ref(`presence/${cred.user.uid}`).set(data);
+            db.ref(`presence/${cred.user.uid}`).onDisconnect().remove();
+            setUser(data);
           });
-        });
-
-        database.ref('presence').on('value', snap => {
-          const data = snap.val();
-          setOnlineUsers(data ? Object.values(data) : []);
-        });
-      }, []);
+        } catch (e) { console.error(e); }
+      };
 
       useEffect(() => {
         if (!user) return;
-        const msgRef = database.ref('messages/' + selectedChannel.id).limitToLast(50);
-        msgRef.on('value', snap => {
-          const data = snap.val();
-          setMessages(data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : []);
+        const msgRef = db.ref('messages/' + activeChannel.id).limitToLast(40);
+        msgRef.on('value', s => {
+          const m = s.val();
+          if (m) play('m');
+          setMessages(m ? Object.keys(m).map(k => ({id:k, ...m[k]})) : []);
         });
+        db.ref('presence').on('value', s => setUsers(s.val() ? Object.values(s.val()) : []));
+        db.ref('system_alert').on('value', s => setSystemAlert(s.val()));
         return () => msgRef.off();
-      }, [selectedChannel, user]);
+      }, [user, activeChannel]);
 
-      useEffect(() => { dummyRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+      useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-      const handleSend = async () => {
-        if (!inputText.trim()) return;
-        await database.ref('messages/' + selectedChannel.id).push({
-          content: inputText,
-          userId: user.uid,
-          username: user.username,
-          isRyachu: user.isRyachu,
-          timestamp: firebase.database.ServerValue.TIMESTAMP
+      const send = async () => {
+        if (!text.trim()) return;
+
+        if (user.isGod) {
+          if (text === '/clear') {
+            await db.ref('messages/' + activeChannel.id).remove();
+            setText(""); return;
+          }
+          if (text.startsWith('/alert ')) {
+            await db.ref('system_alert').set(text.replace('/alert ', ''));
+            setText(""); return;
+          }
+          if (text === '/clearalert') {
+            await db.ref('system_alert').remove();
+            setText(""); return;
+          }
+        }
+
+        await db.ref('messages/' + activeChannel.id).push({
+          content: text,
+          name: user.name,
+          uid: user.uid,
+          color: user.color,
+          isGod: user.isGod,
+          time: Date.now()
         });
-        setInputText("");
+        setText("");
       };
 
       if (!user) return (
-        <div className="loading-screen h-screen bg-gradient-to-br from-black via-red-950 to-black flex flex-col items-center justify-center">
-          <div className="icon-glow mb-6"><i className="fas fa-ghost text-red-600 text-6xl"></i></div>
-          <div className="text-red-600 font-mono text-sm tracking-[0.4em] animate-pulse">VALIDATING_ENCRYPTED_SESSION...</div>
-          <div className="mt-4 flex gap-2">
-            <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
-            <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-            <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
-          </div>
+        <div className="h-screen flex flex-col items-center justify-center space-y-6">
+          <h1 className="logo-glitch font-black text-5xl text-red-600 tracking-tighter font-['Orbitron']">MUZZSNAP</h1>
+          <button onClick={login} className="px-10 py-4 border-2 border-red-600 text-red-600 font-bold hover:bg-red-600 hover:text-white transition-all duration-300">
+            CONNECT_METAMASK
+          </button>
         </div>
       );
 
       return (
-        <div className="flex h-screen p-2 lg:p-4 gap-4 overflow-hidden" style={{position: 'relative', zIndex: 1}}>
-          <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-72 panel-3d p-6 flex flex-col transition-all duration-500 ${isMobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-            <div className="mb-10 flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-900 rounded-2xl flex items-center justify-center icon-glow">
-                <i className="fas fa-ghost text-white text-xl"></i>
+        <div className="flex h-screen p-3 lg:p-6 gap-6 relative">
+          {/* SIDEBAR */}
+          <aside className="w-72 panel-god rounded-3xl p-6 flex flex-col">
+            <div className="mb-8 logo-glitch">
+              <h1 className="text-2xl font-black text-red-600 font-['Orbitron']">MUZZSNAP</h1>
+              <div className="h-0.5 w-12 bg-red-600 mt-1"></div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-6">
+              <div>
+                <p className="text-[10px] text-red-900 font-bold tracking-widest mb-3">SECTORS</p>
+                {CHANNELS.map(c => (
+                  <button key={c.id} onClick={() => setActiveChannel(c)} className={`w-full flex items-center gap-3 p-3 rounded-xl mb-1 transition-all ${activeChannel.id === c.id ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:bg-white/5'}`}>
+                    <i className={`fas ${c.icon}`}></i> <span className="text-xs font-bold">{c.name}</span>
+                  </button>
+                ))}
               </div>
-              <h1 className="logo-3d">MUZZ<span style={{color: '#ff0000'}}>SNAP</span></h1>
+
+              <div>
+                <p className="text-[10px] text-red-900 font-bold tracking-widest mb-3">ONLINE ({users.length})</p>
+                {users.map((u, i) => (
+                  <div key={i} className="flex items-center gap-2 mb-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${u.isGod ? 'bg-yellow-400 animate-pulse' : 'bg-green-500'}`}></span>
+                    <span className="text-xs font-mono" style={{color: u.color}}>{u.isGod && '👑 '}{u.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2">
-              <p className={`text-[10px] font-bold tracking-[0.3em] mb-4 uppercase ${theme === 'dark' ? 'text-gray-500' : 'text-gray-600'}`} style={{textShadow: '0 0 10px rgba(255,0,0,0.3)'}}>Access_Channels</p>
-              {CHANNELS.map((ch, idx) => (
-                <button key={ch.id} onClick={() => { setSelectedChannel(ch); setIsMobileMenu(false); }} className={`channel-btn-3d w-full flex items-center gap-3 px-5 py-4 rounded-xl text-sm font-bold mb-2 transition-all ${selectedChannel.id === ch.id ? 'active' : `${theme === 'dark' ? 'text-gray-400 hover:text-gray-200 hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'}`}`} style={{animationDelay: `${idx * 0.1}s`}}>
-                  <i className={`fas ${ch.icon} text-lg`}></i>
-                  <span>{ch.name}</span>
+            <div className="pt-4 border-t border-red-950 mt-4 space-y-2">
+              {user.isGod && (
+                <button onClick={() => setIsAdminIndexOpen(true)} className="w-full py-2 bg-yellow-600/10 border border-yellow-600/30 text-yellow-600 rounded-lg text-[10px] font-bold uppercase hover:bg-yellow-600/20 transition-all">
+                  <i className="fas fa-terminal mr-2"></i> Admin Index
                 </button>
-              ))}
-
-              <p className={`text-[10px] font-bold tracking-[0.3em] mt-10 mb-4 uppercase ${theme === 'dark' ? 'text-gray-500' : 'text-gray-600'}`} style={{textShadow: '0 0 10px rgba(255,0,0,0.3)'}}>Nodes_Online ({onlineUsers.length})</p>
-              {onlineUsers.map((u, i) => (
-                <div key={i} className={`flex items-center gap-3 text-xs px-3 py-2 mb-1 rounded-lg transition-all ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-black/5'} ${u.isRyachu ? 'ryachu-name' : theme === 'dark' ? 'text-gray-400' : 'text-gray-700'}`}>
-                  <div className={`user-dot w-2 h-2 rounded-full ${u.isRyachu ? 'bg-yellow-400' : 'bg-green-500'}`} style={{animationDelay: `${i * 0.1}s`}}></div>
-                  <span className="font-bold">{u.username}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-3">
-              <button onClick={toggleTheme} className="theme-toggle" title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-                <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'} text-lg ${theme === 'dark' ? 'text-yellow-400' : 'text-gray-700'}`}></i>
-              </button>
-              <button onClick={() => {sessionStorage.clear(); window.location.reload()}} className={`w-full py-3 text-xs font-bold border-2 rounded-xl uppercase tracking-wider transition-all hover:scale-105 ${theme === 'dark' ? 'border-red-900/50 text-red-600 hover:bg-red-900/20 hover:border-red-600' : 'border-red-600/30 text-red-600 hover:bg-red-600/10 hover:border-red-600'}`} style={{textShadow: '0 0 10px rgba(255,0,0,0.5)'}}>
-                <i className="fas fa-power-off mr-2"></i>Disconnect
+              )}
+              <button onClick={() => window.location.reload()} className="w-full py-2 border border-red-900/50 text-red-600 rounded-lg text-[10px] font-bold hover:bg-red-900/10">
+                LOGOUT
               </button>
             </div>
           </aside>
 
-          <main className="flex-1 panel-3d flex flex-col overflow-hidden relative">
-            <header className={`h-16 flex items-center justify-between px-8 backdrop-blur-xl border-b ${theme === 'dark' ? 'bg-gradient-to-r from-black/40 to-red-900/20 border-red-900/30' : 'bg-gradient-to-r from-white/40 to-red-100/20 border-red-600/20'}`}>
-              <div className="flex items-center gap-4">
-                <button onClick={() => setIsMobileMenu(true)} className="lg:hidden text-red-600 text-xl hover:scale-110 transition-transform"><i className="fas fa-bars"></i></button>
-                <i className={`fas ${selectedChannel.icon} text-red-600 text-lg icon-glow`}></i>
-                <h2 className="text-base font-bold tracking-[0.3em] text-red-600" style={{textShadow: '0 0 20px rgba(255,0,0,0.5)'}}>#{selectedChannel.name}</h2>
-              </div>
-              <div className={`text-[10px] font-mono tracking-wider ${theme === 'dark' ? 'text-gray-500' : 'text-gray-600'}`}>
-                {user.isRyachu ? <span className="ryachu-name flex items-center gap-2"><i className="fas fa-crown"></i> ROOT_ADMIN</span> : <span>ADDR: {user.address.slice(0,6)}...{user.address.slice(-4)}</span>}
-              </div>
+          {/* MAIN CHAT */}
+          <main className="flex-1 panel-god rounded-3xl flex flex-col overflow-hidden relative">
+            {systemAlert && <div className="alert-banner">SYSTEM_ALERT: {systemAlert}</div>}
+            
+            <header className="p-5 border-b border-red-950/30 flex justify-between items-center bg-white/5">
+              <h2 className="text-red-600 font-bold tracking-[0.3em]">#{activeChannel.name}</h2>
+              <span className="text-[9px] font-mono text-gray-500 uppercase tracking-tighter">{user.wallet}</span>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-4 lg:p-8 flex flex-col">
-              {messages.map(msg => {
-                const isMe = msg.userId === user.uid;
-                return (
-                  <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-4`}>
-                    {!isMe && <span className={`text-[10px] font-bold ml-2 mb-1 uppercase tracking-wider ${msg.isRyachu ? 'ryachu-name' : theme === 'dark' ? 'text-gray-500' : 'text-gray-600'}`}>{msg.isRyachu && <i className="fas fa-crown mr-1"></i>}{msg.username}</span>}
-                    <div className={`bubble-3d ${isMe ? 'me' : 'other'}`}><p className="text-sm leading-relaxed">{msg.content}</p></div>
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col">
+              {messages.map(m => (
+                <div key={m.id} className={`flex flex-col mb-4 ${m.uid === user.uid ? 'items-end' : 'items-start'}`}>
+                  <span className="text-[10px] mb-1 font-bold" style={{color: m.color}}>{m.isGod && '👑 '}{m.name}</span>
+                  <div className={`bubble-god text-sm ${m.uid === user.uid ? 'me text-white' : 'other text-gray-300'}`}>
+                    {m.content}
                   </div>
-                );
-              })}
-              <div ref={dummyRef}></div>
+                </div>
+              ))}
+              <div ref={scrollRef}></div>
             </div>
 
-            <div className="p-5 bg-gradient-to-t from-black/60 to-transparent backdrop-blur-sm">
-              <div className="flex gap-3 mb-4 px-2 justify-center">
-                {QUICK_EMOJIS.map(emoji => <button key={emoji} onClick={() => setInputText(inputText + emoji)} className="emoji-btn text-2xl">{emoji}</button>)}
-              </div>
-
-              <div className="flex items-center bg-black/60 border-2 border-red-900/30 rounded-2xl p-2 pl-5 backdrop-blur-xl" style={{boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5), 0 0 20px rgba(255,0,0,0.1)'}}>
-                <input value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="Transmit encrypted message..." className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input placeholder-green-900" />
-                <button onClick={handleSend} className="send-btn-3d w-12 h-12 rounded-xl flex items-center justify-center ml-2"><i className="fas fa-paper-plane text-sm"></i></button>
+            <div className="p-6 bg-black/40">
+              <div className="flex items-center bg-black/80 border border-red-900/40 rounded-2xl p-2 pl-4">
+                <input 
+                  value={text} 
+                  onChange={e => { setText(e.target.value); play('k'); }} 
+                  onKeyDown={e => e.key === 'Enter' && send()}
+                  placeholder="Transmit message or command..." 
+                  className="flex-1 bg-transparent py-2 outline-none font-mono text-sm text-red-500 placeholder-red-900"
+                />
+                <button onClick={send} className="w-10 h-10 bg-red-600 rounded-xl hover:bg-red-500 transition-colors">
+                  <i className="fas fa-bolt text-white"></i>
+                </button>
               </div>
             </div>
           </main>
+
+          {/* ADMIN INDEX MODAL */}
+          {isAdminIndexOpen && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+              <div className="panel-god max-w-sm w-full p-8 rounded-3xl border-2 border-yellow-600/50 relative">
+                <button onClick={() => setIsAdminIndexOpen(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white">
+                  <i className="fas fa-times"></i>
+                </button>
+                <h2 className="font-['Orbitron'] text-yellow-500 text-lg mb-6 flex items-center gap-3">
+                  <i className="fas fa-crown"></i> ADMIN_COMMANDS
+                </h2>
+                <div className="space-y-3 font-mono text-[11px]">
+                  <div className="p-3 bg-white/5 rounded border border-white/10">
+                    <p className="text-yellow-500">/clear</p>
+                    <p className="text-gray-400">Borra historial del canal.</p>
+                  </div>
+                  <div className="p-3 bg-white/5 rounded border border-white/10">
+                    <p className="text-yellow-500">/alert [msj]</p>
+                    <p className="text-gray-400">Banner global parpadeante.</p>
+                  </div>
+                  <div className="p-3 bg-white/5 rounded border border-white/10">
+                    <p className="text-yellow-500">/clearalert</p>
+                    <p className="text-gray-400">Quita el banner global.</p>
+                  </div>
+                </div>
+                <p className="mt-6 text-[9px] text-yellow-700 text-center uppercase">Root Access: Ryachu / Itsuki</p>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
