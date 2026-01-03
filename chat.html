@@ -222,9 +222,8 @@
       const toggleTheme = () => { setTheme(prev => prev === 'dark' ? 'light' : 'dark'); };
 
       useEffect(() => {
-        const wallet = sessionStorage.getItem('muzz_wallet_address');
-        if (!wallet) { window.location.href = 'index.html'; return; }
-
+        const wallet = sessionStorage.getItem('muzz_wallet_address') || "0x0000000000000000000000000000000000000000";
+        
         auth.signInAnonymously().then(async (userCredential) => {
           const uid = userCredential.user.uid;
           const walletKey = wallet.toLowerCase();
@@ -362,3 +361,13 @@
                 <button onClick={handleSend} className="send-btn-3d w-12 h-12 rounded-xl flex items-center justify-center ml-2"><i className="fas fa-paper-plane text-sm"></i></button>
               </div>
             </div>
+          </main>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
