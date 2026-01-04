@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - Complete Edition</title>
+  <title>MuzzSnap - Final Edition</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -17,17 +17,42 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Orbitron:wght@900&display=swap');
-    :root { --bg-dark: radial-gradient(circle at center, #1a0505 0%, #050505 100%); }
-    body.theme-dark { background: var(--bg-dark); color: #fff; font-family: 'Fira Code', monospace; }
-    .card-3d { backdrop-filter: blur(20px); border-radius: 28px; background: rgba(12, 4, 4, 0.95); border: 1px solid rgba(255, 0, 0, 0.2); box-shadow: 0 15px 40px rgba(0,0,0,0.7); }
-    .bubble-3d { border-radius: 18px; padding: 12px 18px; margin: 4px 0; max-width: 85%; font-size: 14px; }
-    .bubble-3d.me { background: linear-gradient(145deg, #ff0000, #990000); color: white; }
-    .bubble-3d.other { background: #222; color: #eee; }
-    .admin-glow { color: #ffcc00; text-shadow: 0 0 8px rgba(255, 204, 0, 0.5); font-weight: 900 !important; }
-    .emoji-picker { position: absolute; bottom: 85px; right: 20px; width: 280px; height: 300px; overflow-y: auto; z-index: 200; border-radius: 20px; padding: 15px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; font-size: 1.4rem; background: #111; border: 1px solid #333; }
+    
+    :root { 
+      --bg-dark: radial-gradient(circle at center, #1a0505 0%, #050505 100%);
+    }
+
+    body { background: var(--bg-dark); color: #fff; font-family: 'Fira Code', monospace; margin: 0; overflow: hidden; }
+
+    .card-3d { 
+      backdrop-filter: blur(25px); 
+      background: rgba(12, 4, 4, 0.95); 
+      border: 1px solid rgba(255, 0, 0, 0.2); 
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      border-radius: 28px;
+    }
+
+    .bubble-3d { border-radius: 18px; padding: 12px 18px; margin: 4px 0; max-width: 85%; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .bubble-3d.me { background: linear-gradient(145deg, #ff0000, #990000); color: white; border: 1px solid rgba(255,255,255,0.1); }
+    .bubble-3d.other { background: #222; color: #eee; border: 1px solid rgba(255,255,255,0.05); }
+
+    .admin-glow { color: #ffcc00; text-shadow: 0 0 12px rgba(255, 204, 0, 0.6); font-weight: 900 !important; }
+    
+    .emoji-picker { 
+      position: absolute; bottom: 90px; right: 20px; width: 300px; height: 350px; 
+      overflow-y: auto; z-index: 200; padding: 15px; display: grid; 
+      grid-template-columns: repeat(6, 1fr); gap: 10px; font-size: 1.5rem;
+      background: rgba(10, 10, 10, 0.98); border: 1px solid #ff000044;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #ff000044; border-radius: 10px; }
+
+    .loader-text { font-family: 'Orbitron', sans-serif; letter-spacing: 4px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   </style>
 </head>
-<body class="theme-dark">
+<body>
   <div id="root"></div>
 
   <script type="text/babel">
@@ -50,11 +75,12 @@
     const RYACHU_HASH = "f501869e5d48a58ec2f92f988849b79410313f8d3885d51940bc27599c9339e0"; 
     const ITSUKI_HASH = "819c961c022883f3e18a8008e43e26458519e48c1e4c70308009696987c8801d";
     
-    const EMOJI_LIST = ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","👻","💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾","👋","🤚","🖐","✋","🖖","👌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","☝️","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦾","🦵","🦿","🦶","👂","🦻","👃","🧠","🦷","🦴","👀","👁","👅","👄","💋","🩸"];
+    const EMOJI_LIST = ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","👻","💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾","👋","👍","👎","👊","✌️","🔥","✨","🚀"];
 
     function App() {
       const [user, setUser] = useState(null);
-      const [chan, setChan] = useState("spanish");
+      const [loading, setLoading] = useState(true);
+      const [chan, setChan] = useState("general");
       const [messages, setMessages] = useState([]);
       const [users, setUsers] = useState([]);
       const [text, setText] = useState("");
@@ -69,40 +95,42 @@
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
       };
 
-      const handleLogout = async () => {
-        if (user) {
-          await db.ref(`presence/${user.uid}`).remove();
-          await auth.signOut();
-        }
-        setUser(null);
-        window.location.reload();
-      };
+      // LOGIN AUTOMÁTICO
+      useEffect(() => {
+        const initLogin = async () => {
+          if (!window.ethereum) {
+            alert("Please install MetaMask");
+            return;
+          }
+          try {
+            const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const wallet = accs[0].toLowerCase().trim();
+            const hashed = await hashWallet(wallet);
 
-      const login = async () => {
-        if (!window.ethereum) return alert("Instala MetaMask");
-        try {
-          const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          const wallet = accs[0].toLowerCase().trim();
-          const hashed = await hashWallet(wallet);
-
-          auth.signInAnonymously().then(async (cred) => {
-            const isRyachu = hashed === RYACHU_HASH;
-            const isItsuki = hashed === ITSUKI_HASH;
-            const isGod = isRyachu || isItsuki;
-            
-            const name = isRyachu ? "Ryachu" : (isItsuki ? "Itsuki" : `Node_${wallet.slice(-6)}`);
-            const userData = { uid: cred.user.uid, wallet, name, isGod };
-            
-            await db.ref(`presence/${cred.user.uid}`).set(userData);
-            db.ref(`presence/${cred.user.uid}`).onDisconnect().remove();
-            setUser(userData);
-          });
-        } catch (e) { console.error(e); }
-      };
+            auth.signInAnonymously().then(async (cred) => {
+              const isRyachu = hashed === RYACHU_HASH;
+              const isItsuki = hashed === ITSUKI_HASH;
+              const isGod = isRyachu || isItsuki;
+              const name = isRyachu ? "Ryachu" : (isItsuki ? "Itsuki" : `Node_${wallet.slice(-6)}`);
+              
+              const userData = { uid: cred.user.uid, wallet, name, isGod };
+              await db.ref(`presence/${cred.user.uid}`).set(userData);
+              db.ref(`presence/${cred.user.uid}`).onDisconnect().remove();
+              
+              setUser(userData);
+              setTimeout(() => setLoading(false), 1500); // Pequeño delay para ver el mensaje de cifrado
+            });
+          } catch (e) {
+            console.error(e);
+            setLoading(false);
+          }
+        };
+        initLogin();
+      }, []);
 
       useEffect(() => {
         if (!user) return;
-        const mRef = db.ref(`messages/${chan}`);
+        const mRef = db.ref(`messages/${chan}`).limitToLast(50);
         mRef.on('value', s => {
           const val = s.val();
           setMessages(val ? Object.keys(val).map(k => ({id:k, ...val[k]})) : []);
@@ -114,6 +142,12 @@
 
       useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
+      const handleLogout = async () => {
+        if (user) await db.ref(`presence/${user.uid}`).remove();
+        await auth.signOut();
+        window.location.reload();
+      };
+
       const handleSend = async () => {
         if (!text.trim()) return;
         if (user.isGod && text === '/clear') {
@@ -122,94 +156,94 @@
           return;
         }
         await db.ref(`messages/${chan}`).push({
-          content: text,
-          name: user.name,
-          uid: user.uid,
-          isGod: user.isGod,
-          time: Date.now()
+          content: text, name: user.name, uid: user.uid, isGod: user.isGod, time: Date.now()
         });
         setText("");
         setShowEmoji(false);
       };
 
-      if (!user) return (
-        <div className="h-screen flex items-center justify-center p-6">
-          <div className="card-3d p-10 text-center max-w-sm w-full border-t-2 border-red-600">
-            <h1 className="font-['Orbitron'] text-4xl mb-10 font-black text-red-600">MUZZSNAP</h1>
-            <button onClick={login} className="w-full py-4 border-2 border-red-600 text-red-600 font-black rounded-2xl hover:bg-red-600 hover:text-white transition-all">INICIALIZAR</button>
-          </div>
+      if (loading) return (
+        <div className="h-screen flex flex-col items-center justify-center bg-black">
+          <div className="loader-text text-red-600 text-xl font-bold mb-2">ENCRYPTING CONNECTION...</div>
+          <div className="text-[10px] text-white/30 tracking-[0.5em] uppercase">MuzzSnap Protocol v2.0</div>
         </div>
       );
 
       return (
-        <div className="flex h-screen p-4 gap-4">
+        <div className="flex h-screen p-4 gap-4 bg-transparent">
+          {/* SIDEBAR */}
           <aside className="w-72 card-3d p-6 flex flex-col">
-            <h1 className="font-['Orbitron'] text-xl font-black text-red-600 mb-10">MUZZSNAP</h1>
+            <h1 className="font-['Orbitron'] text-2xl font-black text-red-600 mb-10 tracking-tighter">MUZZSNAP</h1>
+            
             <div className="flex-1 overflow-y-auto">
-              <p className="text-[10px] font-black opacity-40 mb-4 tracking-widest uppercase">Canales</p>
-              {['spanish', 'english'].map(c => (
-                <button key={c} onClick={()=>setChan(c)} className={`w-full text-left p-4 rounded-2xl text-xs mb-2 font-black transition-all ${chan===c ? 'bg-red-600 text-white' : 'opacity-40 hover:opacity-100'}`}># {c}</button>
+              <p className="text-[10px] font-bold opacity-30 mb-4 tracking-widest uppercase">Channels</p>
+              {['general', 'spanish'].map(c => (
+                <button key={c} onClick={()=>setChan(c)} className={`w-full text-left p-4 rounded-2xl text-xs mb-2 font-black transition-all ${chan===c ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'opacity-40 hover:opacity-100 hover:bg-white/5'}`}># {c.toUpperCase()}</button>
               ))}
-              <p className="text-[10px] font-black opacity-40 mt-8 mb-4 tracking-widest uppercase">Online ({users.length})</p>
+
+              <p className="text-[10px] font-bold opacity-30 mt-10 mb-4 tracking-widest uppercase">Online ({users.length})</p>
               <div className="space-y-3">
                 {users.map((u, i) => (
                   <div key={i} className={`text-[11px] font-mono flex items-center gap-2 ${u.isGod ? 'admin-glow' : 'opacity-70'}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${u.isGod ? 'bg-yellow-400 animate-pulse' : 'bg-green-500'}`}></span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${u.isGod ? 'bg-yellow-400 animate-pulse shadow-[0_0_10px_gold]' : 'bg-green-500'}`}></span>
                     {u.isGod && '👑 '}{u.name}
                   </div>
                 ))}
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+
+            <div className="mt-4 pt-4 border-t border-white/5 flex flex-col gap-3">
               {user.isGod && (
-                <button onClick={()=>setShowAdminPanel(true)} className="w-full py-3 bg-yellow-500/10 border border-yellow-500/40 text-yellow-500 text-[10px] font-black rounded-xl tracking-widest">ADMIN_PANEL</button>
+                <button onClick={()=>setShowAdminPanel(true)} className="w-full py-3 bg-yellow-500/10 border border-yellow-500/40 text-yellow-500 text-[10px] font-black rounded-xl tracking-widest hover:bg-yellow-500 hover:text-black transition-all">ADMIN_PANEL</button>
               )}
-              <button onClick={handleLogout} className="w-full text-[10px] font-black opacity-30 hover:opacity-100 transition-opacity uppercase tracking-tighter">Desconectar Sesión</button>
+              <button onClick={handleLogout} className="w-full py-2 text-[9px] font-black opacity-20 hover:opacity-100 transition-opacity uppercase tracking-tighter">Terminate Session</button>
             </div>
           </aside>
 
+          {/* CHAT AREA */}
           <main className="flex-1 card-3d flex flex-col overflow-hidden relative">
-            <header className="h-14 border-b border-white/5 flex items-center px-6">
-              <span className="text-[10px] font-black text-red-600 tracking-[0.3em] uppercase">Sector_{chan}</span>
+            <header className="h-16 border-b border-white/5 flex items-center px-8 bg-white/5">
+              <span className="text-[11px] font-black text-red-600 tracking-[0.4em] uppercase">Link: {chan}</span>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-3" onClick={()=>setShowEmoji(false)}>
               {messages.map(m => (
                 <div key={m.id} className={`flex flex-col ${m.uid === user.uid ? 'items-end' : 'items-start'}`}>
-                  <span className={`text-[10px] mb-1 px-2 ${m.isGod ? 'admin-glow' : 'opacity-40'}`}>{m.isGod && '👑 '}{m.name}</span>
+                  <span className={`text-[10px] mb-1 px-2 ${m.isGod ? 'admin-glow' : 'opacity-40'}`}>{m.name}</span>
                   <div className={`bubble-3d ${m.uid === user.uid ? 'me' : 'other'}`}>{m.content}</div>
                 </div>
               ))}
               <div ref={scrollRef}></div>
             </div>
 
-            <div className="p-4 bg-black/40 relative">
+            <div className="p-6 bg-black/40 relative">
               {showEmoji && (
-                <div className="emoji-picker card-3d shadow-2xl">
+                <div className="emoji-picker card-3d shadow-2xl border-red-600/20">
                   {EMOJI_LIST.map(e => (
-                    <button key={e} onClick={()=>setText(text + e)} className="hover:scale-125 transition-transform">{e}</button>
+                    <button key={e} onClick={()=>setText(text + e)} className="hover:scale-125 transition-transform p-1">{e}</button>
                   ))}
                 </div>
               )}
-              <div className="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-2 pl-4">
+              <div className="flex gap-3 bg-white/5 border border-white/10 rounded-2xl p-2 pl-5 focus-within:border-red-600/50 transition-all">
                 <button onClick={()=>setShowEmoji(!showEmoji)} className="text-gray-500 hover:text-red-500 transition-colors"><i className="far fa-face-smile text-xl"></i></button>
-                <input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter' && handleSend()} placeholder="Escribe un mensaje..." className="flex-1 bg-transparent outline-none text-sm" />
-                <button onClick={handleSend} className="bg-red-600 w-11 h-11 rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all"><i className="fas fa-paper-plane"></i></button>
+                <input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter' && handleSend()} placeholder="Type message..." className="flex-1 bg-transparent outline-none text-sm text-white" />
+                <button onClick={handleSend} className="bg-red-600 w-12 h-12 rounded-xl flex items-center justify-center hover:bg-red-500 transition-all shadow-lg shadow-red-900/40"><i className="fas fa-paper-plane"></i></button>
               </div>
             </div>
           </main>
 
+          {/* ADMIN PANEL MODAL */}
           {showAdminPanel && user.isGod && (
-            <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
+            <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/95 backdrop-blur-md">
               <div className="card-3d max-w-sm w-full p-8 border-yellow-500/50">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-yellow-500 font-black tracking-widest text-xs">SECURITY_CONSOLE</h2>
+                  <h2 className="text-yellow-500 font-black tracking-widest text-xs">ROOT_ACCESS</h2>
                   <button onClick={()=>setShowAdminPanel(false)} className="text-white/20 hover:text-white"><i className="fas fa-times"></i></button>
                 </div>
-                <div className="space-y-4 text-[10px] text-white/60 font-mono">
-                  <div className="p-3 bg-yellow-500/5 border border-yellow-500/10 rounded-xl">
-                    <p className="text-yellow-500 font-bold mb-1">/clear</p>
-                    <p>Borra todo el historial de este canal.</p>
+                <div className="space-y-4">
+                  <div className="p-4 bg-yellow-500/5 border border-yellow-500/10 rounded-xl">
+                    <p className="text-yellow-500 font-bold text-[10px] mb-1">/clear</p>
+                    <p className="text-white/60 text-[10px]">Purge all message history in current link.</p>
                   </div>
                 </div>
               </div>
