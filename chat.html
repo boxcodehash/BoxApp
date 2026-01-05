@@ -29,6 +29,7 @@
       background: #000;
       color: #fff;
       overflow: hidden;
+      height: 100vh;
     }
 
     .cyber-bg {
@@ -79,22 +80,6 @@
       overflow: hidden;
     }
 
-    .sidebar::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #ff0000, transparent);
-      animation: glow-line 2s ease-in-out infinite;
-    }
-
-    @keyframes glow-line {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
-    }
-
     @media (max-width: 768px) {
       .sidebar {
         position: fixed;
@@ -103,7 +88,7 @@
         bottom: 10px;
         z-index: 100;
         transform: translateX(-110%);
-        transition: transform 0.3s ease;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .sidebar.open { transform: translateX(0); }
     }
@@ -145,136 +130,12 @@
       cursor: pointer;
       transition: all 0.3s ease;
       margin-bottom: 10px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .channel-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.2), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .channel-btn:hover::before {
-      left: 100%;
-    }
-
-    .channel-btn:hover {
-      border-color: rgba(255, 0, 0, 0.5);
-      color: #fff;
-      transform: translateX(5px);
     }
 
     .channel-btn.active {
       background: linear-gradient(135deg, rgba(255, 0, 0, 0.4), rgba(139, 0, 0, 0.6));
       border-color: #ff0000;
       color: #fff;
-      box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-    }
-
-    .channel-btn.active::after {
-      content: '✓';
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #ff0000;
-      font-size: 20px;
-    }
-
-    .user-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 15px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .user-item:hover {
-      background: rgba(139, 0, 0, 0.2);
-      border-color: rgba(255, 0, 0, 0.3);
-      transform: translateX(5px);
-    }
-
-    .user-status {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #00ff00;
-      box-shadow: 0 0 10px #00ff00;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    .user-status.admin {
-      background: #ffcc00;
-      box-shadow: 0 0 15px #ffcc00;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .user-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .user-name.admin {
-      color: #ffcc00;
-      text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
-    }
-
-    .admin-btn {
-      width: 100%;
-      padding: 14px;
-      background: rgba(255, 204, 0, 0.1);
-      border: 2px solid rgba(255, 204, 0, 0.4);
-      border-radius: 12px;
-      color: #ffcc00;
-      font-size: 12px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 20px;
-    }
-
-    .admin-btn:hover {
-      background: rgba(255, 204, 0, 0.2);
-      border-color: #ffcc00;
-      box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
-      transform: scale(1.02);
-    }
-
-    .disconnect-btn {
-      width: 100%;
-      padding: 10px;
-      background: transparent;
-      border: none;
-      color: rgba(255, 255, 255, 0.3);
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 10px;
-    }
-
-    .disconnect-btn:hover {
-      color: #ff0000;
     }
 
     /* CHAT AREA */
@@ -284,186 +145,40 @@
       border: 2px solid rgba(255, 0, 0, 0.3);
       border-radius: 20px;
       backdrop-filter: blur(20px);
-      box-shadow: 0 0 40px rgba(255, 0, 0, 0.2), inset 0 0 60px rgba(255, 0, 0, 0.05);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       position: relative;
-    }
-
-    .alert-banner {
-      background: linear-gradient(90deg, #ff0000, #cc0000, #ff0000);
-      background-size: 200% 100%;
-      animation: banner-slide 3s linear infinite;
-      padding: 15px;
-      text-align: center;
-      font-weight: 900;
-      font-size: 13px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .alert-banner::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      animation: shine 2s infinite;
-    }
-
-    @keyframes banner-slide {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 200% 50%; }
-    }
-
-    @keyframes shine {
-      0% { left: -100%; }
-      100% { left: 200%; }
-    }
-
-    .chat-header {
-      padding: 20px 30px;
-      border-bottom: 1px solid rgba(255, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .menu-btn {
-      display: none;
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 0, 0, 0.2);
-      border: 1px solid rgba(255, 0, 0, 0.3);
-      border-radius: 10px;
-      color: #ff0000;
-      font-size: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .menu-btn:hover {
-      background: rgba(255, 0, 0, 0.3);
-      box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-    }
-
-    @media (max-width: 768px) {
-      .menu-btn { display: flex; align-items: center; justify-content: center; }
-    }
-
-    .sector-label {
-      font-size: 14px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.6);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .sector-name {
-      color: #ff0000;
-      font-weight: 900;
-      text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    }
-
-    .theme-toggle-container {
-      width: 50px;
-      height: 26px;
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 0, 0, 0.3);
-      border-radius: 20px;
-      position: relative;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .theme-toggle-container:hover {
-      border-color: #ff0000;
-      box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-    }
-
-    .theme-toggle-circle {
-      width: 20px;
-      height: 20px;
-      background: linear-gradient(135deg, #ff0000, #cc0000);
-      border-radius: 50%;
-      position: absolute;
-      top: 2px;
-      left: 3px;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    }
-
-    .theme-toggle-container.light .theme-toggle-circle {
-      left: 27px;
     }
 
     .messages-area {
       flex: 1;
       overflow-y: auto;
-      padding: 30px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-    }
-
-    .messages-area::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .messages-area::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .messages-area::-webkit-scrollbar-thumb {
-      background: rgba(255, 0, 0, 0.3);
-      border-radius: 10px;
-    }
-
-    .messages-area::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 0, 0, 0.5);
-    }
-
-    .message-wrapper {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 8px;
-    }
-
-    .message-wrapper.me {
-      align-items: flex-end;
-    }
-
-    .message-author {
-      font-size: 11px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.5);
-      margin-bottom: 6px;
-      padding: 0 12px;
-      letter-spacing: 1px;
-    }
-
-    .message-author.admin {
-      color: #ffcc00;
-      text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+      gap: 12px;
     }
 
     .message-bubble {
-      max-width: 70%;
-      padding: 14px 18px;
-      border-radius: 18px;
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 15px;
       font-size: 15px;
-      font-weight: 500;
-      line-height: 1.5;
-      word-wrap: break-word;
-      position: relative;
+      line-height: 1.4;
       animation: fadeIn 0.3s ease;
+    }
+
+    .message-bubble.me {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(255, 0, 0, 0.8), rgba(139, 0, 0, 0.8));
+      border: 1px solid rgba(255, 0, 0, 0.5);
+    }
+
+    .message-bubble.other {
+      align-self: flex-start;
+      background: rgba(40, 40, 40, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     @keyframes fadeIn {
@@ -471,74 +186,19 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .message-bubble.me {
-      background: linear-gradient(135deg, rgba(255, 0, 0, 0.8), rgba(139, 0, 0, 0.8));
-      color: #fff;
-      border: 1px solid rgba(255, 0, 0, 0.5);
-      box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-    }
-
-    .message-bubble.other {
-      background: rgba(40, 40, 40, 0.8);
-      color: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .special-message {
-      padding: 16px 20px;
-      background: linear-gradient(135deg, rgba(255, 204, 0, 0.1), rgba(255, 204, 0, 0.05));
-      border: 2px solid rgba(255, 204, 0, 0.3);
-      border-radius: 15px;
-      color: #ffcc00;
-      font-weight: 600;
-      text-align: center;
-      box-shadow: 0 0 20px rgba(255, 204, 0, 0.2);
-      animation: pulse-glow 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 20px rgba(255, 204, 0, 0.2); }
-      50% { box-shadow: 0 0 30px rgba(255, 204, 0, 0.4); }
-    }
-
+    /* Input */
     .input-area {
-      padding: 20px 30px;
-      background: rgba(0, 0, 0, 0.4);
+      padding: 20px;
       border-top: 1px solid rgba(255, 0, 0, 0.2);
-      position: relative;
     }
 
     .input-container {
       display: flex;
-      gap: 12px;
-      align-items: center;
-      background: rgba(20, 0, 0, 0.6);
-      border: 2px solid rgba(255, 0, 0, 0.3);
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px;
       border-radius: 15px;
-      padding: 8px 12px;
-      transition: all 0.3s ease;
-    }
-
-    .input-container:focus-within {
-      border-color: #ff0000;
-      box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-    }
-
-    .emoji-btn {
-      width: 40px;
-      height: 40px;
-      background: transparent;
-      border: none;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 24px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border-radius: 10px;
-    }
-
-    .emoji-btn:hover {
-      color: #ff0000;
-      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.3);
     }
 
     .message-input {
@@ -547,272 +207,34 @@
       border: none;
       outline: none;
       color: #fff;
-      font-size: 15px;
-      font-weight: 500;
-      padding: 10px;
     }
 
-    .message-input::placeholder {
-      color: rgba(255, 255, 255, 0.3);
-    }
-
-    .send-btn {
-      width: 45px;
-      height: 45px;
-      background: linear-gradient(135deg, #ff0000, #cc0000);
-      border: none;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
-    }
-
-    .send-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(255, 0, 0, 0.6);
-    }
-
-    .send-btn:active {
-      transform: scale(0.95);
-    }
-
-    .emoji-picker {
-      position: absolute;
-      bottom: 90px;
-      right: 30px;
-      width: 320px;
-      max-height: 300px;
-      background: rgba(20, 0, 0, 0.95);
-      border: 2px solid rgba(255, 0, 0, 0.4);
-      border-radius: 20px;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 8px;
-      overflow-y: auto;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(20px);
-      z-index: 50;
-      animation: slideUp 0.3s ease;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .emoji-picker::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .emoji-picker::-webkit-scrollbar-thumb {
-      background: rgba(255, 0, 0, 0.4);
-      border-radius: 10px;
-    }
-
-    .emoji-item {
-      font-size: 28px;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-      text-align: center;
-      padding: 5px;
-      border-radius: 8px;
-    }
-
-    .emoji-item:hover {
-      transform: scale(1.3);
-      background: rgba(255, 0, 0, 0.1);
-    }
-
-    @media (max-width: 768px) {
-      .emoji-picker {
-        right: 10px;
-        left: 10px;
-        width: auto;
-        grid-template-columns: repeat(6, 1fr);
-      }
-    }
-
-    /* MODAL */
+    /* Modals */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 200;
-      padding: 20px;
-      animation: fadeIn 0.3s ease;
+      backdrop-filter: blur(10px);
     }
 
     .modal-content {
-      background: rgba(20, 0, 0, 0.95);
-      border: 2px solid rgba(255, 0, 0, 0.5);
+      background: #140000;
+      border: 2px solid #f00;
+      padding: 30px;
       border-radius: 20px;
-      padding: 40px 30px;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-      position: relative;
-      animation: scaleIn 0.3s ease;
-    }
-
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 0, 0, 0.2);
-      border: 1px solid rgba(255, 0, 0, 0.4);
-      border-radius: 10px;
-      color: #ff0000;
-      font-size: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .modal-close:hover {
-      background: rgba(255, 0, 0, 0.3);
-      transform: rotate(90deg);
-    }
-
-    .modal-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 24px;
-      font-weight: 900;
-      text-align: center;
-      color: #ff0000;
-      margin-bottom: 30px;
-      letter-spacing: 3px;
-      text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-    }
-
-    .modal-section {
-      background: rgba(255, 0, 0, 0.05);
-      border: 1px solid rgba(255, 0, 0, 0.2);
-      border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 15px;
-    }
-
-    .command-title {
-      color: #ff0000;
-      font-weight: 700;
-      font-size: 16px;
-      margin-bottom: 10px;
-      font-family: 'Orbitron', sans-serif;
-    }
-
-    .command-desc {
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    /* LOGIN SCREEN */
-    .login-screen {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .login-box {
-      background: rgba(20, 0, 0, 0.9);
-      border: 2px solid rgba(255, 0, 0, 0.4);
-      border-radius: 25px;
-      padding: 50px 40px;
+      width: 90%;
       max-width: 450px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 100px rgba(255, 0, 0, 0.2);
-      backdrop-filter: blur(20px);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .login-box::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, #ff0000, transparent);
-      animation: scan-line 3s linear infinite;
-    }
-
-    @keyframes scan-line {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    .login-logo {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 48px;
-      font-weight: 900;
-      background: linear-gradient(135deg, #ff0000 0%, #cc0000 50%, #990000 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 6px;
-      margin-bottom: 50px;
-      text-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
-    }
-
-    .login-btn {
-      width: 100%;
-      padding: 18px;
-      background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(139, 0, 0, 0.3));
-      border: 2px solid #ff0000;
-      border-radius: 15px;
-      color: #fff;
-      font-size: 18px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
-    }
-
-    .login-btn:hover {
-      background: linear-gradient(135deg, rgba(255, 0, 0, 0.5), rgba(139, 0, 0, 0.5));
-      box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
-      transform: translateY(-2px);
-    }
-
-    .login-btn:active {
-      transform: translateY(0);
     }
 
     .sidebar-overlay {
-      display: none;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar-overlay {
-        display: block;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(5px);
-        z-index: 99;
-      }
-      .sidebar-overlay.hidden {
-        display: none;
-      }
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 90;
     }
   </style>
 </head>
@@ -823,6 +245,7 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
+    // Configuración Firebase (Usando la tuya)
     const firebaseConfig = {
       apiKey: "AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
       authDomain: "pulsari.firebaseapp.com",
@@ -837,13 +260,12 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    // HASHES DE WALLETS ADMINISTRATIVAS (SHA-256)
     const ADMIN_WALLETS = {
-      "f501869e5d48a58ec2f92f988849b79410313f8d3885d51940bc27599c9339e0": "Ryachu",
+      "2a3f1f37c160f0b170f5cf95b53f4228e23994b76c3d016494dfc289fa1d00f0": "Ryachu",
       "819c961c022883f3e18a8008e43e26458519e48c1e4c70308009696987c8801d": "Itsuki"
     };
 
-    const EMOJI_LIST = ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","👻","💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻","😼","😽","🙀","😿","😾","👋","🤚","🖐️","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","☝️","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","💪","🦾","🦿","🦵","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁️","👅","👄","💋","🩸","❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝","🔥","✨","💫","⭐","🌟","✴️","⚡","💥","💯","🚀","🎯"];
+    const EMOJI_LIST = ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","✨","🔥","🚀","🎯","💎"];
 
     function App() {
       const [user, setUser] = useState(null);
@@ -857,434 +279,168 @@
       const [isMenuOpen, setIsMenuOpen] = useState(false);
       const [showHashDebug, setShowHashDebug] = useState(false);
       const [walletHash, setWalletHash] = useState("");
+      
       const scrollRef = useRef();
       const inputRef = useRef();
 
       const hashWallet = async (address) => {
         const msgUint8 = new TextEncoder().encode(address.toLowerCase());
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
       };
 
       const login = async () => {
-        if (!window.ethereum) {
-          alert("⚠️ MetaMask es requerido para acceder");
-          return;
-        }
-        
+        if (!window.ethereum) return alert("⚠️ Instala MetaMask");
         try {
           const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
           const wallet = accs[0].toLowerCase();
           const hashed = await hashWallet(wallet);
-
           setWalletHash(hashed);
-          console.log("🔐 WALLET HASH:", hashed);
-
-          const snap = await db.ref('presence').orderByChild('wallet').equalTo(wallet).once('value');
-          if (snap.exists()) {
-            const promises = Object.keys(snap.val()).map(k => db.ref(`presence/${k}`).remove());
-            await Promise.all(promises);
-          }
 
           const cred = await auth.signInAnonymously();
-          
           const isGod = ADMIN_WALLETS.hasOwnProperty(hashed);
-          const adminName = ADMIN_WALLETS[hashed];
-          const name = adminName || `Node_${wallet.slice(-4)}`;
-          
           const userData = { 
             uid: cred.user.uid, 
             wallet, 
-            name, 
-            isGod, 
-            color: isGod ? "#ffcc00" : "#ffffff",
-            timestamp: Date.now()
+            name: ADMIN_WALLETS[hashed] || `User_${wallet.slice(-4)}`, 
+            isGod,
+            time: Date.now()
           };
           
           await db.ref(`presence/${cred.user.uid}`).set(userData);
           db.ref(`presence/${cred.user.uid}`).onDisconnect().remove();
           setUser(userData);
-        } catch (error) {
-          console.error("❌ Error de autenticación:", error);
-          alert("Error al conectar con MetaMask");
-        }
+        } catch (e) { alert("Error de conexión"); }
       };
 
       useEffect(() => {
         if (!user) return;
-        
-        const pRef = db.ref(`presence/${user.uid}`);
-        pRef.on('value', snap => { 
-          if (!snap.exists()) {
-            console.log("Sesión eliminada, recargando...");
-            window.location.reload(); 
-          }
-        });
-        
-        db.ref('system_alert').on('value', s => setAlertMsg(s.val()));
-        
         const mRef = db.ref(`messages/${chan}`).limitToLast(50);
         mRef.on('value', s => {
           const val = s.val();
-          setMessages(val ? Object.keys(val).map(k => ({id:k, ...val[k]})).sort((a,b) => a.time - b.time) : []);
+          setMessages(val ? Object.keys(val).map(k => ({id:k, ...val[k]})) : []);
         });
-        
         db.ref('presence').on('value', s => {
-          const data = s.val();
-          setUsers(data ? Object.values(data).sort((a,b) => (b.isGod ? 1 : 0) - (a.isGod ? 1 : 0)) : []);
+          const val = s.val();
+          setUsers(val ? Object.values(val) : []);
         });
-        
-        return () => { 
-          mRef.off(); 
-          db.ref('system_alert').off(); 
-          pRef.off(); 
-          db.ref('presence').off();
-        };
+        db.ref('system_alert').on('value', s => setAlertMsg(s.val()));
+        return () => { mRef.off(); db.ref('presence').off(); db.ref('system_alert').off(); };
       }, [user, chan]);
 
-      useEffect(() => { 
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); 
-      }, [messages]);
+      useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
       const handleSend = async () => {
-        const trimmed = text.trim();
-        if (!trimmed) return;
+        if (!text.trim()) return;
         
+        // Comandos Admin
         if (user.isGod) {
-          if (trimmed === '/clear') {
-            try {
-              await db.ref(`messages/${chan}`).remove();
-              setText("");
-              console.log(`✅ [${user.name}] Chat limpiado en: ${chan}`);
-              return;
-            } catch (error) {
-              console.error("❌ Error al limpiar:", error);
-              return;
-            }
-          }
-          
-          if (trimmed.startsWith('/alert ')) {
-            try {
-              const msg = trimmed.substring(7).trim();
-              if (msg) {
-                await db.ref('system_alert').set(msg);
-                setText("");
-                console.log(`✅ [${user.name}] Alerta creada: "${msg}"`);
-                return;
-              }
-            } catch (error) {
-              console.error("❌ Error al crear alerta:", error);
-              return;
-            }
-          }
-          
-          if (trimmed === '/clearalert') {
-            try {
-              await db.ref('system_alert').remove();
-              setText("");
-              console.log(`✅ [${user.name}] Alerta eliminada`);
-              return;
-            } catch (error) {
-              console.error("❌ Error al eliminar alerta:", error);
-              return;
-            }
-          }
+            if (text === '/clear') { await db.ref(`messages/${chan}`).remove(); setText(""); return; }
+            if (text.startsWith('/alert ')) { await db.ref('system_alert').set(text.replace('/alert ', '')); setText(""); return; }
+            if (text === '/clearalert') { await db.ref('system_alert').remove(); setText(""); return; }
         }
-        
-        try {
-          const messageData = {
-            content: trimmed, 
-            name: user.name,
-            uid: user.uid, 
-            color: user.isGod ? "#ffcc00" : "#ffffff", 
-            isGod: user.isGod || false, 
-            time: Date.now()
-          };
-          
-          await db.ref(`messages/${chan}`).push(messageData);
-          setText("");
-          setShowEmoji(false);
-        } catch (error) {
-          console.error("❌ Error al enviar mensaje:", error);
-          alert("Error al enviar el mensaje");
-        }
+
+        await db.ref(`messages/${chan}`).push({
+          content: text,
+          name: user.name,
+          uid: user.uid,
+          isGod: user.isGod,
+          time: Date.now()
+        });
+        setText("");
+        setShowEmoji(false);
       };
 
-      const handleEmojiSelect = (emoji) => {
-        setText(text + emoji);
-        inputRef.current?.focus();
-      };
-
-      if (!user) {
-        return (
-          <div className="login-screen">
-            <div className="login-box">
-              <div className="login-logo">MUZZSNAP</div>
-              <button onClick={login} className="login-btn">
-                INICIALIZAR
-              </button>
-            </div>
+      if (!user) return (
+        <div className="flex h-screen items-center justify-center">
+          <div className="login-box">
+            <h1 className="login-logo">MUZZSNAP</h1>
+            <button onClick={login} className="login-btn">CONECTAR NEURAL-LINK</button>
           </div>
-        );
-      }
+        </div>
+      );
 
       return (
-        <>
+        <div className="container-main">
           {isMenuOpen && <div className="sidebar-overlay" onClick={() => setIsMenuOpen(false)}></div>}
           
-          <div className="container-main">
-            <aside className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
-              <div className="logo">MUZZSNAP</div>
-              
-              <div className="section-title">Channels</div>
-              {['general', 'español'].map(c => (
-                <button 
-                  key={c} 
-                  onClick={() => {
-                    setChan(c); 
-                    setIsMenuOpen(false);
-                  }} 
-                  className={`channel-btn ${chan === c ? 'active' : ''}`}
-                >
-                  # {c}
-                </button>
+          <aside className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
+            <div className="logo">MUZZSNAP</div>
+            <div className="section-title">Canales</div>
+            {['general', 'español'].map(c => (
+              <button key={c} onClick={() => {setChan(c); setIsMenuOpen(false)}} className={`channel-btn ${chan === c ? 'active' : ''}`}># {c}</button>
+            ))}
+            <div className="section-title">Usuarios ({users.length})</div>
+            <div className="flex-1 overflow-y-auto">
+              {users.map((u, i) => (
+                <div key={i} className="flex items-center gap-2 mb-2 p-2 bg-black/30 rounded">
+                  <div className={`w-2 h-2 rounded-full ${u.isGod ? 'bg-yellow-400 shadow-[0_0_10px_#facc15]' : 'bg-green-500'}`}></div>
+                  <span className={u.isGod ? 'text-yellow-400 font-bold' : ''}>{u.name}</span>
+                </div>
               ))}
-              
-              <div className="section-title">Online ({users.length})</div>
-              <div style={{flex: 1, overflowY: 'auto'}}>
-                {users.map((u, i) => (
-                  <div key={i} className="user-item">
-                    <div className={`user-status ${u.isGod ? 'admin' : ''}`}></div>
-                    <div className={`user-name ${u.isGod ? 'admin' : ''}`}>
-                      {u.isGod && '👑 '}{u.name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {user.isGod && (
-                <button onClick={() => setShowAdminPanel(true)} className="admin-btn">
-                  ADMIN_INDEX
-                </button>
-              )}
-              
-              <button onClick={() => setShowHashDebug(true)} className="disconnect-btn">
-                Ver Info Wallet
-              </button>
-              
-              <button onClick={() => window.location.reload()} className="disconnect-btn">
-                Cerrar Sesión
-              </button>
-            </aside>
+            </div>
+            <button onClick={() => setShowHashDebug(true)} className="text-[10px] text-white/30 hover:text-red-500 mt-4">ID DISPOSITIVO</button>
+            <button onClick={() => window.location.reload()} className="text-[10px] text-white/30 hover:text-red-500 mt-2">DESCONECTAR</button>
+          </aside>
 
-            <main className="chat-container">
-              {alertMsg && (
-                <div className="alert-banner">
-                  !! ALERTA: {alertMsg} !!
+          <main className="chat-container">
+            {alertMsg && <div className="alert-banner">SYSTEM: {alertMsg}</div>}
+            
+            <div className="chat-header">
+              <button className="md:hidden p-2" onClick={() => setIsMenuOpen(true)}><i className="fas fa-bars"></i></button>
+              <div className="font-bold tracking-widest uppercase">SECTOR_{chan}</div>
+              <div className="w-8 h-4 bg-red-900/50 rounded-full"></div>
+            </div>
+
+            <div className="messages-area">
+              {messages.map(m => (
+                <div key={m.id} className={`flex flex-col ${m.uid === user.uid ? 'items-end' : 'items-start'}`}>
+                  <span className={`text-[10px] mb-1 ${m.isGod ? 'text-yellow-400' : 'text-white/40'}`}>{m.name}</span>
+                  <div className={`message-bubble ${m.uid === user.uid ? 'me' : 'other'}`}>
+                    {m.content}
+                  </div>
+                </div>
+              ))}
+              <div ref={scrollRef}></div>
+            </div>
+
+            <div className="input-area">
+              {showEmoji && (
+                <div className="absolute bottom-24 bg-black/95 border border-red-500 p-4 rounded-xl grid grid-cols-6 gap-2 z-[200]">
+                  {EMOJI_LIST.map(e => <span key={e} onClick={() => setText(text + e)} className="cursor-pointer hover:scale-125 transition">{e}</span>)}
                 </div>
               )}
-              
-              <div className="chat-header">
-                <button className="menu-btn" onClick={() => setIsMenuOpen(true)}>
-                  <i className="fas fa-bars"></i>
-                </button>
-                <div className="sector-label">
-                  Sector: <span className="sector-name">{chan}</span>
-                </div>
-                <div className="theme-toggle-container">
-                  <div className="theme-toggle-circle"></div>
-                </div>
-              </div>
-
-              <div className="messages-area" onClick={() => setShowEmoji(false)}>
-                {messages.length === 0 ? (
-                  <div className="special-message">
-                    👑 Welcome to MuzzChat 👑
-                  </div>
-                ) : (
-                  messages.map(m => (
-                    <div key={m.id} className={`message-wrapper ${m.uid === user.uid ? 'me' : ''}`}>
-                      <div className={`message-author ${m.isGod ? 'admin' : ''}`}>
-                        {m.isGod && '👑 '}{m.name || 'Unknown'}
-                      </div>
-                      <div className={`message-bubble ${m.uid === user.uid ? 'me' : 'other'}`}>
-                        {m.content}
-                      </div>
-                    </div>
-                  ))
-                )}
-                <div ref={scrollRef}></div>
-              </div>
-
-              <div className="input-area">
-                {showEmoji && (
-                  <div className="emoji-picker">
-                    {EMOJI_LIST.map(e => (
-                      <div key={e} onClick={() => handleEmojiSelect(e)} className="emoji-item">
-                        {e}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                <div className="input-container">
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowEmoji(!showEmoji);
-                    }} 
-                    className="emoji-btn"
-                  >
-                    😊
-                  </button>
-                  <input 
-                    ref={inputRef}
-                    value={text} 
-                    onChange={e => setText(e.target.value)} 
-                    onKeyDown={e => e.key === 'Enter' && handleSend()} 
-                    placeholder="Escribe un mensaje..." 
-                    className="message-input" 
-                    maxLength={500}
-                  />
-                  <button onClick={handleSend} className="send-btn">
-                    <i className="fas fa-bolt"></i>
-                  </button>
-                </div>
-              </div>
-            </main>
-          </div>
-
-          {showAdminPanel && user.isGod && (
-            <div className="modal-overlay" onClick={() => setShowAdminPanel(false)}>
-              <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <button onClick={() => setShowAdminPanel(false)} className="modal-close">
-                  <i className="fas fa-times"></i>
-                </button>
-                
-                <div className="modal-title">SECURITY CONSOLE</div>
-                
-                <div className="modal-section">
-                  <div className="command-title">/clear</div>
-                  <div className="command-desc">
-                    Elimina todo el historial de mensajes del sector actual.
-                  </div>
-                </div>
-                
-                <div className="modal-section">
-                  <div className="command-title">/alert [mensaje]</div>
-                  <div className="command-desc">
-                    Crea una alerta de emergencia visible para todos los usuarios.<br/>
-                    <span style={{fontSize: '12px', opacity: 0.7}}>Ejemplo: /alert Sistema en mantenimiento</span>
-                  </div>
-                </div>
-                
-                <div className="modal-section">
-                  <div className="command-title">/clearalert</div>
-                  <div className="command-desc">
-                    Elimina la alerta de emergencia activa.
-                  </div>
-                </div>
+              <div className="input-container">
+                <button onClick={() => setShowEmoji(!showEmoji)} className="text-xl">😊</button>
+                <input 
+                  value={text} 
+                  onChange={e => setText(e.target.value)} 
+                  onKeyDown={e => e.key === 'Enter' && handleSend()}
+                  placeholder="Transmitir mensaje..." 
+                  className="message-input"
+                />
+                <button onClick={handleSend} className="text-red-500"><i className="fas fa-paper-plane"></i></button>
               </div>
             </div>
-          )}
+          </main>
 
-          {showHashDebug && user && (
+          {showHashDebug && (
             <div className="modal-overlay" onClick={() => setShowHashDebug(false)}>
               <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <button onClick={() => setShowHashDebug(false)} className="modal-close">
-                  <i className="fas fa-times"></i>
-                </button>
-                
-                <div className="modal-title">WALLET INFO</div>
-                
-                <div className="modal-section">
-                  <div className="command-title">Tu Wallet Hash</div>
-                  <div 
-                    style={{
-                      fontSize: '11px',
-                      wordBreak: 'break-all',
-                      background: 'rgba(0,0,0,0.5)',
-                      padding: '15px',
-                      borderRadius: '10px',
-                      marginTop: '10px',
-                      cursor: 'pointer',
-                      border: '1px solid rgba(255,0,0,0.2)'
-                    }}
-                    onClick={() => {
-                      const el = document.createElement('textarea');
-                      el.value = walletHash;
-                      el.setAttribute('readonly', '');
-                      el.style.position = 'absolute';
-                      el.style.left = '-9999px';
-                      document.body.appendChild(el);
-                      el.select();
-                      el.setSelectionRange(0, 99999);
-                      document.execCommand('copy');
-                      document.body.removeChild(el);
-                      alert('✅ Hash copiado!\n\nEnvíalo al desarrollador para ser admin');
-                    }}
-                  >
-                    {walletHash}
-                  </div>
-                  <button 
-                    onClick={() => {
-                      const el = document.createElement('textarea');
-                      el.value = walletHash;
-                      el.setAttribute('readonly', '');
-                      el.style.position = 'absolute';
-                      el.style.left = '-9999px';
-                      document.body.appendChild(el);
-                      el.select();
-                      el.setSelectionRange(0, 99999);
-                      document.execCommand('copy');
-                      document.body.removeChild(el);
-                      alert('✅ Hash copiado!');
-                    }}
-                    style={{
-                      width: '100%',
-                      marginTop: '15px',
-                      padding: '12px',
-                      background: 'linear-gradient(135deg, #ff0000, #cc0000)',
-                      border: 'none',
-                      borderRadius: '10px',
-                      color: '#fff',
-                      fontWeight: '900',
-                      fontSize: '12px',
-                      cursor: 'pointer',
-                      letterSpacing: '1px'
-                    }}
-                  >
-                    📋 COPIAR HASH
-                  </button>
-                </div>
-                
-                <div className="modal-section">
-                  <div className="command-title">ESTADO ACTUAL</div>
-                  <div className="command-desc">
-                    Nombre: <strong style={{color: user.isGod ? '#ffcc00' : '#fff'}}>{user.name}</strong><br/>
-                    Admin: <strong style={{color: user.isGod ? '#ffcc00' : '#ff0000'}}>
-                      {user.isGod ? '✅ SÍ' : '❌ NO'}
-                    </strong>
-                  </div>
-                </div>
-
-                {!user.isGod && (
-                  <div className="modal-section" style={{borderColor: 'rgba(0,150,255,0.3)', background: 'rgba(0,150,255,0.05)'}}>
-                    <div className="command-title" style={{color: '#0096ff'}}>CÓMO SER ADMIN</div>
-                    <div className="command-desc" style={{fontSize: '13px'}}>
-                      1. Copia el hash de arriba<br/>
-                      2. Envíalo al desarrollador<br/>
-                      3. Espera confirmación<br/>
-                      4. Recarga la página
-                    </div>
-                  </div>
-                )}
+                <h2 className="text-red-500 font-bold mb-4">MI WALLET HASH</h2>
+                <p className="text-[10px] break-all bg-black p-3 border border-red-900/50">{walletHash}</p>
+                <button 
+                    className="w-full mt-4 bg-red-600 p-2 font-bold text-xs"
+                    onClick={() => {navigator.clipboard.writeText(walletHash); alert("Copiado!")}}
+                >COPIAR HASH</button>
               </div>
             </div>
           )}
-        </>
+        </div>
       );
     }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
