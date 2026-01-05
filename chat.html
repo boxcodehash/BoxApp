@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - Security Edition</title>
+  <title>MuzzSnap - 3D Premium Edition</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -17,30 +17,566 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap');
     
-    :root { --accent: #ff0000; --bg-glow: rgba(139, 0, 0, 0.2); }
-    body.theme-emerald { --accent: #10b981; --bg-glow: rgba(16, 185, 129, 0.2); }
-    body.theme-cobalt { --accent: #2563eb; --bg-glow: rgba(37, 99, 235, 0.2); }
-    body.theme-amethyst { --accent: #a855f7; --bg-glow: rgba(168, 85, 247, 0.2); }
-    body.theme-amber { --accent: #f59e0b; --bg-glow: rgba(245, 158, 11, 0.2); }
-
-    body { background-color: #050505; color: #fff; font-family: 'Rajdhani', sans-serif; height: 100vh; overflow: hidden; }
-    .cyber-grid { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, var(--bg-glow) 0%, #000 100%); z-index: -1; }
+    :root { 
+      --accent: #ff0000; 
+      --accent-glow: rgba(255, 0, 0, 0.6);
+      --glass-bg: rgba(20, 0, 0, 0.4);
+      --glass-border: rgba(255, 0, 0, 0.2);
+    }
     
-    .drawer { position: fixed; top: 0; left: 0; height: 100%; width: 280px; background: rgba(10, 10, 10, 0.98); border-right: 2px solid var(--accent); z-index: 100; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 20px 0 50px rgba(0,0,0,0.8); }
-    .drawer.open { transform: translateX(0); }
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 90; display: none; }
-    .overlay.visible { display: block; }
+    body.theme-emerald { 
+      --accent: #10b981; 
+      --accent-glow: rgba(16, 185, 129, 0.6);
+      --glass-bg: rgba(0, 20, 10, 0.4);
+      --glass-border: rgba(16, 185, 129, 0.2);
+    }
+    
+    body.theme-cobalt { 
+      --accent: #2563eb; 
+      --accent-glow: rgba(37, 99, 235, 0.6);
+      --glass-bg: rgba(0, 10, 20, 0.4);
+      --glass-border: rgba(37, 99, 235, 0.2);
+    }
+    
+    body.theme-amethyst { 
+      --accent: #a855f7; 
+      --accent-glow: rgba(168, 85, 247, 0.6);
+      --glass-bg: rgba(20, 0, 20, 0.4);
+      --glass-border: rgba(168, 85, 247, 0.2);
+    }
+    
+    body.theme-amber { 
+      --accent: #f59e0b; 
+      --accent-glow: rgba(245, 158, 11, 0.6);
+      --glass-bg: rgba(20, 15, 0, 0.4);
+      --glass-border: rgba(245, 158, 11, 0.2);
+    }
 
-    .main-wrapper { max-width: 1200px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; position: relative; }
-    .chat-window { flex: 1; background: rgba(15, 15, 15, 0.6); overflow-y: auto; padding: 20px; }
-    .message-bubble { padding: 10px 16px; border-radius: 12px; max-width: 85%; font-size: 15px; }
-    .message-bubble.me { background: var(--accent); color: white; border-bottom-right-radius: 2px; }
-    .message-bubble.other { background: #222; border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.1); }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    body { 
+      background: #000; 
+      color: #fff; 
+      font-family: 'Rajdhani', sans-serif; 
+      height: 100vh; 
+      overflow: hidden;
+      position: relative;
+    }
 
-    .btn-cyber { border: 1px solid var(--accent); color: var(--accent); text-transform: uppercase; font-weight: bold; transition: all 0.3s; }
-    .btn-cyber:hover { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); }
+    /* FONDO 3D ANIMADO */
+    .cyber-grid { 
+      position: fixed; 
+      inset: 0; 
+      background: 
+        radial-gradient(ellipse at top, var(--accent-glow) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom, var(--accent-glow) 0%, transparent 50%);
+      z-index: -2;
+      animation: pulse-bg 4s ease-in-out infinite;
+    }
 
-    .nav-header { padding: 15px 20px; background: #000; border-bottom: 2px solid var(--accent); display: flex; align-items: center; justify-content: space-between; }
+    @keyframes pulse-bg {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.5; }
+    }
+
+    .cyber-grid::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(var(--glass-border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--glass-border) 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0.1;
+      animation: grid-move 20s linear infinite;
+    }
+
+    @keyframes grid-move {
+      0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+      100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+    }
+
+    .cyber-grid::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, transparent 0%, #000 100%);
+      z-index: -1;
+    }
+
+    /* PARTÍCULAS FLOTANTES */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    .particle {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* GLASS MORPHISM MEJORADO */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 40px var(--accent-glow);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 0 60px var(--accent-glow);
+    }
+
+    /* DRAWER 3D */
+    .drawer { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      height: 100%; 
+      width: 320px; 
+      background: var(--glass-bg);
+      backdrop-filter: blur(30px) saturate(180%);
+      border-right: 2px solid var(--accent);
+      z-index: 100; 
+      transform: translateX(-100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 
+        20px 0 60px rgba(0, 0, 0, 0.9),
+        inset -1px 0 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .drawer.open { 
+      transform: translateX(0);
+      box-shadow: 
+        40px 0 100px rgba(0, 0, 0, 0.95),
+        inset -1px 0 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .drawer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--accent-glow) 0%, transparent 50%);
+      opacity: 0.05;
+      pointer-events: none;
+    }
+
+    .overlay { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 90; 
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    
+    .overlay.visible { 
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* MENSAJES 3D CON PROFUNDIDAD */
+    .message-bubble { 
+      padding: 14px 20px; 
+      border-radius: 18px; 
+      max-width: 75%; 
+      font-size: 15px;
+      font-weight: 500;
+      position: relative;
+      animation: message-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.3s ease;
+    }
+
+    @keyframes message-pop {
+      0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .message-bubble.me { 
+      background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 80%, black) 100%);
+      color: white;
+      border-bottom-right-radius: 4px;
+      box-shadow: 
+        0 4px 16px var(--accent-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transform-style: preserve-3d;
+    }
+
+    .message-bubble.me::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .message-bubble.other { 
+      background: rgba(40, 40, 40, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom-left-radius: 4px;
+      box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    .message-bubble:hover {
+      transform: scale(1.02);
+    }
+
+    /* BOTONES CYBER 3D */
+    .btn-cyber { 
+      border: 2px solid var(--accent);
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-cyber::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-cyber:hover::before {
+      left: 100%;
+    }
+
+    .btn-cyber:hover { 
+      background: var(--accent);
+      color: #000;
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px var(--accent-glow), inset 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-cyber:active {
+      transform: translateY(0);
+    }
+
+    /* HEADER 3D */
+    .nav-header { 
+      padding: 20px 30px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+      position: relative;
+    }
+
+    .nav-header::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: scan 2s linear infinite;
+    }
+
+    @keyframes scan {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* INPUT 3D CON GLOW */
+    .input-3d {
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border: 2px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 16px 24px;
+      outline: none;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 
+        inset 0 2px 8px rgba(0, 0, 0, 0.5),
+        0 0 0 rgba(0, 0, 0, 0);
+    }
+
+    .input-3d:focus {
+      border-color: var(--accent);
+      box-shadow: 
+        inset 0 2px 8px rgba(0, 0, 0, 0.5),
+        0 0 30px var(--accent-glow);
+    }
+
+    .input-3d::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* SEND BUTTON 3D */
+    .send-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, black));
+      border: none;
+      color: #000;
+      font-size: 22px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 
+        0 8px 24px var(--accent-glow),
+        inset 0 2px 0 rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .send-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .send-btn:hover::before {
+      opacity: 1;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 
+        0 12px 32px var(--accent-glow),
+        inset 0 2px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    .send-btn:active {
+      transform: scale(0.95) translateY(0);
+    }
+
+    /* CHANNEL BUTTONS 3D */
+    .channel-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .channel-btn::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .channel-btn.active {
+      background: var(--glass-bg);
+      border-color: var(--glass-border);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .channel-btn.active::before {
+      transform: scaleY(1);
+    }
+
+    .channel-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    /* USER STATUS 3D */
+    .user-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981, inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      animation: pulse-status 2s ease-in-out infinite;
+    }
+
+    .user-status.admin {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      box-shadow: 0 0 15px #fbbf24, inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    @keyframes pulse-status {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+    }
+
+    /* SCROLLBAR 3D */
+    .chat-window::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .chat-window::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+    }
+
+    .chat-window::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 50%, black));
+      border-radius: 10px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .chat-window::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+
+    /* ALERT BANNER 3D */
+    .alert-banner {
+      background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 80%, white), var(--accent));
+      background-size: 200% 100%;
+      animation: gradient-shift 3s linear infinite;
+      padding: 12px;
+      text-align: center;
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 20px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      position: relative;
+    }
+
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .alert-banner::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: shine 2s infinite;
+    }
+
+    @keyframes shine {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .drawer { width: 85%; max-width: 320px; }
+      .message-bubble { max-width: 90%; font-size: 14px; }
+      .nav-header { padding: 15px 20px; }
+    }
+
+    /* LOGIN SCREEN 3D */
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      perspective: 1000px;
+    }
+
+    .login-box {
+      background: var(--glass-bg);
+      backdrop-filter: blur(30px) saturate(180%);
+      border: 2px solid var(--accent);
+      border-radius: 30px;
+      padding: 60px 40px;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 
+        0 20px 80px rgba(0, 0, 0, 0.8),
+        0 0 100px var(--accent-glow),
+        inset 0 2px 0 rgba(255, 255, 255, 0.1);
+      transform-style: preserve-3d;
+      animation: float-login 3s ease-in-out infinite;
+    }
+
+    @keyframes float-login {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .login-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 56px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 60%, white) 50%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 6px;
+      margin-bottom: 50px;
+      text-shadow: 0 0 60px var(--accent-glow);
+      animation: glow-text 2s ease-in-out infinite;
+    }
+
+    @keyframes glow-text {
+      0%, 100% { text-shadow: 0 0 40px var(--accent-glow); }
+      50% { text-shadow: 0 0 80px var(--accent-glow); }
+    }
+
+    .main-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-window {
+      flex: 1;
+      overflow-y: auto;
+      padding: 30px 20px;
+      position: relative;
+    }
   </style>
 </head>
 <body>
@@ -69,7 +605,23 @@
       "819c961c022883f3e18a8008e43e26458519e48c1e4c70308009696987c8801d": "Itsuki"
     };
 
-    const THEMES = ['muzzle', 'emerald', 'cobalt', 'amethyst', 'amber'];
+    const THEMES = ['default', 'emerald', 'cobalt', 'amethyst', 'amber'];
+
+    // Crear partículas flotantes
+    useEffect(() => {
+      const createParticle = () => {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animation = `float ${3 + Math.random() * 4}s ease-in-out infinite`;
+        particle.style.animationDelay = Math.random() * 2 + 's';
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 7000);
+      };
+
+      const interval = setInterval(createParticle, 500);
+      return () => clearInterval(interval);
+    }, []);
 
     function App() {
       const [user, setUser] = useState(null);
@@ -90,7 +642,7 @@
       };
 
       const login = async () => {
-        if (!window.ethereum) return alert("Instala MetaMask");
+        if (!window.ethereum) return alert("⚠️ Instala MetaMask");
         try {
           const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
           const wallet = accs[0].toLowerCase();
@@ -104,136 +656,297 @@
           await db.ref(`presence/${cred.user.uid}`).set(userData);
           db.ref(`presence/${cred.user.uid}`).onDisconnect().remove();
           setUser(userData);
-        } catch (e) { console.error(e); }
+        } catch (e) { 
+          console.error(e);
+          alert("Error al conectar");
+        }
       };
 
       useEffect(() => {
         if (!user) return;
         
-        // Listener de Presencia (para Ban/Mute)
         db.ref('presence').on('value', s => {
           const val = s.val() || {};
           setUsersOnline(val);
-          // Si el admin nos borró de presencia, somos expulsados
           if (!val[user.uid]) window.location.reload();
         });
 
-        // Listener de Muted Global (opcional, aquí lo manejamos por DB)
         db.ref('muted').on('value', s => setMutedUsers(s.val() ? Object.values(s.val()) : []));
 
         const mRef = db.ref(`messages/${chan}`).limitToLast(50);
         mRef.on('value', s => {
           const val = s.val();
           if (val) {
-            const list = Object.keys(val).map(k => ({id:k, ...val[k]}));
-            // Filtrar mensajes de usuarios silenciados
+            const list = Object.keys(val).map(k => ({id:k, ...val[k]})).sort((a,b) => a.time - b.time);
             setMessages(list.filter(m => !mutedUsers.includes(m.name)));
           } else { setMessages([]); }
         });
 
         db.ref('system_alert').on('value', s => setAlertMsg(s.val()));
-        return () => { mRef.off(); db.ref('presence').off(); db.ref('system_alert').off(); db.ref('muted').off(); };
+        
+        return () => { 
+          mRef.off(); 
+          db.ref('presence').off(); 
+          db.ref('system_alert').off(); 
+          db.ref('muted').off(); 
+        };
       }, [user, chan, mutedUsers]);
 
-      useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+      useEffect(() => { 
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); 
+      }, [messages]);
 
       const handleSend = async () => {
         const t = text.trim();
         if (!t) return;
 
         if (user.isGod) {
-          if (t === '/clear') { await db.ref(`messages/${chan}`).remove(); setText(""); return; }
-          if (t.startsWith('/alert ')) { await db.ref('system_alert').set(t.replace('/alert ', '')); setText(""); return; }
+          if (t === '/clear') { 
+            await db.ref(`messages/${chan}`).remove(); 
+            setText(""); 
+            return; 
+          }
           
-          // COMANDO BAN: /ban [nombre]
+          if (t.startsWith('/alert ')) { 
+            await db.ref('system_alert').set(t.replace('/alert ', '')); 
+            setText(""); 
+            return; 
+          }
+          
+          if (t === '/clearalert') { 
+            await db.ref('system_alert').remove(); 
+            setText(""); 
+            return; 
+          }
+          
           if (t.startsWith('/ban ')) {
             const targetName = t.replace('/ban ', '').trim();
             const target = Object.values(usersOnline).find(u => u.name === targetName);
             if (target && !target.isGod) {
               await db.ref(`presence/${target.uid}`).remove();
-              alert(`Usuario ${targetName} expulsado.`);
+              alert(`✅ Usuario ${targetName} expulsado`);
             }
-            setText(""); return;
+            setText(""); 
+            return;
           }
 
-          // COMANDO MUTE: /mute [nombre]
           if (t.startsWith('/mute ')) {
             const targetName = t.replace('/mute ', '').trim();
-            if (!ADMIN_WALLETS[targetName]) { // No mutear admins si el nombre coincide
-               await db.ref('muted').push(targetName);
-               alert(`Usuario ${targetName} silenciado globalmente.`);
+            const isAdmin = Object.values(ADMIN_WALLETS).includes(targetName);
+            if (!isAdmin) {
+              await db.ref('muted').push(targetName);
+              alert(`✅ Usuario ${targetName} silenciado`);
             }
-            setText(""); return;
+            setText(""); 
+            return;
+          }
+
+          if (t.startsWith('/unmute ')) {
+            const targetName = t.replace('/unmute ', '').trim();
+            const mutedRef = await db.ref('muted').once('value');
+            const muted = mutedRef.val();
+            if (muted) {
+              const key = Object.keys(muted).find(k => muted[k] === targetName);
+              if (key) {
+                await db.ref(`muted/${key}`).remove();
+                alert(`✅ ${targetName} desmuteado`);
+              }
+            }
+            setText(""); 
+            return;
           }
         }
 
         await db.ref(`messages/${chan}`).push({
-          content: t, name: user.name, uid: user.uid, isGod: user.isGod, time: Date.now()
+          content: t, 
+          name: user.name, 
+          uid: user.uid, 
+          isGod: user.isGod, 
+          time: Date.now()
         });
         setText("");
       };
 
-      if (!user) return (
-        <div className="flex h-screen items-center justify-center p-6 bg-black">
-          <button onClick={login} className="px-10 py-4 btn-cyber rounded-xl font-black tracking-widest">INGRESAR SISTEMA</button>
-        </div>
-      );
+      if (!user) {
+        return (
+          <div className="login-container">
+            <div className="login-box">
+              <div className="login-logo">MUZZSNAP</div>
+              <button onClick={login} className="btn-cyber rounded-2xl px-12 py-4 text-lg font-black tracking-widest">
+                INICIALIZAR SISTEMA
+              </button>
+            </div>
+          </div>
+        );
+      }
 
       return (
         <div className="main-wrapper">
           <div className={`overlay ${drawerOpen ? 'visible' : ''}`} onClick={() => setDrawerOpen(false)}></div>
+          
           <aside className={`drawer ${drawerOpen ? 'open' : ''} p-6 flex flex-col`}>
-            <div className="flex justify-between items-center mb-10 text-white/50">
-              <span className="font-bold uppercase tracking-tighter">Terminal_v4.2</span>
-              <button onClick={() => setDrawerOpen(false)}><i className="fas fa-times"></i></button>
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                <span className="text-xs font-bold uppercase tracking-widest opacity-60">Terminal v4.2</span>
+              </div>
+              <button onClick={() => setDrawerOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 transition">
+                <i className="fas fa-times text-white/60"></i>
+              </button>
             </div>
             
             <nav className="space-y-2 flex-1 overflow-y-auto">
-              <p className="text-[10px] opacity-40 uppercase font-bold mb-4 tracking-widest">Sectores</p>
+              <p className="text-[10px] opacity-40 uppercase font-bold mb-4 tracking-widest">Sectores de Red</p>
               {['general', 'español', 'trading', 'devs'].map(c => (
-                <button key={c} onClick={() => {setChan(c); setDrawerOpen(false);}} className={`w-full text-left p-4 rounded-xl transition ${chan === c ? 'bg-white/5 border-l-4' : 'hover:bg-white/5 opacity-60'}`} style={{borderColor: chan === c ? 'var(--accent)' : 'transparent'}}># {c.toUpperCase()}</button>
+                <button 
+                  key={c} 
+                  onClick={() => {setChan(c); setDrawerOpen(false);}} 
+                  className={`channel-btn ${chan === c ? 'active' : ''}`}
+                >
+                  <i className="fas fa-hashtag mr-2 text-xs"></i>
+                  {c.toUpperCase()}
+                </button>
               ))}
               
-              <p className="text-[10px] opacity-40 uppercase font-bold mt-8 mb-4 tracking-widest">Usuarios Online</p>
-              {Object.values(usersOnline).map((u, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm p-2 opacity-80">
-                  <div className={`w-2 h-2 rounded-full ${u.isGod ? 'bg-yellow-400' : 'bg-green-500'}`}></div>
-                  <span className={u.isGod ? 'text-yellow-400 font-bold' : ''}>{u.name}</span>
-                </div>
-              ))}
+              <p className="text-[10px] opacity-40 uppercase font-bold mt-8 mb-4 tracking-widest">
+                Nodos Activos ({Object.keys(usersOnline).length})
+              </p>
+              <div className="space-y-2">
+                {Object.values(usersOnline).sort((a,b) => (b.isGod ? 1 : 0) - (a.isGod ? 1 : 0)).map((u, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition">
+                    <div className={`user-status ${u.isGod ? 'admin' : ''}`}></div>
+                    <span className={`text-sm font-semibold ${u.isGod ? 'text-yellow-400' : 'text-white/80'}`}>
+                      {u.isGod && '👑 '}{u.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </nav>
 
-            <div className="pt-6 border-t border-white/10 space-y-3">
-              <button onClick={cycleTheme} className="w-full p-3 text-xs btn-cyber rounded-lg"><i className="fas fa-sync-alt mr-2"></i> Cambiar Estética</button>
-              <button onClick={() => {auth.signOut(); window.location.reload();}} className="w-full p-3 text-xs bg-red-900/20 text-red-500 font-bold border border-red-900/40 rounded-lg hover:bg-red-500 hover:text-black transition">DESCONECTAR</button>
+            <div className="pt-6 border-t border-white/10 space-y-3 mt-6">
+              <button 
+                onClick={cycleTheme} 
+                className="w-full p-3 text-xs btn-cyber rounded-xl flex items-center justify-center gap-2"
+              >
+                <i className="fas fa-palette"></i>
+                CAMBIAR TEMA
+              </button>
+              
+              {user.isGod && (
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                  <p className="text-yellow-400 text-[10px] font-bold mb-2 uppercase tracking-wider">Admin Console</p>
+                  <p className="text-[9px] text-white/60 leading-relaxed">
+                    /clear • /alert • /ban • /mute • /unmute
+                  </p>
+                </div>
+              )}
+              
+              <button 
+                onClick={() => {auth.signOut(); window.location.reload();}} 
+                className="w-full p-3 text-xs bg-red-900/20 text-red-400 font-bold border border-red-900/40 rounded-xl hover:bg-red-500 hover:text-black transition"
+              >
+                <i className="fas fa-power-off mr-2"></i>
+                DESCONECTAR
+              </button>
             </div>
           </aside>
 
           <header className="nav-header">
-            <button className="text-2xl" onClick={() => setDrawerOpen(true)}><i className="fas fa-bars"></i></button>
-            <h1 className="font-black text-xl" style={{color: 'var(--accent)'}}>MUZZSNAP // {chan}</h1>
-            <div className={`text-[10px] font-bold p-1 border ${user.isGod ? 'border-yellow-500 text-yellow-500' : 'border-white/20 opacity-30'}`}>{user.isGod ? 'GOD' : 'USER'}</div>
+            <button 
+              className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 transition" 
+              onClick={() => setDrawerOpen(true)}
+            >
+              <i className="fas fa-bars text-xl"></i>
+            </button>
+            
+            <h1 
+              className="font-black text-xl tracking-wider" 
+              style={{
+                color: 'var(--accent)',
+                textShadow: '0 0 20px var(--accent-glow)'
+              }}
+            >
+              <span className="font-['Orbitron']">MUZZSNAP</span>
+              <span className="text-sm ml-3 opacity-60">// {chan.toUpperCase()}</span>
+            </h1>
+            
+            <div 
+              className="text-[9px] font-black px-3 py-1 rounded-lg border-2"
+              style={{
+                borderColor: user.isGod ? '#fbbf24' : 'rgba(255,255,255,0.2)',
+                color: user.isGod ? '#fbbf24' : 'rgba(255,255,255,0.4)',
+                boxShadow: user.isGod ? '0 0 15px rgba(251, 191, 36, 0.3)' : 'none'
+              }}
+            >
+              {user.isGod ? '👑 ADMIN' : 'USER'}
+            </div>
           </header>
 
-          {alertMsg && <div className="bg-red-600 text-[10px] text-center font-bold p-1 animate-pulse uppercase tracking-widest">SISTEMA: {alertMsg}</div>}
+          {alertMsg && (
+            <div className="alert-banner">
+              <i className="fas fa-exclamation-triangle mr-2"></i>
+              SISTEMA: {alertMsg}
+            </div>
+          )}
 
           <div className="chat-window">
-            <div className="max-w-4xl mx-auto space-y-4">
-              {messages.map(m => (
-                <div key={m.id} className={`flex flex-col ${m.uid === user.uid ? 'items-end' : 'items-start'}`}>
-                  <span className={`text-[10px] mb-1 px-1 ${m.isGod ? 'text-yellow-400 font-bold' : 'opacity-40'}`}>{m.name} {m.isGod && '👑'}</span>
-                  <div className={`message-bubble ${m.uid === user.uid ? 'me' : 'other'}`}>{m.content}</div>
+            <div className="max-w-4xl mx-auto space-y-5">
+              {messages.length === 0 ? (
+                <div className="glass-card p-8 rounded-2xl text-center">
+                  <div className="text-4xl mb-4">👑</div>
+                  <h2 className="text-xl font-bold mb-2" style={{color: 'var(--accent)'}}>
+                    Bienvenido a MuzzChat
+                  </h2>
+                  <p className="text-sm text-white/60">
+                    Canal #{chan} • Sin mensajes aún
+                  </p>
                 </div>
-              ))}
+              ) : (
+                messages.map(m => (
+                  <div key={m.id} className={`flex flex-col ${m.uid === user.uid ? 'items-end' : 'items-start'}`}>
+                    <div className="flex items-center gap-2 mb-2 px-2">
+                      <div className={`w-1.5 h-1.5 rounded-full ${m.isGod ? 'bg-yellow-400' : 'bg-green-500'}`}></div>
+                      <span 
+                        className={`text-[10px] font-bold tracking-wider ${m.isGod ? 'text-yellow-400' : 'text-white/50'}`}
+                      >
+                        {m.isGod && '👑 '}{m.name}
+                      </span>
+                    </div>
+                    <div className={`message-bubble ${m.uid === user.uid ? 'me' : 'other'}`}>
+                      {m.content}
+                    </div>
+                  </div>
+                ))
+              )}
               <div ref={scrollRef}></div>
             </div>
           </div>
 
-          <footer className="p-4 bg-black border-t border-white/5">
-            <div className="flex gap-2 max-w-4xl mx-auto">
-              <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder={user.isGod ? "Admin console active..." : "Transmitir datos..."} className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-white/20 transition"/>
-              <button onClick={handleSend} className="w-14 h-14 rounded-2xl flex items-center justify-center transition" style={{background: 'var(--accent)'}}><i className="fas fa-bolt text-black"></i></button>
+          <footer className="p-6" style={{
+            background: 'var(--glass-bg)',
+            backdropFilter: 'blur(20px)',
+            borderTop: '1px solid var(--glass-border)'
+          }}>
+            <div className="flex gap-3 max-w-4xl mx-auto">
+              <input 
+                value={text} 
+                onChange={e => setText(e.target.value)} 
+                onKeyDown={e => e.key === 'Enter' && handleSend()} 
+                placeholder={user.isGod ? "Admin console activo..." : "Transmitir datos..."} 
+                className="input-3d flex-1"
+              />
+              <button onClick={handleSend} className="send-btn">
+                <i className="fas fa-bolt"></i>
+              </button>
             </div>
+            
+            {user.isGod && (
+              <div className="max-w-4xl mx-auto mt-3">
+                <p className="text-[9px] text-yellow-400/60 text-center font-mono">
+                  Console ready • /clear /alert /ban /mute /unmute /clearalert
+                </p>
+              </div>
+            )}
           </footer>
         </div>
       );
