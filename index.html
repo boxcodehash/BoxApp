@@ -1,199 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MuzzSnap</title>
-
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ff0000">
-
-<!-- UI -->
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-<!-- Web3 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-
-<!-- React -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
-<style>
-body{background:#0a0a0a;color:#fff;font-family:Inter,system-ui}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MuzzSnap | Secure Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; background-color: #0a0a0a; }
+        .muzz-background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at 10% 50%, rgba(100, 100, 100, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 90% 80%, rgba(50, 50, 50, 0.1) 0%, transparent 60%);
+        }
+        #logoButton { cursor: pointer; transition: all 0.3s ease; }
+        #logoButton:hover { opacity: 0.9; transform: scale(1.02); }
+        .pulse-ring { animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse-ring { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
 </head>
+<body class="p-4 text-white">
+    <div class="muzz-background"></div>
 
-<body>
-<div id="root"></div>
-
-<script type="text/babel">
-const {useState,useEffect,useRef}=React;
-
-/* ================= FIREBASE ================= */
-firebase.initializeApp({
-  apiKey:"AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
-  authDomain:"pulsari.firebaseapp.com",
-  databaseURL:"https://pulsari-default-rtdb.firebaseio.com",
-  projectId:"pulsari"
-});
-const db=firebase.database();
-firebase.auth().signInAnonymously();
-
-/* ================= CONFIG ================= */
-const CONFIG={
-  contractAddress:"0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0",
-  minTokens:40000000,
-  requiredChainId:1
-};
-
-/* ================= APP ================= */
-function App(){
-  const [stage,setStage]=useState("login"); // login | chat
-  const [wallet,setWallet]=useState(null);
-  const [messages,setMessages]=useState([]);
-  const [text,setText]=useState("");
-  const scrollRef=useRef();
-
-  /* ===== RESTORE SESSION ===== */
-  useEffect(()=>{
-    const addr=localStorage.getItem("muzz_wallet");
-    if(addr){
-      setWallet(addr);
-      setStage("chat");
-    }
-  },[]);
-
-  /* ===== LOGIN ===== */
-  const connectWallet=async()=>{
-    if(!window.ethereum){
-      alert("Wallet requerida");
-      return;
-    }
-
-    const provider=new ethers.providers.Web3Provider(window.ethereum,"any");
-    const accounts=await provider.send("eth_requestAccounts",[]);
-    const address=accounts[0];
-
-    const network=await provider.getNetwork();
-    if(network.chainId!==CONFIG.requiredChainId){
-      alert("Switch to Ethereum Mainnet");
-      return;
-    }
-
-    const abi=[
-      "function balanceOf(address) view returns(uint256)",
-      "function decimals() view returns(uint8)"
-    ];
-
-    const contract=new ethers.Contract(CONFIG.contractAddress,abi,provider);
-    const decimals=await contract.decimals();
-    const balance=Number(ethers.utils.formatUnits(
-      await contract.balanceOf(address),
-      decimals
-    ));
-
-    if(balance<CONFIG.minTokens){
-      alert("Insufficient MUZZ balance");
-      return;
-    }
-
-    localStorage.setItem("muzz_wallet",address);
-    setWallet(address);
-    setStage("chat");
-  };
-
-  /* ===== CHAT ===== */
-  useEffect(()=>{
-    if(stage!=="chat") return;
-    db.ref("messages/general").limitToLast(50).on("value",s=>{
-      const v=s.val()||{};
-      setMessages(Object.keys(v).map(k=>({id:k,...v[k]})));
-    });
-  },[stage]);
-
-  useEffect(()=>{
-    scrollRef.current?.scrollIntoView({behavior:"smooth"});
-  },[messages]);
-
-  const send=async()=>{
-    if(!text.trim())return;
-    await db.ref("messages/general").push({
-      content:text,
-      wallet,
-      time:Date.now()
-    });
-    setText("");
-  };
-
-  /* ===== UI ===== */
-  if(stage==="login"){
-    return(
-      <div className="h-screen flex flex-col items-center justify-center text-center p-6">
-        <img
-          src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png"
-          className="w-40 h-40 rounded-2xl mb-6 cursor-pointer"
-          onClick={connectWallet}
-        />
-        <h1 className="text-3xl font-black mb-2">MuzzSnap</h1>
-        <p className="text-xs text-gray-400">
-          Click logo to connect wallet
-        </p>
-      </div>
-    );
-  }
-
-  return(
-    <div className="h-screen flex flex-col p-4">
-      <header className="text-xs opacity-50 mb-2">
-        Wallet: {wallet.slice(0,6)}…{wallet.slice(-4)}
-      </header>
-
-      <div className="flex-1 overflow-y-auto space-y-3">
-        {messages.map(m=>(
-          <div key={m.id} className={m.wallet===wallet?"text-right":""}>
-            <div className="inline-block bg-gray-800 px-4 py-2 rounded-xl">
-              {m.content}
-            </div>
-          </div>
-        ))}
-        <div ref={scrollRef}></div>
-      </div>
-
-      <div className="flex gap-2 mt-3">
-        <input
-          className="flex-1 bg-gray-900 p-3 rounded-xl"
-          value={text}
-          onChange={e=>setText(e.target.value)}
-          onKeyDown={e=>e.key==="Enter"&&send()}
-          placeholder="Transmit…"
-        />
-        <button
-          className="px-4 bg-red-600 rounded-xl"
-          onClick={send}
-        >
-          <i className="fas fa-bolt"></i>
-        </button>
-      </div>
+    <div id="statusContainer" class="absolute top-4 right-4 z-20 flex flex-col items-end gap-2">
+        <span id="walletStatus" class="py-2 px-4 text-xs font-medium text-gray-400 bg-gray-800 rounded-lg border border-gray-700">
+            <i class="fas fa-circle text-gray-500 mr-1"></i> Disconnected
+        </span>
     </div>
-  );
-}
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-</script>
+    <div class="relative z-10 flex flex-col items-center justify-center min-h-[80vh] max-w-sm mx-auto text-center">
+        <div id="logoButton" onclick="handleAuth()" class="mb-6 relative group">
+            <img id="muzzLogo" src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440" 
+                 alt="MuzzSnap" class="w-40 h-40 rounded-2xl shadow-2xl group-hover:rotate-2 transition duration-500">
+            <div id="loadingSpinner" class="hidden absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl backdrop-blur-sm">
+                <i class="fas fa-spinner fa-spin text-4xl text-white"></i>
+            </div>
+        </div>
 
-<script>
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("service-worker.js");
-}
-</script>
+        <h1 class="text-4xl font-black mb-2 tracking-tight">MuzzSnap</h1>
+        <p class="text-xs text-gray-500 mb-8 tracking-widest uppercase">
+            Secure Decentralized Chat<br>単なるアプリ以上のもの。 
+        </p>
 
+        <div id="messageArea" class="hidden w-full mb-8 p-4 bg-gray-900/80 border border-gray-800 rounded-xl backdrop-blur-md text-left">
+            <p id="messageTitle" class="text-sm font-bold text-red-400 mb-1">Error</p>
+            <p id="messageText" class="text-xs text-gray-400 leading-relaxed">Description</p>
+        </div>
+
+        <p class="text-xs text-gray-600 pulse-ring mt-4">
+            Click logo to sign and enter<br>ロゴをクリックして署名して入室
+        </p>
+
+        <footer class="mt-16 text-[10px] text-gray-700 font-mono">
+            MuzzSnap 2025&trade; &bull; By.Ryachu
+        </footer>
+    </div>
+
+    <script>
+        const CONFIG = {
+            contractAddress: "0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0",
+            minTokens: 40000000,
+            requiredChainId: 1,
+            chatUrl: 'chat.html'
+        };
+
+        const UI = {
+            spinner: document.getElementById('loadingSpinner'),
+            status: document.getElementById('walletStatus'),
+            msgArea: document.getElementById('messageArea'),
+            msgTitle: document.getElementById('messageTitle'),
+            msgText: document.getElementById('messageText'),
+            setStatus(text, color, icon) {
+                this.status.innerHTML = `<i class="fas fa-${icon} text-${color}-500 mr-1"></i> ${text}`;
+                this.status.className = `py-2 px-4 text-xs font-medium rounded-lg border bg-gray-900 border-${color}-700 text-${color}-400`;
+            },
+            showMessage(title, text, isError = true) {
+                this.msgArea.classList.remove('hidden');
+                this.msgTitle.textContent = title;
+                this.msgTitle.className = `text-sm font-bold mb-1 ${isError ? 'text-red-400' : 'text-green-400'}`;
+                this.msgText.textContent = text;
+            }
+        };
+
+        async function handleAuth() {
+            UI.spinner.classList.remove('hidden');
+            UI.msgArea.classList.add('hidden');
+            
+            try {
+                // 1. Conexión a Wallet
+                if (typeof window.ethereum === 'undefined') {
+                    // Si es móvil sin wallet, redirigir a Metamask App
+                    if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                        window.location.href = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
+                        return;
+                    }
+                    throw new Error("Please install a Web3 wallet extension.");
+                }
+
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                const address = await signer.getAddress();
+
+                // 2. Verificación de Balance (MUZZ)
+                UI.setStatus('Verifying MUZZ...', 'blue', 'coins');
+                const abi = ["function balanceOf(address) view returns (uint256)", "function decimals() view returns (uint8)"];
+                const contract = new ethers.Contract(CONFIG.contractAddress, abi, provider);
+                const [balance, decimals] = await Promise.all([contract.balanceOf(address), contract.decimals()]);
+                const formattedBalance = parseFloat(ethers.utils.formatUnits(balance, decimals));
+
+                if (formattedBalance < CONFIG.minTokens) {
+                    throw new Error(`Need ${CONFIG.minTokens.toLocaleString()} MUZZ. You have: ${Math.floor(formattedBalance).toLocaleString()}`);
+                }
+
+                // 3. FIRMA PARA AUTORIZACIÓN (Lo que pediste)
+                UI.setStatus('Sign in Wallet...', 'yellow', 'pen-nib');
+                const message = `MuzzSnap Authorization\n\nI am the owner of ${address}\nTimestamp: ${Date.now()}`;
+                const signature = await signer.signMessage(message);
+
+                // 4. Guardar datos y entrar al chat
+                sessionStorage.setItem('muzz_wallet', address);
+                sessionStorage.setItem('muzz_sig', signature);
+                
+                UI.setStatus('Authorized!', 'green', 'check-circle');
+                UI.showMessage('Success', 'Access granted. Entering chat...', false);
+
+                setTimeout(() => { window.location.href = CONFIG.chatUrl; }, 1500);
+
+            } catch (err) {
+                console.error(err);
+                UI.setStatus('Error', 'red', 'exclamation-circle');
+                UI.showMessage('Auth Failed', err.message);
+            } finally {
+                UI.spinner.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
