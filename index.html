@@ -5,30 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MuzzSnap | Protocol</title>
 
+    <script>
+        if (window.top !== window.self) {
+            window.top.location.replace(window.self.location.href);
+        }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Fira+Code&display=swap');
         body { background-color: #050505; color: white; font-family: sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
         .logo-glow { box-shadow: 0 0 40px rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.3s; cursor: pointer; }
-        .logo-glow:hover { box-shadow: 0 0 60px rgba(255, 0, 0, 0.4); transform: scale(1.02); }
-        .hacker-input { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,0,0,0.2); color: #39ff14; }
+        .logo-glow:active { transform: scale(0.95); }
         .loading-spinner { animation: spin 1s linear infinite; border: 3px solid transparent; border-top-color: #ff0000; border-radius: 50%; }
+        .hacker-input { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,0,0,0.2); color: #39ff14; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div class="text-center px-6 w-full max-w-sm">
-        <div id="btnConnectWallet" class="relative inline-block mb-6 group" onclick="accessWithWallet()">
+        <div id="btnConnect" class="relative inline-block mb-6" onclick="accessWithWallet()">
             <div id="loadingUI" class="hidden absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-3xl">
                 <div class="loading-spinner w-12 h-12"></div>
             </div>
             <img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440" 
                  class="logo-glow w-32 h-32 md:w-40 md:h-40 rounded-3xl">
-            <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-red-600 text-[8px] px-2 py-1 rounded font-bold opacity-0 group-hover:opacity-100 transition-opacity">WALLET_LOGIN</div>
         </div>
 
         <h1 style="font-family: 'Orbitron';" class="text-2xl font-black tracking-tighter italic mb-1">
@@ -36,10 +41,10 @@
         </h1>
         <p id="statusText" class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-8">Tap logo for Wallet or use Guest below</p>
 
-        <div class="space-y-3 mb-8">
+        <div class="space-y-4 mb-8">
             <input type="text" id="usernameInput" placeholder="ENTER_USERNAME..." 
-                   class="w-full p-3 rounded-xl hacker-input text-center text-xs border-dashed">
-            <button onclick="accessWithGuest()" class="w-full py-2 text-[10px] font-bold tracking-widest text-gray-400 hover:text-white uppercase transition-colors">
+                   class="w-full p-3 rounded-xl hacker-input text-center text-xs">
+            <button onclick="accessWithGuest()" class="w-full py-2 text-[9px] font-bold text-gray-500 hover:text-red-500 uppercase tracking-widest transition-colors">
                 [ Initialize Guest Protocol ]
             </button>
         </div>
@@ -66,37 +71,34 @@
             loadingUI.classList.add('hidden');
         }
 
-        // OPCIÓN 1: Acceso con Wallet
+        // Lógica para Wallet (Logo)
         async function accessWithWallet() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
                     loadingUI.classList.remove('hidden');
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    const wallet = accounts[0];
-                    
-                    // Almacenamos la wallet. El chat detectará que es wallet y usará los últimos 4 dígitos.
-                    sessionStorage.setItem('muzz_wallet_address', wallet);
+                    sessionStorage.setItem('muzz_wallet_address', accounts[0]);
                     window.location.href = 'chat.html';
                 } catch (err) {
-                    showError("CONNECTION_ERROR", "User rejected the request or wallet is locked.");
+                    showError("AUTH_FAILED", "Connection rejected by user.");
                 }
             } else {
-                showError("NO_WALLET_FOUND", "Please install MetaMask or a Web3 browser to use this method.");
+                showError("NO_WALLET", "Please install MetaMask or a Web3 browser.");
             }
         }
 
-        // OPCIÓN 2: Acceso por Username (Guest)
+        // Lógica para Guest (Username)
         function accessWithGuest() {
             const user = document.getElementById('usernameInput').value.trim();
-            if (!user || user.length < 3) {
-                showError("INVALID_ID", "Username must be at least 3 characters long.");
+            if (!user) {
+                showError("REQUIRED_FIELD", "Enter a username to proceed as guest.");
                 return;
             }
-            
-            // Almacenamos con el prefijo guest_ para que el chat aplique las restricciones (3s timer, no links, no emojis).
+            // Guardamos con prefijo guest_ para que el chat aplique el timer de 3s y bloqueos
             sessionStorage.setItem('muzz_wallet_address', `guest_${user}`);
             window.location.href = 'chat.html';
         }
     </script>
+
 </body>
 </html>
