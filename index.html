@@ -12,80 +12,91 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Fira+Code&display=swap');
         body { background-color: #050505; color: white; font-family: sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
-        .logo-glow { box-shadow: 0 0 40px rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .logo-glow { box-shadow: 0 0 40px rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.3s; cursor: pointer; }
+        .logo-glow:hover { box-shadow: 0 0 60px rgba(255, 0, 0, 0.4); transform: scale(1.02); }
         .hacker-input { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,0,0,0.2); color: #39ff14; }
-        .hacker-input:focus { border-color: #ff0000; outline: none; box-shadow: 0 0 10px rgba(255,0,0,0.1); }
-        .btn-action { transition: 0.3s; text-transform: uppercase; font-size: 10px; letter-spacing: 2px; font-weight: bold; }
-        .btn-action:hover { transform: translateY(-2px); filter: brightness(1.2); }
+        .loading-spinner { animation: spin 1s linear infinite; border: 3px solid transparent; border-top-color: #ff0000; border-radius: 50%; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div class="text-center px-6 w-full max-w-sm">
-        <div class="relative inline-block mb-6">
+        <div id="btnConnectWallet" class="relative inline-block mb-6 group" onclick="accessWithWallet()">
+            <div id="loadingUI" class="hidden absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-3xl">
+                <div class="loading-spinner w-12 h-12"></div>
+            </div>
             <img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440" 
-                 class="logo-glow w-24 h-24 rounded-3xl mx-auto">
+                 class="logo-glow w-32 h-32 md:w-40 md:h-40 rounded-3xl">
+            <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-red-600 text-[8px] px-2 py-1 rounded font-bold opacity-0 group-hover:opacity-100 transition-opacity">WALLET_LOGIN</div>
         </div>
 
         <h1 style="font-family: 'Orbitron';" class="text-2xl font-black tracking-tighter italic mb-1">
             MUZZ<span class="text-red-600">SNAP</span>
         </h1>
-        <p class="text-[9px] text-gray-500 uppercase tracking-[0.3em] mb-8">Access Protocol v2.0</p>
+        <p id="statusText" class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-8">Tap logo for Wallet or use Guest below</p>
 
-        <div class="space-y-4">
+        <div class="space-y-3 mb-8">
             <input type="text" id="usernameInput" placeholder="ENTER_USERNAME..." 
-                   class="w-full p-3 rounded-xl hacker-input text-center">
-            
-            <div class="grid grid-cols-1 gap-3">
-                <button onclick="accessWithGuest()" class="btn-action w-full py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 text-gray-300">
-                    <i class="fas fa-user-secret mr-2"></i> Entrar sin Wallet
-                </button>
-
-                <button onclick="accessWithWallet()" class="btn-action w-full py-3 bg-red-600 rounded-xl shadow-[0_0_20px_rgba(255,0,0,0.3)] text-white">
-                    <i class="fab fa-ethereum mr-2"></i> Login con Wallet
-                </button>
-            </div>
+                   class="w-full p-3 rounded-xl hacker-input text-center text-xs border-dashed">
+            <button onclick="accessWithGuest()" class="w-full py-2 text-[10px] font-bold tracking-widest text-gray-400 hover:text-white uppercase transition-colors">
+                [ Initialize Guest Protocol ]
+            </button>
         </div>
 
-        <p id="statusText" class="mt-6 text-[9px] text-red-900 font-mono uppercase"></p>
+        <div id="errorBox" class="hidden p-3 rounded-lg bg-red-900/20 border border-red-500/50 mb-6">
+            <p id="errorTitle" class="text-red-500 text-[10px] font-bold uppercase mb-1"></p>
+            <p id="errorDesc" class="text-gray-400 text-[10px] leading-tight"></p>
+        </div>
 
-        <div class="mt-8 text-[9px] text-gray-700 font-mono uppercase tracking-widest">
+        <div class="text-[9px] text-gray-700 font-mono uppercase tracking-widest">
             &copy; 2025 Protocol Ryachu Edition
         </div>
     </div>
 
     <script>
         const statusText = document.getElementById('statusText');
+        const loadingUI = document.getElementById('loadingUI');
+        const errorBox = document.getElementById('errorBox');
 
-        // Función 1: Acceso sin Wallet (Usa el username escrito)
-        function accessWithGuest() {
-            const user = document.getElementById('usernameInput').value.trim();
-            if (!user) {
-                statusText.innerText = "ERROR: USERNAME_REQUIRED";
-                return;
-            }
-            sessionStorage.setItem('muzz_wallet_address', `guest_${user}`);
-            window.location.href = 'chat.html';
+        function showError(title, desc) {
+            errorBox.classList.remove('hidden');
+            document.getElementById('errorTitle').innerText = title;
+            document.getElementById('errorDesc').innerText = desc;
+            loadingUI.classList.add('hidden');
         }
 
-        // Función 2: Acceso con Wallet (Usa los últimos 4 dígitos)
+        // OPCIÓN 1: Acceso con Wallet
         async function accessWithWallet() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    statusText.innerText = "CONNECTING_METAMASK...";
+                    loadingUI.classList.remove('hidden');
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const wallet = accounts[0];
-                    // Guardamos la wallet completa para la lógica del chat, pero el username serán los últimos 4
+                    
+                    // Almacenamos la wallet. El chat detectará que es wallet y usará los últimos 4 dígitos.
                     sessionStorage.setItem('muzz_wallet_address', wallet);
                     window.location.href = 'chat.html';
                 } catch (err) {
-                    statusText.innerText = "CONNECTION_REFUSED";
+                    showError("CONNECTION_ERROR", "User rejected the request or wallet is locked.");
                 }
             } else {
-                statusText.innerText = "NO_WALLET_FOUND";
+                showError("NO_WALLET_FOUND", "Please install MetaMask or a Web3 browser to use this method.");
             }
         }
-    </script>
 
+        // OPCIÓN 2: Acceso por Username (Guest)
+        function accessWithGuest() {
+            const user = document.getElementById('usernameInput').value.trim();
+            if (!user || user.length < 3) {
+                showError("INVALID_ID", "Username must be at least 3 characters long.");
+                return;
+            }
+            
+            // Almacenamos con el prefijo guest_ para que el chat aplique las restricciones (3s timer, no links, no emojis).
+            sessionStorage.setItem('muzz_wallet_address', `guest_${user}`);
+            window.location.href = 'chat.html';
+        }
+    </script>
 </body>
 </html>
