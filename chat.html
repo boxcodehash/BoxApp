@@ -5,17 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MuzzSnap – 3D Web3 Chat</title>
 
-<!-- React -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-<!-- UI -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
@@ -38,96 +37,66 @@ body{
   overflow:hidden;
 }
 
-/* Fondo */
 .cyber-grid{
   position:fixed;inset:0;
   background:
-    radial-gradient(circle at top,var(--accent-glow),transparent 55%),
-    radial-gradient(circle at bottom,var(--accent-glow),transparent 55%);
+    radial-gradient(circle at top,var(--accent-glow),transparent 50%),
+    radial-gradient(circle at bottom,var(--accent-glow),transparent 50%);
   z-index:-1;
 }
 
-/* Drawer */
-.drawer{
-  position:fixed;
-  inset-y:0;
-  left:0;
-  width:300px;
-  background:var(--glass-bg);
-  backdrop-filter:blur(25px);
-  border-right:2px solid var(--accent);
-  transform:translateX(-100%);
-  transition:.3s;
-  z-index:100;
-}
-.drawer.open{transform:translateX(0)}
-
-.overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.75);
-  backdrop-filter:blur(6px);
-  opacity:0;
-  pointer-events:none;
-  transition:.3s;
-  z-index:90;
-}
-.overlay.visible{
-  opacity:1;
-  pointer-events:auto;
-}
-
-/* ===== CHAT 3D ===== */
-.chat-3d-stage{perspective:1200px}
+.chat-3d-stage{ perspective:1400px; }
 .chat-3d-card{
   background:var(--glass-bg);
-  backdrop-filter:blur(30px);
-  border-radius:28px;
+  backdrop-filter:blur(30px) saturate(180%);
+  border-radius:30px;
   border:1px solid var(--glass-border);
   transform-style:preserve-3d;
-  box-shadow:
-    0 40px 120px rgba(0,0,0,.85),
-    inset 0 1px 0 rgba(255,255,255,.15),
-    0 0 80px var(--accent-glow);
+  box-shadow: 0 40px 120px rgba(0,0,0,.9), 0 0 90px var(--accent-glow);
   transition:transform .2s ease;
+  position:relative;
 }
-.chat-3d-layer{transform:translateZ(35px)}
+.chat-3d-layer{transform:translateZ(45px)}
 
 .message-bubble{
   padding:14px 20px;
   border-radius:18px;
-  max-width:85%;
+  max-width:75%;
   transform-style:preserve-3d;
+  animation:pop .3s ease;
 }
-.message-bubble.me{
-  background:linear-gradient(135deg,var(--accent),black);
-  transform:translateZ(25px);
+@keyframes pop{
+  from{opacity:0;transform:scale(.8) translateY(10px)}
+  to{opacity:1;transform:scale(1)}
 }
-.message-bubble.other{
-  background:rgba(40,40,40,.8);
-  border:1px solid rgba(255,255,255,.1);
-  transform:translateZ(15px);
-}
+.message-bubble.me{ background:linear-gradient(135deg,var(--accent),black); transform:translateZ(30px); }
+.message-bubble.other{ background:rgba(40,40,40,.8); border:1px solid rgba(255,255,255,.1); transform:translateZ(18px); }
 
 .input-3d{
   background:var(--glass-bg);
   border:1px solid var(--glass-border);
-  border-radius:18px;
-  padding:14px 18px;
+  border-radius:20px;
+  padding:16px;
   color:white;
   width:100%;
 }
+
 .send-btn{
-  width:56px;height:56px;
-  border-radius:16px;
+  width:60px;height:60px;
+  border-radius:18px;
   background:linear-gradient(135deg,var(--accent),black);
+  color:white;font-size:22px;
   box-shadow:0 0 25px var(--accent-glow);
 }
 
-/* Mobile ajustes */
-@media(max-width:768px){
-  .chat-3d-card{border-radius:22px}
-  .message-bubble{font-size:14px}
-  .drawer{width:85%}
+.logout-btn {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255,0,0,0.3);
+}
+.logout-btn:hover {
+  background: rgba(255,0,0,0.2);
+  border-color: #ff0000;
+  text-shadow: 0 0 10px #ff0000;
 }
 </style>
 </head>
@@ -139,7 +108,6 @@ body{
 <script type="text/babel">
 const {useState,useEffect,useRef}=React;
 
-/* Firebase */
 firebase.initializeApp({
   apiKey:"AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
   authDomain:"pulsari.firebaseapp.com",
@@ -151,105 +119,128 @@ const auth=firebase.auth();
 
 function App(){
   const [user,setUser]=useState(null);
-  const [drawer,setDrawer]=useState(false);
-  const [messages,setMessages]=useState([]);
   const [text,setText]=useState("");
+  const [messages,setMessages]=useState([]);
+  const [error, setError] = useState("Verificando autorización...");
   const scrollRef=useRef();
 
-  /* Login wallet obligatorio */
-  const login=async()=>{
-    if(!window.ethereum)return alert("MetaMask requerido");
-    const accs=await window.ethereum.request({method:'eth_requestAccounts'});
-    const wallet=accs[0].toLowerCase();
-    const cred=await auth.signInAnonymously();
-    const u={uid:cred.user.uid,name:"Anon_"+wallet.slice(-4),wallet};
-    await db.ref("presence/"+u.uid).set(u);
-    db.ref("presence/"+u.uid).onDisconnect().remove();
-    setUser(u);
+  const validateAccess = async () => {
+    try {
+      const savedWallet = sessionStorage.getItem('muzz_wallet');
+      const savedSig = sessionStorage.getItem('muzz_sig');
+
+      if (!savedWallet || !savedSig) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const cred = await auth.signInAnonymously();
+      const u = {
+        uid: cred.user.uid,
+        name: "User_" + savedWallet.slice(-4),
+        wallet: savedWallet
+      };
+
+      await db.ref("presence/" + u.uid).set(u);
+      db.ref("presence/" + u.uid).onDisconnect().remove();
+      
+      setUser(u);
+      setError(null);
+    } catch (err) {
+      setError("Error de autenticación. Regresando...");
+      setTimeout(() => window.location.href = 'index.html', 2000);
+    }
   };
-  useEffect(()=>{login()},[]);
 
-  useEffect(()=>{
-    if(!user)return;
-    db.ref("messages/general").limitToLast(50).on("value",s=>{
-      const v=s.val()||{};
-      setMessages(Object.keys(v).map(k=>({id:k,...v[k]})));
+  useEffect(() => { validateAccess(); }, []);
+
+  useEffect(() => {
+    if(!user) return;
+    const msgRef = db.ref("messages/general").limitToLast(50);
+    msgRef.on("value", s => {
+      const v = s.val() || {};
+      setMessages(Object.keys(v).map(k => ({ id: k, ...v[k] })));
     });
-  },[user]);
+    return () => msgRef.off();
+  }, [user]);
 
-  useEffect(()=>{scrollRef.current?.scrollIntoView({behavior:"smooth"})},[messages]);
+  useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: "smooth" }) }, [messages]);
 
-  /* Tilt solo desktop */
-  useEffect(()=>{
-    if(window.innerWidth<900)return;
-    const card=document.querySelector(".chat-3d-card");
-    if(!card)return;
-    const move=e=>{
-      const r=card.getBoundingClientRect();
-      const x=(e.clientX-r.left)/r.width-.5;
-      const y=(e.clientY-r.top)/r.height-.5;
-      card.style.transform=`rotateY(${x*10}deg) rotateX(${-y*10}deg)`;
-    };
-    const reset=()=>card.style.transform="rotateX(0) rotateY(0)";
-    card.addEventListener("mousemove",move);
-    card.addEventListener("mouseleave",reset);
-  },[user]);
+  const handleLogout = () => {
+    sessionStorage.clear(); // Borra firma y wallet
+    window.location.href = 'index.html';
+  };
 
-  const send=async()=>{
-    if(!text.trim())return;
-    await db.ref("messages/general").push({content:text,uid:user.uid,time:Date.now()});
+  const send = async () => {
+    if (!text.trim() || !user) return;
+    await db.ref("messages/general").push({
+      content: text,
+      uid: user.uid,
+      wallet: user.wallet,
+      time: Date.now()
+    });
     setText("");
   };
 
-  if(!user){
-    return(
+  if (error) {
+    return (
       <div className="h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-black">MUZZSNAP</h1>
-          <p className="opacity-60 mt-4">Firmando wallet…</p>
+          <div className="animate-spin mb-4"><i className="fas fa-circle-notch text-3xl text-red-600"></i></div>
+          <h1 className="text-xl font-bold">{error}</h1>
         </div>
       </div>
     );
   }
 
-  return(
-    <>
-      <div className={`overlay ${drawer?'visible':''}`} onClick={()=>setDrawer(false)}></div>
-
-      <aside className={`drawer ${drawer?'open':''} p-6`}>
-        <h2 className="font-black mb-6">Opciones</h2>
-        <button className="w-full mb-3"># GENERAL</button>
-        <button className="w-full"># ESPAÑOL</button>
-      </aside>
-
-      <header className="p-4 flex justify-between items-center">
-        <button onClick={()=>setDrawer(true)}><i className="fas fa-bars"></i></button>
-        <span className="font-black">MUZZSNAP</span>
-      </header>
-
-      <div className="chat-3d-stage flex-1 p-3">
-        <div className="chat-3d-card h-full max-w-5xl mx-auto p-4">
-          <div className="chat-3d-layer h-full overflow-y-auto space-y-4">
-            {messages.map(m=>(
-              <div key={m.id} className={m.uid===user.uid?"flex justify-end":"flex"}>
-                <div className={"message-bubble "+(m.uid===user.uid?"me":"other")}>{m.content}</div>
-              </div>
-            ))}
-            <div ref={scrollRef}></div>
-          </div>
+  return (
+    <div className="h-screen flex flex-col chat-3d-stage p-4 md:p-8">
+      {/* Header con Logout */}
+      <div className="flex justify-between items-center max-w-5xl mx-auto w-full mb-4 px-2">
+        <div className="flex items-center gap-3">
+            <span className="text-[10px] tracking-[0.2em] uppercase opacity-50 font-bold">MuzzSnap Secure</span>
+            <div className="h-1 w-1 rounded-full bg-green-500 animate-pulse"></div>
+        </div>
+        
+        <div className="flex items-center gap-4">
+            <span className="hidden md:inline text-[10px] font-mono opacity-40">{user.wallet}</span>
+            <button 
+                onClick={handleLogout}
+                className="logout-btn px-4 py-1 rounded-full text-[10px] uppercase font-bold text-red-500 bg-red-500/5 border border-red-500/20"
+            >
+                <i className="fas fa-power-off mr-2"></i>Cerrar Sesión
+            </button>
         </div>
       </div>
 
-      <footer className="p-3 flex gap-3">
-        <input className="input-3d" value={text}
-          onChange={e=>setText(e.target.value)}
-          onKeyDown={e=>e.key==="Enter"&&send()}
-          placeholder="Transmitir…" />
-        <button className="send-btn" onClick={send}>
-          <i className="fas fa-bolt"></i>
+      <div className="chat-3d-card flex-1 p-4 md:p-6 max-w-5xl mx-auto w-full overflow-hidden flex flex-col">
+        <div className="chat-3d-layer space-y-4 overflow-y-auto pr-2 custom-scrollbar flex-1">
+          {messages.map(m => (
+            <div key={m.id} className={m.uid === user.uid ? "flex justify-end" : "flex"}>
+              <div className={"message-bubble " + (m.uid === user.uid ? "me" : "other")}>
+                <p className="text-sm md:text-base">{m.content}</p>
+                <span className="text-[9px] opacity-40 block mt-1">
+                  {new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </span>
+              </div>
+            </div>
+          ))}
+          <div ref={scrollRef}></div>
+        </div>
+      </div>
+
+      <div className="flex gap-3 max-w-5xl mx-auto w-full mt-6">
+        <input className="input-3d focus:outline-none focus:border-red-500 transition-all"
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && send()}
+          placeholder="Escribe un mensaje..."
+        />
+        <button onClick={send} className="send-btn hover:scale-105 active:scale-95 transition-transform">
+          <i className="fas fa-paper-plane"></i>
         </button>
-      </footer>
-    </>
+      </div>
+    </div>
   );
 }
 
