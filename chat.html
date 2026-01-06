@@ -42,75 +42,92 @@ body{
 .cyber-grid{
   position:fixed;inset:0;
   background:
-    radial-gradient(circle at top,var(--accent-glow),transparent 50%),
-    radial-gradient(circle at bottom,var(--accent-glow),transparent 50%);
+    radial-gradient(circle at top,var(--accent-glow),transparent 55%),
+    radial-gradient(circle at bottom,var(--accent-glow),transparent 55%);
   z-index:-1;
 }
 
-/* ===== CHAT 3D ===== */
-.chat-3d-stage{
-  perspective:1400px;
+/* Drawer */
+.drawer{
+  position:fixed;
+  inset-y:0;
+  left:0;
+  width:300px;
+  background:var(--glass-bg);
+  backdrop-filter:blur(25px);
+  border-right:2px solid var(--accent);
+  transform:translateX(-100%);
+  transition:.3s;
+  z-index:100;
 }
+.drawer.open{transform:translateX(0)}
+
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(6px);
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  z-index:90;
+}
+.overlay.visible{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* ===== CHAT 3D ===== */
+.chat-3d-stage{perspective:1200px}
 .chat-3d-card{
   background:var(--glass-bg);
-  backdrop-filter:blur(30px) saturate(180%);
-  border-radius:30px;
+  backdrop-filter:blur(30px);
+  border-radius:28px;
   border:1px solid var(--glass-border);
   transform-style:preserve-3d;
   box-shadow:
-    0 40px 120px rgba(0,0,0,.9),
+    0 40px 120px rgba(0,0,0,.85),
     inset 0 1px 0 rgba(255,255,255,.15),
-    0 0 90px var(--accent-glow);
+    0 0 80px var(--accent-glow);
   transition:transform .2s ease;
-  position:relative;
 }
-.chat-3d-card::before{
-  content:'';
-  position:absolute;
-  inset:-3px;
-  border-radius:inherit;
-  background:linear-gradient(120deg,transparent,var(--accent),transparent);
-  opacity:.18;
-  filter:blur(25px);
-}
-.chat-3d-layer{transform:translateZ(45px)}
+.chat-3d-layer{transform:translateZ(35px)}
 
 .message-bubble{
   padding:14px 20px;
   border-radius:18px;
-  max-width:75%;
+  max-width:85%;
   transform-style:preserve-3d;
-  animation:pop .3s ease;
-}
-@keyframes pop{
-  from{opacity:0;transform:scale(.8) translateY(10px)}
-  to{opacity:1;transform:scale(1)}
 }
 .message-bubble.me{
   background:linear-gradient(135deg,var(--accent),black);
-  transform:translateZ(30px);
+  transform:translateZ(25px);
 }
 .message-bubble.other{
   background:rgba(40,40,40,.8);
   border:1px solid rgba(255,255,255,.1);
-  transform:translateZ(18px);
+  transform:translateZ(15px);
 }
 
 .input-3d{
   background:var(--glass-bg);
   border:1px solid var(--glass-border);
-  border-radius:20px;
-  padding:16px;
+  border-radius:18px;
+  padding:14px 18px;
   color:white;
   width:100%;
 }
-
 .send-btn{
-  width:60px;height:60px;
-  border-radius:18px;
+  width:56px;height:56px;
+  border-radius:16px;
   background:linear-gradient(135deg,var(--accent),black);
-  color:white;font-size:22px;
   box-shadow:0 0 25px var(--accent-glow);
+}
+
+/* Mobile ajustes */
+@media(max-width:768px){
+  .chat-3d-card{border-radius:22px}
+  .message-bubble{font-size:14px}
+  .drawer{width:85%}
 }
 </style>
 </head>
@@ -134,33 +151,26 @@ const auth=firebase.auth();
 
 function App(){
   const [user,setUser]=useState(null);
-  const [text,setText]=useState("");
+  const [drawer,setDrawer]=useState(false);
   const [messages,setMessages]=useState([]);
+  const [text,setText]=useState("");
   const scrollRef=useRef();
 
-  /* LOGIN AUTOMÁTICO WALLET */
+  /* Login wallet obligatorio */
   const login=async()=>{
-    if(!window.ethereum){
-      alert("MetaMask requerido");
-      return;
-    }
+    if(!window.ethereum)return alert("MetaMask requerido");
     const accs=await window.ethereum.request({method:'eth_requestAccounts'});
     const wallet=accs[0].toLowerCase();
-
-    const hash=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(wallet));
-    const id=[...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
-
     const cred=await auth.signInAnonymously();
     const u={uid:cred.user.uid,name:"Anon_"+wallet.slice(-4),wallet};
     await db.ref("presence/"+u.uid).set(u);
     db.ref("presence/"+u.uid).onDisconnect().remove();
     setUser(u);
   };
-
-  useEffect(()=>{ login(); },[]);
+  useEffect(()=>{login()},[]);
 
   useEffect(()=>{
-    if(!user) return;
+    if(!user)return;
     db.ref("messages/general").limitToLast(50).on("value",s=>{
       const v=s.val()||{};
       setMessages(Object.keys(v).map(k=>({id:k,...v[k]})));
@@ -169,29 +179,25 @@ function App(){
 
   useEffect(()=>{scrollRef.current?.scrollIntoView({behavior:"smooth"})},[messages]);
 
-  /* Tilt 3D */
+  /* Tilt solo desktop */
   useEffect(()=>{
+    if(window.innerWidth<900)return;
     const card=document.querySelector(".chat-3d-card");
-    if(!card) return;
+    if(!card)return;
     const move=e=>{
       const r=card.getBoundingClientRect();
-      const x=((e.clientX||e.touches?.[0]?.clientX)-r.left)/r.width-.5;
-      const y=((e.clientY||e.touches?.[0]?.clientY)-r.top)/r.height-.5;
-      card.style.transform=`rotateY(${x*12}deg) rotateX(${-y*12}deg)`;
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      card.style.transform=`rotateY(${x*10}deg) rotateX(${-y*10}deg)`;
     };
     const reset=()=>card.style.transform="rotateX(0) rotateY(0)";
     card.addEventListener("mousemove",move);
     card.addEventListener("mouseleave",reset);
-    return()=>card.removeEventListener("mousemove",move);
   },[user]);
 
   const send=async()=>{
-    if(!text.trim()) return;
-    await db.ref("messages/general").push({
-      content:text,
-      uid:user.uid,
-      time:Date.now()
-    });
+    if(!text.trim())return;
+    await db.ref("messages/general").push({content:text,uid:user.uid,time:Date.now()});
     setText("");
   };
 
@@ -199,40 +205,51 @@ function App(){
     return(
       <div className="h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-black mb-4">MUZZSNAP</h1>
-          <p className="opacity-60">Firmando wallet…</p>
+          <h1 className="text-4xl font-black">MUZZSNAP</h1>
+          <p className="opacity-60 mt-4">Firmando wallet…</p>
         </div>
       </div>
     );
   }
 
   return(
-    <div className="h-screen flex flex-col chat-3d-stage p-4">
-      <div className="chat-3d-card flex-1 p-6 max-w-5xl mx-auto w-full">
-        <div className="chat-3d-layer space-y-4 overflow-y-auto h-full">
-          {messages.map(m=>(
-            <div key={m.id} className={m.uid===user.uid?"flex justify-end":"flex"}>
-              <div className={"message-bubble "+(m.uid===user.uid?"me":"other")}>
-                {m.content}
+    <>
+      <div className={`overlay ${drawer?'visible':''}`} onClick={()=>setDrawer(false)}></div>
+
+      <aside className={`drawer ${drawer?'open':''} p-6`}>
+        <h2 className="font-black mb-6">Opciones</h2>
+        <button className="w-full mb-3"># GENERAL</button>
+        <button className="w-full"># ESPAÑOL</button>
+      </aside>
+
+      <header className="p-4 flex justify-between items-center">
+        <button onClick={()=>setDrawer(true)}><i className="fas fa-bars"></i></button>
+        <span className="font-black">MUZZSNAP</span>
+      </header>
+
+      <div className="chat-3d-stage flex-1 p-3">
+        <div className="chat-3d-card h-full max-w-5xl mx-auto p-4">
+          <div className="chat-3d-layer h-full overflow-y-auto space-y-4">
+            {messages.map(m=>(
+              <div key={m.id} className={m.uid===user.uid?"flex justify-end":"flex"}>
+                <div className={"message-bubble "+(m.uid===user.uid?"me":"other")}>{m.content}</div>
               </div>
-            </div>
-          ))}
-          <div ref={scrollRef}></div>
+            ))}
+            <div ref={scrollRef}></div>
+          </div>
         </div>
       </div>
 
-      <div className="flex gap-3 max-w-5xl mx-auto w-full mt-4">
-        <input className="input-3d"
-          value={text}
+      <footer className="p-3 flex gap-3">
+        <input className="input-3d" value={text}
           onChange={e=>setText(e.target.value)}
           onKeyDown={e=>e.key==="Enter"&&send()}
-          placeholder="Transmitiendo…"
-        />
-        <button onClick={send} className="send-btn">
+          placeholder="Transmitir…" />
+        <button className="send-btn" onClick={send}>
           <i className="fas fa-bolt"></i>
         </button>
-      </div>
-    </div>
+      </footer>
+    </>
   );
 }
 
