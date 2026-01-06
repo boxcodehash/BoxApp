@@ -1,764 +1,242 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - 3D Premium Edition</title>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MuzzSnap – 3D Web3 Chat</title>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap');
-    
-    :root { 
-      --accent: #ff0000; 
-      --accent-glow: rgba(255, 0, 0, 0.6);
-      --glass-bg: rgba(20, 0, 0, 0.4);
-      --glass-border: rgba(255, 0, 0, 0.2);
-    }
-    
-    body.theme-emerald { 
-      --accent: #10b981; 
-      --accent-glow: rgba(16, 185, 129, 0.6);
-      --glass-bg: rgba(0, 20, 10, 0.4);
-      --glass-border: rgba(16, 185, 129, 0.2);
-    }
-    
-    body.theme-cobalt { 
-      --accent: #2563eb; 
-      --accent-glow: rgba(37, 99, 235, 0.6);
-      --glass-bg: rgba(0, 10, 20, 0.4);
-      --glass-border: rgba(37, 99, 235, 0.2);
-    }
-    
-    body.theme-amethyst { 
-      --accent: #a855f7; 
-      --accent-glow: rgba(168, 85, 247, 0.6);
-      --glass-bg: rgba(20, 0, 20, 0.4);
-      --glass-border: rgba(168, 85, 247, 0.2);
-    }
-    
-    body.theme-amber { 
-      --accent: #f59e0b; 
-      --accent-glow: rgba(245, 158, 11, 0.6);
-      --glass-bg: rgba(20, 15, 0, 0.4);
-      --glass-border: rgba(245, 158, 11, 0.2);
-    }
+<!-- React -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    
-    body { 
-      background: #000; 
-      color: #fff; 
-      font-family: 'Rajdhani', sans-serif; 
-      height: 100vh; 
-      overflow: hidden;
-    }
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-    .cyber-grid { 
-      position: fixed; 
-      inset: 0; 
-      background: 
-        radial-gradient(ellipse at top, var(--accent-glow) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom, var(--accent-glow) 0%, transparent 50%);
-      z-index: -2;
-      animation: pulse-bg 4s ease-in-out infinite;
-    }
+<!-- UI -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    @keyframes pulse-bg {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 0.5; }
-    }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap');
 
-    .cyber-grid::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: 
-        linear-gradient(var(--glass-border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--glass-border) 1px, transparent 1px);
-      background-size: 50px 50px;
-      opacity: 0.1;
-      animation: grid-move 20s linear infinite;
-    }
+:root{
+  --accent:#ff0000;
+  --accent-glow:rgba(255,0,0,.6);
+  --glass-bg:rgba(20,0,0,.45);
+  --glass-border:rgba(255,0,0,.25);
+}
 
-    @keyframes grid-move {
-      0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-      100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
-    }
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:black;
+  color:white;
+  font-family:'Rajdhani',sans-serif;
+  height:100vh;
+  overflow:hidden;
+}
 
-    .glass-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid var(--glass-border);
-      box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1),
-        0 0 40px var(--accent-glow);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+/* Fondo */
+.cyber-grid{
+  position:fixed;inset:0;
+  background:
+    radial-gradient(circle at top,var(--accent-glow),transparent 50%),
+    radial-gradient(circle at bottom,var(--accent-glow),transparent 50%);
+  z-index:-1;
+}
 
-    .glass-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 
-        0 12px 48px rgba(0, 0, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15),
-        0 0 60px var(--accent-glow);
-    }
+/* ===== CHAT 3D ===== */
+.chat-3d-stage{
+  perspective:1400px;
+}
+.chat-3d-card{
+  background:var(--glass-bg);
+  backdrop-filter:blur(30px) saturate(180%);
+  border-radius:30px;
+  border:1px solid var(--glass-border);
+  transform-style:preserve-3d;
+  box-shadow:
+    0 40px 120px rgba(0,0,0,.9),
+    inset 0 1px 0 rgba(255,255,255,.15),
+    0 0 90px var(--accent-glow);
+  transition:transform .2s ease;
+  position:relative;
+}
+.chat-3d-card::before{
+  content:'';
+  position:absolute;
+  inset:-3px;
+  border-radius:inherit;
+  background:linear-gradient(120deg,transparent,var(--accent),transparent);
+  opacity:.18;
+  filter:blur(25px);
+}
+.chat-3d-layer{transform:translateZ(45px)}
 
-    .drawer { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      height: 100%; 
-      width: 320px; 
-      background: var(--glass-bg);
-      backdrop-filter: blur(30px) saturate(180%);
-      border-right: 2px solid var(--accent);
-      z-index: 100; 
-      transform: translateX(-100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 20px 0 60px rgba(0, 0, 0, 0.9);
-    }
+.message-bubble{
+  padding:14px 20px;
+  border-radius:18px;
+  max-width:75%;
+  transform-style:preserve-3d;
+  animation:pop .3s ease;
+}
+@keyframes pop{
+  from{opacity:0;transform:scale(.8) translateY(10px)}
+  to{opacity:1;transform:scale(1)}
+}
+.message-bubble.me{
+  background:linear-gradient(135deg,var(--accent),black);
+  transform:translateZ(30px);
+}
+.message-bubble.other{
+  background:rgba(40,40,40,.8);
+  border:1px solid rgba(255,255,255,.1);
+  transform:translateZ(18px);
+}
 
-    .drawer.open { 
-      transform: translateX(0);
-    }
+.input-3d{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:20px;
+  padding:16px;
+  color:white;
+  width:100%;
+}
 
-    .overlay { 
-      position: fixed; 
-      inset: 0; 
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      z-index: 90; 
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-    }
-    
-    .overlay.visible { 
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .message-bubble { 
-      padding: 14px 20px; 
-      border-radius: 18px; 
-      max-width: 75%; 
-      font-size: 15px;
-      font-weight: 500;
-      animation: message-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      transition: all 0.3s ease;
-    }
-
-    @keyframes message-pop {
-      0% { opacity: 0; transform: scale(0.8) translateY(20px); }
-      100% { opacity: 1; transform: scale(1) translateY(0); }
-    }
-
-    .message-bubble.me { 
-      background: linear-gradient(135deg, var(--accent) 0%, rgba(0,0,0,0.8) 100%);
-      color: white;
-      border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 16px var(--accent-glow);
-    }
-
-    .message-bubble.other { 
-      background: rgba(40, 40, 40, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-bottom-left-radius: 4px;
-      backdrop-filter: blur(10px);
-    }
-
-    .message-bubble:hover {
-      transform: scale(1.02);
-    }
-
-    .btn-cyber { 
-      border: 2px solid var(--accent);
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      color: var(--accent);
-      text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 1px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-cyber:hover { 
-      background: var(--accent);
-      color: #000;
-      transform: translateY(-2px);
-      box-shadow: 0 0 40px var(--accent-glow);
-    }
-
-    .nav-header { 
-      padding: 20px 30px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 2px solid var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
-    }
-
-    .input-3d {
-      background: var(--glass-bg);
-      backdrop-filter: blur(15px);
-      border: 2px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 16px 24px;
-      outline: none;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    .input-3d:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 30px var(--accent-glow);
-    }
-
-    .input-3d::placeholder {
-      color: rgba(255, 255, 255, 0.3);
-    }
-
-    .send-btn {
-      width: 60px;
-      height: 60px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, var(--accent), rgba(0,0,0,0.5));
-      border: none;
-      color: #fff;
-      font-size: 22px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 8px 24px var(--accent-glow);
-    }
-
-    .send-btn:hover {
-      transform: scale(1.05) translateY(-2px);
-      box-shadow: 0 12px 32px var(--accent-glow);
-    }
-
-    .send-btn:active {
-      transform: scale(0.95);
-    }
-
-    .channel-btn {
-      width: 100%;
-      text-align: left;
-      padding: 14px 18px;
-      border-radius: 14px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 1px solid transparent;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.6);
-      position: relative;
-    }
-
-    .channel-btn.active {
-      background: var(--glass-bg);
-      border-color: var(--accent);
-      color: #fff;
-      box-shadow: 0 4px 16px var(--accent-glow);
-    }
-
-    .channel-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-    }
-
-    .user-status {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 10px #10b981;
-      animation: pulse-status 2s ease-in-out infinite;
-    }
-
-    .user-status.admin {
-      background: #fbbf24;
-      box-shadow: 0 0 15px #fbbf24;
-    }
-
-    @keyframes pulse-status {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.2); opacity: 0.8; }
-    }
-
-    .chat-window::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .chat-window::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .chat-window::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 10px;
-    }
-
-    .alert-banner {
-      background: var(--accent);
-      padding: 12px;
-      text-align: center;
-      font-weight: 900;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 20px var(--accent-glow);
-      animation: pulse-alert 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-alert {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-
-    @media (max-width: 768px) {
-      .drawer { width: 85%; max-width: 320px; }
-      .message-bubble { max-width: 90%; font-size: 14px; }
-      .nav-header { padding: 15px 20px; }
-    }
-
-    .login-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .login-box {
-      background: var(--glass-bg);
-      backdrop-filter: blur(30px) saturate(180%);
-      border: 2px solid var(--accent);
-      border-radius: 30px;
-      padding: 60px 40px;
-      max-width: 450px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8), 0 0 100px var(--accent-glow);
-      animation: float-login 3s ease-in-out infinite;
-    }
-
-    @keyframes float-login {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .login-logo {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 56px;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--accent) 0%, #fff 50%, var(--accent) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 6px;
-      margin-bottom: 50px;
-      animation: glow-text 2s ease-in-out infinite;
-    }
-
-    @keyframes glow-text {
-      0%, 100% { filter: drop-shadow(0 0 20px var(--accent-glow)); }
-      50% { filter: drop-shadow(0 0 40px var(--accent-glow)); }
-    }
-
-    .main-wrapper {
-      max-width: 1400px;
-      margin: 0 auto;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .chat-window {
-      flex: 1;
-      overflow-y: auto;
-      padding: 30px 20px;
-    }
-  </style>
+.send-btn{
+  width:60px;height:60px;
+  border-radius:18px;
+  background:linear-gradient(135deg,var(--accent),black);
+  color:white;font-size:22px;
+  box-shadow:0 0 25px var(--accent-glow);
+}
+</style>
 </head>
+
 <body>
-  <div class="cyber-grid"></div>
-  <div id="root"></div>
+<div class="cyber-grid"></div>
+<div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
-      authDomain: "pulsari.firebaseapp.com",
-      databaseURL: "https://pulsari-default-rtdb.firebaseio.com",
-      projectId: "pulsari",
-      storageBucket: "pulsari.firebasestorage.app",
-      messagingSenderId: "824306321233",
-      appId: "1:824306321233:web:2c9bfa02170a17d560b570"
-    };
+/* Firebase */
+firebase.initializeApp({
+  apiKey:"AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
+  authDomain:"pulsari.firebaseapp.com",
+  databaseURL:"https://pulsari-default-rtdb.firebaseio.com",
+  projectId:"pulsari"
+});
+const db=firebase.database();
+const auth=firebase.auth();
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const auth = firebase.auth();
+function App(){
+  const [user,setUser]=useState(null);
+  const [text,setText]=useState("");
+  const [messages,setMessages]=useState([]);
+  const scrollRef=useRef();
 
-    const ADMIN_WALLETS = {
-      "2a3f1f37c160f0b170f5cf95b53f4228e23994b76c3d016494dfc289fa1d00f0": "Ryachu",
-      "819c961c022883f3e18a8008e43e26458519e48c1e4c70308009696987c8801d": "Itsuki"
-    };
-
-    const THEMES = ['default', 'emerald', 'cobalt', 'amethyst', 'amber'];
-
-    function App() {
-      const [user, setUser] = useState(null);
-      const [chan, setChan] = useState("general");
-      const [messages, setMessages] = useState([]);
-      const [usersOnline, setUsersOnline] = useState({});
-      const [mutedUsers, setMutedUsers] = useState([]);
-      const [text, setText] = useState("");
-      const [drawerOpen, setDrawerOpen] = useState(false);
-      const [themeIdx, setThemeIdx] = useState(0);
-      const [alertMsg, setAlertMsg] = useState(null);
-      const scrollRef = useRef();
-
-      const cycleTheme = () => {
-        const next = (themeIdx + 1) % THEMES.length;
-        setThemeIdx(next);
-        document.body.className = next === 0 ? '' : `theme-${THEMES[next]}`;
-      };
-
-      const login = async () => {
-        if (!window.ethereum) return alert("⚠️ Instala MetaMask");
-        try {
-          const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          const wallet = accs[0].toLowerCase();
-          const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(wallet));
-          const hashed = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-          
-          const cred = await auth.signInAnonymously();
-          const isGod = ADMIN_WALLETS.hasOwnProperty(hashed);
-          const userData = { 
-            uid: cred.user.uid, 
-            name: ADMIN_WALLETS[hashed] || `Anon_${wallet.slice(-4)}`, 
-            isGod, 
-            wallet 
-          };
-          
-          await db.ref(`presence/${cred.user.uid}`).set(userData);
-          db.ref(`presence/${cred.user.uid}`).onDisconnect().remove();
-          setUser(userData);
-        } catch (e) { 
-          console.error(e);
-          alert("Error al conectar");
-        }
-      };
-
-      useEffect(() => {
-        if (!user) return;
-        
-        db.ref('presence').on('value', s => {
-          const val = s.val() || {};
-          setUsersOnline(val);
-          if (!val[user.uid]) window.location.reload();
-        });
-
-        db.ref('muted').on('value', s => setMutedUsers(s.val() ? Object.values(s.val()) : []));
-
-        const mRef = db.ref(`messages/${chan}`).limitToLast(50);
-        mRef.on('value', s => {
-          const val = s.val();
-          if (val) {
-            const list = Object.keys(val).map(k => ({id:k, ...val[k]})).sort((a,b) => a.time - b.time);
-            setMessages(list.filter(m => !mutedUsers.includes(m.name)));
-          } else { 
-            setMessages([]); 
-          }
-        });
-
-        db.ref('system_alert').on('value', s => setAlertMsg(s.val()));
-        
-        return () => { 
-          mRef.off(); 
-          db.ref('presence').off(); 
-          db.ref('system_alert').off(); 
-          db.ref('muted').off(); 
-        };
-      }, [user, chan, mutedUsers]);
-
-      useEffect(() => { 
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); 
-      }, [messages]);
-
-      const handleSend = async () => {
-        const t = text.trim();
-        if (!t) return;
-
-        if (user.isGod) {
-          if (t === '/clear') { 
-            await db.ref(`messages/${chan}`).remove(); 
-            setText(""); 
-            return; 
-          }
-          
-          if (t.startsWith('/alert ')) { 
-            await db.ref('system_alert').set(t.replace('/alert ', '')); 
-            setText(""); 
-            return; 
-          }
-          
-          if (t === '/clearalert') { 
-            await db.ref('system_alert').remove(); 
-            setText(""); 
-            return; 
-          }
-          
-          if (t.startsWith('/ban ')) {
-            const targetName = t.replace('/ban ', '').trim();
-            const target = Object.values(usersOnline).find(u => u.name === targetName);
-            if (target && !target.isGod) {
-              await db.ref(`presence/${target.uid}`).remove();
-              alert(`✅ Usuario ${targetName} expulsado`);
-            }
-            setText(""); 
-            return;
-          }
-
-          if (t.startsWith('/mute ')) {
-            const targetName = t.replace('/mute ', '').trim();
-            const isAdmin = Object.values(ADMIN_WALLETS).includes(targetName);
-            if (!isAdmin) {
-              await db.ref('muted').push(targetName);
-              alert(`✅ Usuario ${targetName} silenciado`);
-            }
-            setText(""); 
-            return;
-          }
-
-          if (t.startsWith('/unmute ')) {
-            const targetName = t.replace('/unmute ', '').trim();
-            const mutedRef = await db.ref('muted').once('value');
-            const muted = mutedRef.val();
-            if (muted) {
-              const key = Object.keys(muted).find(k => muted[k] === targetName);
-              if (key) {
-                await db.ref(`muted/${key}`).remove();
-                alert(`✅ ${targetName} desmuteado`);
-              }
-            }
-            setText(""); 
-            return;
-          }
-        }
-
-        await db.ref(`messages/${chan}`).push({
-          content: t, 
-          name: user.name, 
-          uid: user.uid, 
-          isGod: user.isGod, 
-          time: Date.now()
-        });
-        setText("");
-      };
-
-      if (!user) {
-        return (
-          <div className="login-container">
-            <div className="login-box">
-              <div className="login-logo">MUZZSNAP</div>
-              <button onClick={login} className="btn-cyber rounded-2xl px-12 py-4 text-lg font-black tracking-widest">
-                INICIALIZAR SISTEMA
-              </button>
-            </div>
-          </div>
-        );
-      }
-
-      return (
-        <div className="main-wrapper">
-          <div className={`overlay ${drawerOpen ? 'visible' : ''}`} onClick={() => setDrawerOpen(false)}></div>
-          
-          <aside className={`drawer ${drawerOpen ? 'open' : ''} p-6 flex flex-col`}>
-            <div className="flex justify-between items-center mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                <span className="text-xs font-bold uppercase tracking-widest opacity-60">Terminal v4.2</span>
-              </div>
-              <button onClick={() => setDrawerOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 transition">
-                <i className="fas fa-times text-white/60"></i>
-              </button>
-            </div>
-            
-            <nav className="space-y-2 flex-1 overflow-y-auto">
-              <p className="text-[10px] opacity-40 uppercase font-bold mb-4 tracking-widest">Sectores de Red</p>
-              {['general', 'español'].map(c => (
-                <button 
-                  key={c} 
-                  onClick={() => {setChan(c); setDrawerOpen(false);}} 
-                  className={`channel-btn ${chan === c ? 'active' : ''}`}
-                >
-                  <i className="fas fa-hashtag mr-2 text-xs"></i>
-                  {c.toUpperCase()}
-                </button>
-              ))}
-              
-              <p className="text-[10px] opacity-40 uppercase font-bold mt-8 mb-4 tracking-widest">
-                Nodos Activos ({Object.keys(usersOnline).length})
-              </p>
-              <div className="space-y-2">
-                {Object.values(usersOnline).sort((a,b) => (b.isGod ? 1 : 0) - (a.isGod ? 1 : 0)).map((u, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition">
-                    <div className={`user-status ${u.isGod ? 'admin' : ''}`}></div>
-                    <span className={`text-sm font-semibold ${u.isGod ? 'text-yellow-400' : 'text-white/80'}`}>
-                      {u.isGod && '👑 '}{u.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </nav>
-
-            <div className="pt-6 border-t border-white/10 space-y-3 mt-6">
-              <button 
-                onClick={cycleTheme} 
-                className="w-full p-3 text-xs btn-cyber rounded-xl flex items-center justify-center gap-2"
-              >
-                <i className="fas fa-palette"></i>
-                CAMBIAR TEMA
-              </button>
-              
-              {user.isGod && (
-                <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-                  <p className="text-yellow-400 text-[10px] font-bold mb-2 uppercase tracking-wider">Admin Console</p>
-                  <p className="text-[9px] text-white/60 leading-relaxed">
-                    /clear • /alert • /ban • /mute • /unmute
-                  </p>
-                </div>
-              )}
-              
-              <button 
-                onClick={() => {auth.signOut(); window.location.reload();}} 
-                className="w-full p-3 text-xs bg-red-900/20 text-red-400 font-bold border border-red-900/40 rounded-xl hover:bg-red-500 hover:text-black transition"
-              >
-                <i className="fas fa-power-off mr-2"></i>
-                DESCONECTAR
-              </button>
-            </div>
-          </aside>
-
-          <header className="nav-header">
-            <button 
-              className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 transition" 
-              onClick={() => setDrawerOpen(true)}
-            >
-              <i className="fas fa-bars text-xl"></i>
-            </button>
-            
-            <h1 
-              className="font-black text-xl tracking-wider" 
-              style={{color: 'var(--accent)'}}
-            >
-              <span className="font-['Orbitron']">MUZZSNAP</span>
-              <span className="text-sm ml-3 opacity-60">// {chan.toUpperCase()}</span>
-            </h1>
-            
-            <div 
-              className="text-[9px] font-black px-3 py-1 rounded-lg border-2"
-              style={{
-                borderColor: user.isGod ? '#fbbf24' : 'rgba(255,255,255,0.2)',
-                color: user.isGod ? '#fbbf24' : 'rgba(255,255,255,0.4)',
-                boxShadow: user.isGod ? '0 0 15px rgba(251, 191, 36, 0.3)' : 'none'
-              }}
-            >
-              {user.isGod ? '👑 ADMIN' : 'USER'}
-            </div>
-          </header>
-
-          {alertMsg && (
-            <div className="alert-banner">
-              <i className="fas fa-exclamation-triangle mr-2"></i>
-              SISTEMA: {alertMsg}
-            </div>
-          )}
-
-          <div className="chat-window">
-            <div className="max-w-4xl mx-auto space-y-5">
-              {messages.length === 0 ? (
-                <div className="glass-card p-8 rounded-2xl text-center">
-                  <div className="text-4xl mb-4">👑</div>
-                  <h2 className="text-xl font-bold mb-2" style={{color: 'var(--accent)'}}>
-                    Bienvenido a MuzzChat
-                  </h2>
-                  <p className="text-sm text-white/60">
-                    Canal #{chan} • Sin mensajes aún
-                  </p>
-                </div>
-              ) : (
-                messages.map(m => (
-                  <div key={m.id} className={`flex flex-col ${m.uid === user.uid ? 'items-end' : 'items-start'}`}>
-                    <div className="flex items-center gap-2 mb-2 px-2">
-                      <div className={`w-1.5 h-1.5 rounded-full ${m.isGod ? 'bg-yellow-400' : 'bg-green-500'}`}></div>
-                      <span 
-                        className={`text-[10px] font-bold tracking-wider ${m.isGod ? 'text-yellow-400' : 'text-white/50'}`}
-                      >
-                        {m.isGod && '👑 '}{m.name}
-                      </span>
-                    </div>
-                    <div className={`message-bubble ${m.uid === user.uid ? 'me' : 'other'}`}>
-                      {m.content}
-                    </div>
-                  </div>
-                ))
-              )}
-              <div ref={scrollRef}></div>
-            </div>
-          </div>
-
-          <footer className="p-6" style={{
-            background: 'var(--glass-bg)',
-            backdropFilter: 'blur(20px)',
-            borderTop: '1px solid var(--glass-border)'
-          }}>
-            <div className="flex gap-3 max-w-4xl mx-auto">
-              <input 
-                value={text} 
-                onChange={e => setText(e.target.value)} 
-                onKeyDown={e => e.key === 'Enter' && handleSend()} 
-                placeholder={user.isGod ? "Admin console activo..." : "Transmitir datos..."} 
-                className="input-3d flex-1"
-              />
-              <button onClick={handleSend} className="send-btn">
-                <i className="fas fa-bolt"></i>
-              </button>
-            </div>
-            
-            {user.isGod && (
-              <div className="max-w-4xl mx-auto mt-3">
-                <p className="text-[9px] text-yellow-400/60 text-center font-mono">
-                  Console ready • /clear /alert /ban /mute /unmute /clearalert
-                </p>
-              </div>
-            )}
-          </footer>
-        </div>
-      );
+  /* LOGIN AUTOMÁTICO WALLET */
+  const login=async()=>{
+    if(!window.ethereum){
+      alert("MetaMask requerido");
+      return;
     }
+    const accs=await window.ethereum.request({method:'eth_requestAccounts'});
+    const wallet=accs[0].toLowerCase();
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
+    const hash=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(wallet));
+    const id=[...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
+
+    const cred=await auth.signInAnonymously();
+    const u={uid:cred.user.uid,name:"Anon_"+wallet.slice(-4),wallet};
+    await db.ref("presence/"+u.uid).set(u);
+    db.ref("presence/"+u.uid).onDisconnect().remove();
+    setUser(u);
+  };
+
+  useEffect(()=>{ login(); },[]);
+
+  useEffect(()=>{
+    if(!user) return;
+    db.ref("messages/general").limitToLast(50).on("value",s=>{
+      const v=s.val()||{};
+      setMessages(Object.keys(v).map(k=>({id:k,...v[k]})));
+    });
+  },[user]);
+
+  useEffect(()=>{scrollRef.current?.scrollIntoView({behavior:"smooth"})},[messages]);
+
+  /* Tilt 3D */
+  useEffect(()=>{
+    const card=document.querySelector(".chat-3d-card");
+    if(!card) return;
+    const move=e=>{
+      const r=card.getBoundingClientRect();
+      const x=((e.clientX||e.touches?.[0]?.clientX)-r.left)/r.width-.5;
+      const y=((e.clientY||e.touches?.[0]?.clientY)-r.top)/r.height-.5;
+      card.style.transform=`rotateY(${x*12}deg) rotateX(${-y*12}deg)`;
+    };
+    const reset=()=>card.style.transform="rotateX(0) rotateY(0)";
+    card.addEventListener("mousemove",move);
+    card.addEventListener("mouseleave",reset);
+    return()=>card.removeEventListener("mousemove",move);
+  },[user]);
+
+  const send=async()=>{
+    if(!text.trim()) return;
+    await db.ref("messages/general").push({
+      content:text,
+      uid:user.uid,
+      time:Date.now()
+    });
+    setText("");
+  };
+
+  if(!user){
+    return(
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-black mb-4">MUZZSNAP</h1>
+          <p className="opacity-60">Firmando wallet…</p>
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div className="h-screen flex flex-col chat-3d-stage p-4">
+      <div className="chat-3d-card flex-1 p-6 max-w-5xl mx-auto w-full">
+        <div className="chat-3d-layer space-y-4 overflow-y-auto h-full">
+          {messages.map(m=>(
+            <div key={m.id} className={m.uid===user.uid?"flex justify-end":"flex"}>
+              <div className={"message-bubble "+(m.uid===user.uid?"me":"other")}>
+                {m.content}
+              </div>
+            </div>
+          ))}
+          <div ref={scrollRef}></div>
+        </div>
+      </div>
+
+      <div className="flex gap-3 max-w-5xl mx-auto w-full mt-4">
+        <input className="input-3d"
+          value={text}
+          onChange={e=>setText(e.target.value)}
+          onKeyDown={e=>e.key==="Enter"&&send()}
+          placeholder="Transmitiendo…"
+        />
+        <button onClick={send} className="send-btn">
+          <i className="fas fa-bolt"></i>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
