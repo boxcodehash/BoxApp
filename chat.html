@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MuzzSnap - Responsive Terminal</title>
+  <title>MuzzSnap - Live Terminal</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
@@ -16,53 +19,42 @@
     
     :root { --muzz-red: #ff0000; }
 
-    /* Bloqueo de scroll global para evitar que los bordes se "vayan" */
     html, body { 
-      height: 100vh; 
       height: 100dvh; 
       margin: 0; 
       padding: 0; 
       overflow: hidden; 
       background: #050505;
       color: white;
-      font-family: 'Inter', sans-serif;
     }
 
-    /* Contenedor principal que se adapta al alto dinámico */
-    .app-container {
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-    }
+    .app-wrapper { height: 100dvh; display: flex; flex-direction: column; }
 
-    .panel-3d { 
-      background: #0c0c0c; 
-      border: 1px solid rgba(255,0,0,0.15); 
-      border-radius: 12px;
-    }
-
-    .bubble-3d {
+    /* Estética de burbujas */
+    .bubble {
       padding: 10px 14px;
-      border-radius: 15px;
-      max-width: 85%;
-      font-size: 0.9rem;
+      border-radius: 16px;
+      max-width: 80%;
+      font-size: 14px;
+      word-wrap: break-word;
     }
-    .bubble-3d.me { background: linear-gradient(145deg, #ff0000, #b30000); align-self: flex-end; border-bottom-right-radius: 2px; }
-    .bubble-3d.other { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); align-self: flex-start; border-bottom-left-radius: 2px; }
+    .bubble.me { background: linear-gradient(135deg, #ff0000, #990000); align-self: flex-end; border-bottom-right-radius: 2px; }
+    .bubble.other { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); align-self: flex-start; border-bottom-left-radius: 2px; }
 
     /* Sidebar Mobile */
-    .mobile-sidebar {
+    .mobile-nav {
       position: fixed; top: 0; left: 0; width: 280px; height: 100dvh;
-      background: #0c0c0c; z-index: 1000; transform: translateX(-100%);
-      transition: transform 0.3s ease; border-right: 1px solid rgba(255,0,0,0.2);
+      background: #0c0c0c; z-index: 2000; transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-right: 1px solid rgba(255,0,0,0.3);
     }
-    .mobile-sidebar.open { transform: translateX(0); }
+    .mobile-nav.open { transform: translateX(0); }
     
     .overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(4px); z-index: 999; display: none;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px); z-index: 1000; display: none;
     }
-    .overlay.visible { display: block; }
+    .overlay.show { display: block; }
 
     .custom-scroll::-webkit-scrollbar { width: 3px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: var(--muzz-red); }
@@ -74,100 +66,131 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
+    // Configuración Firebase (Usando tu DB real)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
+      authDomain: "pulsari.firebaseapp.com",
+      databaseURL: "https://pulsari-default-rtdb.firebaseio.com",
+      projectId: "pulsari",
+      storageBucket: "pulsari.firebasestorage.app",
+      messagingSenderId: "824306321233",
+      appId: "1:824306321233:web:2c9bfa02170a17d560b570"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     function App() {
+      const [user, setUser] = useState(null);
+      const [messages, setMessages] = useState([]);
+      const [inputText, setInputText] = useState("");
       const [isMenuOpen, setIsMenuOpen] = useState(false);
-      const [messages, setMessages] = useState([
-        { id: 1, text: "Bienvenido a MuzzSnap Terminal.", user: "System", role: "admin" },
-        { id: 2, text: "¿Cómo accedo a Social?", user: "User_42", role: "user" }
-      ]);
       const chatEndRef = useRef(null);
 
-      const scrollToBottom = () => chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      useEffect(scrollToBottom, [messages]);
+      // Autenticación y Carga de Mensajes Reales
+      useEffect(() => {
+        const address = sessionStorage.getItem('muzz_wallet_address');
+        if (!address) { window.location.href = 'login.html'; return; }
+        
+        setUser({ address, name: address.startsWith('0x') ? `Node_${address.slice(-4)}` : address });
+
+        const msgRef = database.ref('messages/general').limitToLast(50);
+        msgRef.on('value', snap => {
+          const data = snap.val();
+          if (data) {
+            const list = Object.keys(data).map(id => ({ id, ...data[id] }));
+            setMessages(list);
+          }
+        });
+        return () => msgRef.off();
+      }, []);
+
+      useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+      const handleSend = () => {
+        if (!inputText.trim()) return;
+        database.ref('messages/general').push({
+          content: inputText,
+          username: user.name,
+          address: user.address,
+          timestamp: Date.now()
+        });
+        setInputText("");
+      };
+
+      if (!user) return <div className="h-screen flex items-center justify-center text-red-600 font-bold">CARGANDO...</div>;
 
       return (
-        <div className="app-container">
-          {/* OVERLAY & SIDEBAR */}
-          <div className={`overlay ${isMenuOpen ? 'visible' : ''}`} onClick={() => setIsMenuOpen(false)} />
-          <aside className={`mobile-sidebar p-6 flex flex-col ${isMenuOpen ? 'open' : ''}`}>
-            <div className="mb-8 flex items-center gap-3">
-              <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-                <i className="fas fa-terminal text-white text-xs"></i>
-              </div>
-              <h1 className="font-orbitron font-bold text-lg tracking-tighter text-white">MUZZSNAP</h1>
+        <div className="app-wrapper">
+          {/* OVERLAY */}
+          <div className={`overlay ${isMenuOpen ? 'show' : ''}`} onClick={() => setIsMenuOpen(false)} />
+
+          {/* SIDEBAR MOBILE */}
+          <nav className={`mobile-nav p-6 ${isMenuOpen ? 'open' : ''}`}>
+            <h1 className="font-orbitron font-bold text-xl text-red-600 mb-10 italic">MUZZSNAP</h1>
+            <div className="space-y-4">
+              <button onClick={() => window.location.href='social.html'} className="w-full flex items-center gap-4 p-4 rounded-xl bg-red-600/10 border border-red-600/30 text-red-500 font-bold">
+                <i className="fas fa-globe"></i> SOCIAL FEED
+              </button>
+              <button onClick={() => setIsMenuOpen(false)} className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/5 text-white font-bold border border-white/10">
+                <i className="fas fa-comment-dots"></i> GENERAL CHAT
+              </button>
             </div>
-            
-            <nav className="space-y-2 flex-1">
-              <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-4">Menu</p>
-              <button onClick={() => window.location.href='social.html'} className="w-full flex items-center gap-3 p-3 rounded-lg bg-red-600/10 border border-red-600/30 text-red-500 font-bold text-sm">
-                <i className="fas fa-rss"></i> SOCIAL FEED
-              </button>
-              <button className="w-full flex items-center gap-3 p-3 rounded-lg text-gray-400 font-bold text-sm hover:bg-white/5">
-                <i className="fas fa-comments"></i> CHANNELS
-              </button>
-            </nav>
+          </nav>
 
-            <button className="mt-auto p-3 border border-red-900/30 text-red-600 rounded-lg text-xs font-bold uppercase">
-              Disconnect
-            </button>
-          </aside>
-
-          {/* MAIN CONTENT AREA */}
-          <div className="flex flex-1 overflow-hidden lg:flex-row">
-            
-            {/* DESKTOP SIDEBAR (Visible solo en LG) */}
-            <aside className="hidden lg:flex w-64 bg-[#0c0c0c] border-r border-white/5 p-6 flex-col">
-               <h1 className="font-orbitron font-bold text-xl mb-10 text-red-600">MUZZSNAP</h1>
-               <button onClick={() => window.location.href='social.html'} className="flex items-center gap-3 p-3 rounded-xl bg-red-600 text-white font-bold mb-4 shadow-lg shadow-red-600/20">
-                <i className="fas fa-fire"></i> SOCIAL FEED
-               </button>
-               {/* ... Otros links ... */}
+          <div className="flex flex-1 overflow-hidden">
+            {/* SIDEBAR DESKTOP */}
+            <aside className="hidden lg:flex w-72 bg-[#0c0c0c] border-r border-white/5 p-8 flex-col">
+              <h1 className="font-orbitron font-bold text-2xl text-red-600 mb-12 italic tracking-tighter">MUZZSNAP</h1>
+              <div className="space-y-4">
+                <button onClick={() => window.location.href='social.html'} className="w-full flex items-center gap-4 p-4 rounded-xl bg-red-600 text-white font-bold shadow-lg shadow-red-600/20 transition-transform active:scale-95">
+                  <i className="fas fa-rss"></i> SOCIAL FEED
+                </button>
+                <button className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/5 text-gray-400 font-bold">
+                  <i className="fas fa-comments"></i> CHAT GENERAL
+                </button>
+              </div>
             </aside>
 
-            {/* CHAT INTERFACE */}
-            <main className="flex-1 flex flex-col relative bg-[#050505]">
-              
-              {/* HEADER ESTATICO */}
-              <header className="h-16 flex items-center justify-between px-4 bg-black/50 border-b border-white/10 backdrop-blur-md z-10">
-                <div className="flex items-center gap-3">
-                  <button onClick={() => setIsMenuOpen(true)} className="lg:hidden text-red-600 text-xl p-2">
-                    <i className="fas fa-bars"></i>
-                  </button>
-                  <span className="font-orbitron text-sm tracking-widest text-red-600">/ GENERAL_CHAT</span>
-                </div>
-                <div className="flex items-center gap-2">
-                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                   <span className="text-[10px] text-gray-400 font-mono">ONLINE</span>
-                </div>
+            {/* CHAT MAIN AREA */}
+            <main className="flex-1 flex flex-col bg-[#050505]">
+              {/* HEADER */}
+              <header className="h-16 flex items-center px-4 bg-black/40 border-b border-white/10 flex-shrink-0">
+                <button onClick={() => setIsMenuOpen(true)} className="lg:hidden text-red-600 text-xl w-10 h-10 flex items-center justify-center">
+                  <i className="fas fa-bars"></i>
+                </button>
+                <h2 className="text-xs font-black tracking-[0.3em] text-red-600 uppercase ml-2 italic">/ terminal_general</h2>
               </header>
 
-              {/* MESSAGES AREA */}
-              <div className="flex-1 overflow-y-auto p-4 custom-scroll space-y-4">
-                {messages.map(m => (
-                  <div key={m.id} className={`flex flex-col ${m.role === 'admin' ? 'items-start' : 'items-end'}`}>
-                    <span className="text-[10px] font-mono text-gray-500 mb-1 px-1 uppercase">{m.user}</span>
-                    <div className={`bubble-3d ${m.role === 'admin' ? 'other' : 'me'}`}>
-                      {m.text}
+              {/* MESSAGES */}
+              <div className="flex-1 overflow-y-auto p-4 custom-scroll flex flex-col gap-4">
+                {messages.map(msg => (
+                  <div key={msg.id} className={`flex flex-col ${msg.address === user.address ? 'items-end' : 'items-start'}`}>
+                    <span className="text-[9px] font-mono text-gray-600 mb-1 px-2 uppercase">{msg.username}</span>
+                    <div className={`bubble ${msg.address === user.address ? 'me' : 'other'}`}>
+                      {msg.content}
                     </div>
                   </div>
                 ))}
                 <div ref={chatEndRef} />
               </div>
 
-              {/* INPUT AREA ESTATICO AL FINAL */}
-              <footer className="p-4 bg-[#0c0c0c] border-t border-white/10">
-                <div className="max-w-4xl mx-auto flex items-center bg-black/40 border border-white/10 rounded-2xl p-2 pl-4 focus-within:border-red-600/50 transition-all">
+              {/* INPUT CONTAINER (Siempre Estático abajo) */}
+              <div className="p-4 bg-[#0c0c0c] border-t border-white/10 flex-shrink-0">
+                <div className="max-w-4xl mx-auto flex items-center bg-black/50 border border-white/10 rounded-2xl p-2 pl-4 focus-within:border-red-600/50 transition-all">
                   <input 
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                     type="text" 
-                    placeholder="Escribe un mensaje..." 
-                    className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-white font-mono"
+                    placeholder="Escribe un mensaje en el canal..." 
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-white font-mono h-10"
                   />
-                  <button className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center ml-2 hover:bg-red-500 transition-colors shadow-lg shadow-red-600/20">
+                  <button onClick={handleSend} className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center ml-2 shadow-lg shadow-red-600/20 active:scale-90 transition-transform">
                     <i className="fas fa-paper-plane text-white text-xs"></i>
                   </button>
                 </div>
-              </footer>
-
+              </div>
             </main>
           </div>
         </div>
