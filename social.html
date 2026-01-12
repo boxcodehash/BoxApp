@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MuzzSnap Social - Terminal Edition</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@300;400;600;700;900&family=Orbitron:wght@400;700;900&display=swap');
+    
+    :root {
+      --muzz-red: #ff0000;
+      --muzz-dark: #050505;
+      --muzz-card: #0c0c0c;
+      --muzz-border: rgba(255,0,0,0.15);
+      --ryachu-gold: #ffcc00;
+      --itsuki-blue: #00d4ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html, body { 
+      height: 100%; 
+      overflow: hidden; 
+      font-family: 'Inter', sans-serif;
+    }
+
+    body.dark-theme { background: var(--muzz-dark); color: white; }
+    body.light-theme { background: #f0f2f5; color: #1a1a1a; }
+
+    .panel-3d {
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .dark-theme .panel-3d {
+      background: var(--muzz-card);
+      border: 1px solid var(--muzz-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    
+    .light-theme .panel-3d {
+      background: white;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .post-card {
+      border-radius: 16px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dark-theme .post-card {
+      background: #0f0f0f;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .light-theme .post-card {
+      background: white;
+      border: 1px solid #e0e0e0;
+    }
+
+    .post-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(255,0,0,0.1);
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff0000, #b30000);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 18px;
+      color: white;
+      box-shadow: 0 4px 15px rgba(255,0,0,0.3);
+    }
+
+    .avatar-sm {
+      width: 32px;
+      height: 32px;
+      font-size: 14px;
+    }
+
+    .btn-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .dark-theme .btn-action {
+      color: #888;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .light-theme .btn-action {
+      color: #666;
+      background: #f5f5f5;
+    }
+
+    .btn-action:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-action.active {
+      color: var(--muzz-red);
+      border-color: var(--muzz-red);
+      background: rgba(255,0,0,0.1);
+    }
+
+    .ryachu-badge { color: var(--ryachu-gold); }
+    .itsuki-badge { color: var(--itsuki-blue); }
+
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { 
+      background: var(--muzz-red); 
+      border-radius: 10px; 
+    }
+
+    .story-ring {
+      padding: 3px;
+      background: linear-gradient(45deg, #ff0000, #ff6b00, #ff0000);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .story-ring:hover { transform: scale(1.1); }
+
+    .story-inner {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 3px solid var(--muzz-card);
+      overflow: hidden;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .textarea-auto {
+      resize: none;
+      min-height: 120px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .dark-theme .textarea-auto {
+      background: #0f0f0f;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .light-theme .textarea-auto {
+      background: white;
+      border: 1px solid #e0e0e0;
+      color: #1a1a1a;
+    }
+
+    .pulse-dot {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .image-preview {
+      max-height: 400px;
+      border-radius: 12px;
+      object-fit: cover;
+      width: 100%;
+    }
+
+    .watermark {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(255,0,0,0.9);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 900;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--muzz-red);
+      color: white;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .trending-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(255,0,0,0.1);
+      color: var(--muzz-red);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      margin: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .trending-tag:hover {
+      background: rgba(255,0,0,0.2);
+      transform: scale(1.05);
+    }
+
+    .comment-section {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div id="root" class="h-full"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
+      authDomain: "pulsari.firebaseapp.com",
+      databaseURL: "https://pulsari-default-rtdb.firebaseio.com",
+      projectId: "pulsari",
+      storageBucket: "pulsari.firebasestorage.app",
+      messagingSenderId: "824306321233",
+      appId: "1:824306321233:web:2c9bfa02170a17d560b570"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    const ADMINS = {
+      RYACHU: "0x208157b5ec396759e8754058108ecf53e32392ff".toLowerCase(),
+      ITSUKI: "0x000".toLowerCase()
+    };
+
+    // Componente Story
+    function StoryCircle({ story, onClick }) {
+      return (
+        <div className="flex flex-col items-center gap-2">
+          <div className="story-ring" onClick={onClick}>
+            <div className="story-inner">
+              <div className="avatar w-full h-full text-xl">
+                {story.username[0].toUpperCase()}
+              </div>
+            </div>
+          </div>
+          <span className="text-xs font-semibold truncate max-w-[70px]">
+            {story.username}
+          </span>
+        </div>
+      );
+    }
+
+    // Componente Post
+    function Post({ post, user, onLike, onRepost, onComment, onShare, onDelete }) {
+      const [showComments, setShowComments] = useState(false);
+      const [commentText, setCommentText] = useState("");
+      const [comments, setComments] = useState([]);
+
+      useEffect(() => {
+        if (post.id) {
+          database.ref(`comments/${post.id}`).on('value', snap => {
+            const data = snap.val();
+            setComments(data ? Object.keys(data).map(k => ({id: k, ...data[k]})) : []);
+          });
+        }
+        return () => database.ref(`comments/${post.id}`).off();
+      }, [post.id]);
+
+      const handleComment = () => {
+        if (!commentText.trim()) return;
+        database.ref(`comments/${post.id}`).push({
+          text: commentText,
+          username: user.username,
+          role: user.role,
+          userId: user.uid,
+          timestamp: Date.now()
+        });
+        setCommentText("");
+      };
+
+      const hasLiked = post.likes && post.likes[user.uid];
+      const hasReposted = post.reposts && post.reposts[user.uid];
+      const likeCount = post.likes ? Object.keys(post.likes).length : 0;
+      const repostCount = post.reposts ? Object.keys(post.reposts).length : 0;
+
+      return (
+        <div className="post-card p-6 mb-4">
+          <div className="flex items-start gap-4">
+            <div className={`avatar ${post.role === 'ryachu' ? 'ryachu-badge' : post.role === 'itsuki' ? 'itsuki-badge' : ''}`}>
+              {post.username[0].toUpperCase()}
+            </div>
+            
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <h3 className={`font-bold text-sm ${post.role === 'ryachu' ? 'ryachu-badge' : post.role === 'itsuki' ? 'itsuki-badge' : ''}`}>
+                    {post.role === 'ryachu' && '👑 '}{post.username}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {new Date(post.timestamp).toLocaleString()}
+                  </p>
+                </div>
+                {user.uid === post.userId && (
+                  <button onClick={() => onDelete(post.id)} className="text-red-600 hover:text-red-400">
+                    <i className="fas fa-trash text-sm"></i>
+                  </button>
+                )}
+              </div>
+
+              <p className="text-sm mb-4 leading-relaxed whitespace-pre-wrap">
+                {post.content}
+              </p>
+
+              {post.imageUrl && (
+                <div className="relative mb-4">
+                  <img src={post.imageUrl} alt="Post" className="image-preview" />
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button 
+                  onClick={() => onLike(post.id, hasLiked)}
+                  className={`btn-action ${hasLiked ? 'active' : ''}`}
+                >
+                  <i className={`${hasLiked ? 'fas' : 'far'} fa-heart`}></i>
+                  <span>{likeCount}</span>
+                </button>
+
+                <button 
+                  onClick={() => onRepost(post.id, hasReposted)}
+                  className={`btn-action ${hasReposted ? 'active' : ''}`}
+                >
+                  <i className="fas fa-retweet"></i>
+                  <span>{repostCount}</span>
+                </button>
+
+                <button 
+                  onClick={() => setShowComments(!showComments)}
+                  className="btn-action"
+                >
+                  <i className="far fa-comment"></i>
+                  <span>{comments.length}</span>
+                </button>
+
+                <button 
+                  onClick={() => onShare(post)}
+                  className="btn-action"
+                >
+                  <i className="fas fa-share-alt"></i>
+                  <span>Share</span>
+                </button>
+              </div>
+
+              {showComments && (
+                <div className="mt-4 pt-4 border-t border-gray-800">
+                  <div className="comment-section custom-scroll mb-4 space-y-3">
+                    {comments.map(comment => (
+                      <div key={comment.id} className="flex gap-3">
+                        <div className="avatar avatar-sm">
+                          {comment.username[0].toUpperCase()}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className={`text-xs font-bold ${comment.role === 'ryachu' ? 'ryachu-badge' : comment.role === 'itsuki' ? 'itsuki-badge' : 'text-gray-400'}`}>
+                            {comment.username}
+                          </h4>
+                          <p className="text-sm">{comment.text}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <input
+                      value={commentText}
+                      onChange={e => setCommentText(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleComment()}
+                      placeholder="Escribe un comentario..."
+                      className="flex-1 px-4 py-2 rounded-xl bg-black/30 border border-gray-800 focus:border-red-600 focus:outline-none text-sm"
+                    />
+                    <button
+                      onClick={handleComment}
+                      className="px-6 py-2 bg-red-600 rounded-xl hover:bg-red-500 transition-all"
+                    >
+                      <i className="fas fa-paper-plane"></i>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Componente Modal para crear post
+    function CreatePostModal({ isOpen, onClose, user }) {
+      const [content, setContent] = useState("");
+      const [imagePreview, setImagePreview] = useState(null);
+      const [uploading, setUploading] = useState(false);
+
+      const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => setImagePreview(e.target.result);
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const handlePost = () => {
+        if (!content.trim() && !imagePreview) return;
+        
+        setUploading(true);
+        database.ref('posts').push({
+          content,
+          imageUrl: imagePreview || null,
+          username: user.username,
+          role: user.role,
+          userId: user.uid,
+          timestamp: Date.now(),
+          likes: {},
+          reposts: {}
+        }).then(() => {
+          setContent("");
+          setImagePreview(null);
+          setUploading(false);
+          onClose();
+        });
+      };
+
+      if (!isOpen) return null;
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content panel-3d p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-black text-red-600">CREAR POST</h2>
+              <button onClick={onClose} className="text-gray-500 hover:text-red-600">
+                <i className="fas fa-times text-xl"></i>
+              </button>
+            </div>
+
+            <div className="flex gap-4 mb-4">
+              <div className="avatar">
+                {user.username[0].toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <textarea
+                  value={content}
+                  onChange={e => setContent(e.target.value)}
+                  placeholder="¿Qué está pasando?"
+                  className="w-full textarea-auto rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-red-600"
+                />
+              </div>
+            </div>
+
+            {imagePreview && (
+              <div className="relative mb-4">
+                <img src={imagePreview} alt="Preview" className="image-preview" />
+                <button
+                  onClick={() => setImagePreview(null)}
+                  className="absolute top-2 right-2 w-8 h-8 bg-black/80 rounded-full flex items-center justify-center text-white hover:bg-red-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-4 border-t border-gray-800">
+              <label className="cursor-pointer text-red-600 hover:text-red-400">
+                <i className="fas fa-image text-xl"></i>
+                <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+              </label>
+
+              <button
+                onClick={handlePost}
+                disabled={uploading || (!content.trim() && !imagePreview)}
+                className="px-8 py-3 bg-red-600 rounded-xl font-bold hover:bg-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {uploading ? 'PUBLICANDO...' : 'PUBLICAR'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Componente Modal para Stories
+    function StoryModal({ isOpen, onClose, story }) {
+      if (!isOpen || !story) return null;
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="relative max-w-md w-full h-[80vh]" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/80 rounded-full flex items-center justify-center text-white"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+
+            <div className="panel-3d h-full p-6 flex flex-col">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="avatar avatar-sm">
+                  {story.username[0].toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">{story.username}</h3>
+                  <p className="text-xs text-gray-500">
+                    {new Date(story.timestamp).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-1 flex items-center justify-center">
+                {story.imageUrl ? (
+                  <img src={story.imageUrl} alt="Story" className="max-w-full max-h-full rounded-xl" />
+                ) : (
+                  <p className="text-center text-2xl font-bold px-6">{story.content}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Componente Principal
+    function App() {
+      const [user, setUser] = useState(null);
+      const [posts, setPosts] = useState([]);
+      const [stories, setStories] = useState([]);
+      const [isDark, setIsDark] = useState(true);
+      const [showCreatePost, setShowCreatePost] = useState(false);
+      const [selectedStory, setSelectedStory] = useState(null);
+      const [activeTab, setActiveTab] = useState('feed');
+
+      useEffect(() => {
+        const sessionData = sessionStorage.getItem('muzz_wallet_address');
+        if (!sessionData) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        firebase.auth().signInAnonymously().then((userCredential) => {
+          const uid = userCredential.user.uid;
+          const isWallet = !sessionData.startsWith('guest_');
+          let name = "", role = "user";
+
+          if (isWallet) {
+            const w = sessionData.toLowerCase();
+            if (w === ADMINS.RYACHU) { name = "Ryachu"; role = "ryachu"; }
+            else if (w === ADMINS.ITSUKI) { name = "Itsuki"; role = "itsuki"; }
+            else { name = `Node_${sessionData.slice(-4)}`; }
+          } else {
+            name = sessionData.replace('guest_', '');
+            role = "guest";
+          }
+
+          setUser({ username: name, uid, role, isWallet });
+        });
+      }, []);
+
+      useEffect(() => {
+        if (!user) return;
+        
+        const postsRef = database.ref('posts').limitToLast(50);
+        postsRef.on('value', snap => {
+          const data = snap.val();
+          const postsArray = data ? Object.keys(data).map(k => ({id: k, ...data[k]})) : [];
+          setPosts(postsArray.sort((a, b) => b.timestamp - a.timestamp));
+        });
+
+        const storiesRef = database.ref('stories').limitToLast(20);
+        storiesRef.on('value', snap => {
+          const data = snap.val();
+          const storiesArray = data ? Object.keys(data).map(k => ({id: k, ...data[k]})) : [];
+          const recent = storiesArray.filter(s => Date.now() - s.timestamp < 86400000);
+          setStories(recent.sort((a, b) => b.timestamp - a.timestamp));
+        });
+
+        return () => {
+          postsRef.off();
+          storiesRef.off();
+        };
+      }, [user]);
+
+      const toggleTheme = () => {
+        setIsDark(!isDark);
+        document.body.className = isDark ? 'light-theme' : 'dark-theme';
+      };
+
+      const handleLike = (postId, hasLiked) => {
+        if (hasLiked) {
+          database.ref(`posts/${postId}/likes/${user.uid}`).remove();
+        } else {
+          database.ref(`posts/${postId}/likes/${user.uid}`).set(true);
+        }
+      };
+
+      const handleRepost = (postId, hasReposted) => {
+        if (hasReposted) {
+          database.ref(`posts/${postId}/reposts/${user.uid}`).remove();
+        } else {
+          database.ref(`posts/${postId}/reposts/${user.uid}`).set(true);
+        }
+      };
+
+      const handleShare = (post) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 800;
+        canvas.height = 600;
+
+        ctx.fillStyle = '#0c0c0c';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 24px Inter';
+        ctx.fillText(post.username, 40, 60);
+
+        ctx.font = '18px Inter';
+        const words = post.content.split(' ');
+        let line = '';
+        let y = 120;
+        words.forEach(word => {
+          const testLine = line + word + ' ';
+          if (ctx.measureText(testLine).width > 720) {
+            ctx.fillText(line, 40, y);
+            line = word + ' ';
+            y += 30;
+          } else {
+            line = testLine;
+          }
+        });
+        ctx.fillText(line, 40, y);
+
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(canvas.width - 200, canvas.height - 60, 160, 40);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 20px Orbitron';
+        ctx.fillText('MUZZSNAP', canvas.width - 180, canvas.height - 30);
+
+        canvas.toBlob(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'muzzsnap-post.png';
+          a.click();
+        });
+      };
+
+      const handleDelete = (postId) => {
+        if (confirm('¿Eliminar este post?')) {
+          database.ref(`posts/${postId}`).remove();
+        }
+      };
+
+      if (!user) {
+        return (
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-red-600 text-6xl mb-4">
+                <i className="fas fa-ghost pulse-dot"></i>
+              </div>
+              <h2 className="text-2xl font-black text-red-600">CONECTANDO...</h2>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex h-screen overflow-hidden">
+          {/* SIDEBAR */}
+          <aside className="hidden lg:flex w-80 panel-3d m-4 p-6 flex-col">
+            <div className="mb-8 flex items-center gap-3">
+              <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
+                <i className="fas fa-ghost text-white text-xl"></i>
+              </div>
+              <h1 className="font-orbitron font-black text-2xl">
+                MUZZ<span className="text-red-600">SNAP</span>
+              </h1>
+            </div>
+
+            <nav className="space-y-2 mb-8">
+              <button
+                onClick={() => setActiveTab('feed')}
+                className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'feed' ? 'bg-red-600 text-white' : 'text-gray-500 hover:bg-red-600/10'}`}
+              >
+                <i className="fas fa-home text-xl"></i>
+                <span>Inicio</span>
+              </button>
+
+              <button
+                onClick={() => window.location.href = 'chat.html'}
+                className="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-500 hover:bg-red-600/10 transition-all"
+              >
+                <i className="fas fa-comments text-xl"></i>
+                <span>Chat</span>
+              </button>
+
+              <button
+                onClick={toggleTheme}
+                className="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-500 hover:bg-red-600/10 transition-all"
+              >
+                <i className={`fas ${isDark ? 'fa-sun' : 'fa-moon'} text-xl`}></i>
+                <span>Tema</span>
+              </button>
+            </nav>
+
+            <div className="flex-1 overflow-y-auto custom-scroll">
+              <h3 className="text-xs font-black text-gray-500 uppercase tracking-wider mb-4">
+                Tendencias
+              </h3>
+              <div className="space-y-1">
+                <div className="trending-tag">#MuzzSnap</div>
+                <div className="trending-tag">#Crypto</div>
+                <div className="trending-tag">#Web3</div>
+                <div className="trending-tag">#NFT</div>
+                <div className="trending-tag">#Gaming</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+              }}
+              className="mt-6 w-full py-3 border border-red-900/30 text-red-600 rounded-xl uppercase font-black hover:bg-red-600/5 transition-all"
+            >
+              <i className="fas fa-power-off mr-2"></i> Desconectar
+            </button>
+          </aside>
+
+          {/* MAIN CONTENT */}
+          <main className="flex-1 overflow-hidden flex flex-col">
+            {/* HEADER */}
+            <header className="h-16 panel-3d m-4 mb-2 px-6 flex items-center justify-between flex-shrink-0">
+              <h2 className="font-black text-xl">
+                <i className="fas fa-fire text-red-600 mr-2"></i>
+                FEED
+              </h2>
+              
+              <div className="flex items-center gap-4">
+                <button className="relative text-gray-500 hover:text-red-600 transition-colors">
+                  <i className="far fa-bell text-xl"></i>
+                  <span className="notification-badge">3</span>
+                </button>
+                
+                <div className="avatar avatar-sm cursor-pointer">
+                  {user.username[0].toUpperCase()}
+                </div>
+              </div>
+            </header>
+
+            {/* STORIES */}
+            <div className="panel-3d mx-4 mb-2 p-4 flex-shrink-0">
+              <div className="flex gap-4 overflow-x-auto custom-scroll pb-2">
+                <div 
+                  onClick={() => setShowCreatePost(true)}
+                  className="flex flex-col items-center gap-2 cursor-pointer"
+                >
+                  <div className="w-16 h-16 border-2 border-dashed border-red-600 rounded-full flex items-center justify-center hover:bg-red-600/10 transition-all">
+                    <i className="fas fa-plus text-red-600 text-xl"></i>
+                  </div>
+                  <span className="text-xs font-semibold">Tu historia</span>
+                </div>
+
+                {stories.map(story => (
+                  <StoryCircle
+                    key={story.id}
+                    story={story}
+                    onClick={() => setSelectedStory(story)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* POSTS FEED */}
+            <div className="flex-1 overflow-y-auto custom-scroll px-4">
+              <div className="max-w-2xl mx-auto pb-4">
+                {/* CREATE POST QUICK */}
+                <div className="panel-3d p-4 mb-4">
+                  <div className="flex gap-4">
+                    <div className="avatar">
+                      {user.username[0].toUpperCase()}
+                    </div>
+                    <button
+                      onClick={() => setShowCreatePost(true)}
+                      className="flex-1 text-left px-4 py-3 rounded-2xl bg-black/30 border border-gray-800 hover:border-red-600 transition-all text-gray-500"
+                    >
+                      ¿Qué está pasando?
+                    </button>
+                    <button
+                      onClick={() => setShowCreatePost(true)}
+                      className="px-6 py-3 bg-red-600 rounded-2xl font-bold hover:bg-red-500 transition-all"
+                    >
+                      POST
+                    </button>
+                  </div>
+                </div>
+
+                {/* POSTS LIST */}
+                {posts.length === 0 ? (
+                  <div className="text-center py-20">
+                    <i className="fas fa-ghost text-6xl text-gray-800 mb-4"></i>
+                    <p className="text-gray-500">No hay posts aún. ¡Sé el primero!</p>
+                  </div>
+                ) : (
+                  posts.map(post => (
+                    <Post
+                      key={post.id}
+                      post={post}
+                      user={user}
+                      onLike={handleLike}
+                      onRepost={handleRepost}
+                      onComment={() => {}}
+                      onShare={handleShare}
+                      onDelete={handleDelete}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          </main>
+
+          {/* RIGHT SIDEBAR */}
+          <aside className="hidden xl:flex w-80 panel-3d m-4 p-6 flex-col">
+            <h3 className="text-xs font-black text-gray-500 uppercase tracking-wider mb-4">
+              Usuarios Activos
+            </h3>
+            
+            <div className="flex-1 overflow-y-auto custom-scroll space-y-4">
+              <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer">
+                <div className="avatar avatar-sm ryachu-badge">R</div>
+                <div className="flex-1">
+                  <h4 className="font-bold text-sm ryachu-badge">👑 Ryachu</h4>
+                  <p className="text-xs text-gray-500">Admin</p>
+                </div>
+                <button className="px-3 py-1 bg-red-600 rounded-lg text-xs font-bold hover:bg-red-500">
+                  Seguir
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer">
+                <div className="avatar avatar-sm itsuki-badge">I</div>
+                <div className="flex-1">
+                  <h4 className="font-bold text-sm itsuki-badge">Itsuki</h4>
+                  <p className="text-xs text-gray-500">Admin</p>
+                </div>
+                <button className="px-3 py-1 bg-red-600 rounded-lg text-xs font-bold hover:bg-red-500">
+                  Seguir
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-red-600/20 to-red-600/5 border border-red-600/30">
+              <h4 className="font-black text-sm mb-2">
+                <i className="fas fa-rocket text-red-600 mr-2"></i>
+                MuzzSnap Premium
+              </h4>
+              <p className="text-xs text-gray-400 mb-3">
+                Desbloquea funciones exclusivas y destaca en la comunidad
+              </p>
+              <button className="w-full py-2 bg-red-600 rounded-lg font-bold text-sm hover:bg-red-500 transition-all">
+                Actualizar ahora
+              </button>
+            </div>
+          </aside>
+
+          {/* MODALS */}
+          <CreatePostModal
+            isOpen={showCreatePost}
+            onClose={() => setShowCreatePost(false)}
+            user={user}
+          />
+
+          <StoryModal
+            isOpen={!!selectedStory}
+            onClose={() => setSelectedStory(null)}
+            story={selectedStory}
+          />
+
+          {/* MOBILE NAVIGATION */}
+          <nav className="lg:hidden fixed bottom-0 left-0 right-0 panel-3d mx-2 mb-2 p-2 flex justify-around items-center z-50">
+            <button
+              onClick={() => setActiveTab('feed')}
+              className={`p-3 rounded-xl ${activeTab === 'feed' ? 'text-red-600 bg-red-600/10' : 'text-gray-500'}`}
+            >
+              <i className="fas fa-home text-xl"></i>
+            </button>
+            
+            <button className="p-3 rounded-xl text-gray-500">
+              <i className="fas fa-search text-xl"></i>
+            </button>
+            
+            <button
+              onClick={() => setShowCreatePost(true)}
+              className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center -mt-6 shadow-lg shadow-red-600/30"
+            >
+              <i className="fas fa-plus text-white text-xl"></i>
+            </button>
+            
+            <button className="p-3 rounded-xl text-gray-500 relative">
+              <i className="far fa-bell text-xl"></i>
+              <span className="notification-badge">3</span>
+            </button>
+            
+            <button
+              onClick={() => window.location.href = 'chat.html'}
+              className="p-3 rounded-xl text-gray-500"
+            >
+              <i className="fas fa-comments text-xl"></i>
+            </button>
+          </nav>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
