@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MuzzSnap - Live Terminal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MuzzSnap - Terminal Edition</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -15,49 +16,75 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400&family=Orbitron:wght@400;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&display=swap');
+    :root { --muzz-red: #ff0000; --deep-black: #050505; --panel-bg: #0c0c0c; --neon-green: #39ff14; --ryachu-gold: #ffcc00; }
     
-    :root { --muzz-red: #ff0000; }
-
+    * { box-sizing: border-box; }
+    
     html, body { 
-      height: 100dvh; 
+      font-family: 'Inter', sans-serif; 
+      background-color: var(--deep-black); 
+      color: white; 
       margin: 0; 
-      padding: 0; 
-      overflow: hidden; 
-      background: #050505;
-      color: white;
+      padding: 0;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+    }
+    
+    #root {
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
     }
 
-    .app-wrapper { height: 100dvh; display: flex; flex-direction: column; }
+    .panel-3d {
+      background: var(--panel-bg);
+      box-shadow: inset 1px 1px 2px rgba(255,255,255,0.05), 10px 10px 20px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,0,0,0.1);
+    }
 
-    /* Estética de burbujas */
-    .bubble {
-      padding: 10px 14px;
-      border-radius: 16px;
-      max-width: 80%;
-      font-size: 14px;
+    .ryachu-name {
+      color: var(--ryachu-gold);
+      text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+      font-weight: 800;
+    }
+
+    .channel-btn-3d.active {
+      background: #000;
+      border: 1px solid rgba(255,0,0,0.5);
+      color: var(--muzz-red);
+    }
+
+    .bubble-3d {
+      padding: 10px 15px;
+      border-radius: 18px;
+      margin-bottom: 4px;
+      max-width: 85%;
       word-wrap: break-word;
     }
-    .bubble.me { background: linear-gradient(135deg, #ff0000, #990000); align-self: flex-end; border-bottom-right-radius: 2px; }
-    .bubble.other { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); align-self: flex-start; border-bottom-left-radius: 2px; }
 
-    /* Sidebar Mobile */
-    .mobile-nav {
-      position: fixed; top: 0; left: 0; width: 280px; height: 100dvh;
-      background: #0c0c0c; z-index: 2000; transform: translateX(-100%);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border-right: 1px solid rgba(255,0,0,0.3);
+    .bubble-3d.me {
+      background: linear-gradient(145deg, #ff0000, #990000);
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
     }
-    .mobile-nav.open { transform: translateX(0); }
-    
-    .overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(5px); z-index: 1000; display: none;
-    }
-    .overlay.show { display: block; }
 
-    .custom-scroll::-webkit-scrollbar { width: 3px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: var(--muzz-red); }
+    .bubble-3d.other {
+      background: #1a1a1a;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .hacker-input {
+      font-family: 'Fira Code', monospace;
+      color: var(--neon-green) !important;
+    }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--muzz-red); }
   </style>
 </head>
 <body>
@@ -66,7 +93,6 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // Configuración Firebase (Usando tu DB real)
     const firebaseConfig = {
       apiKey: "AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
       authDomain: "pulsari.firebaseapp.com",
@@ -78,126 +104,203 @@
     };
 
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const database = firebase.database();
+
+    // Wallets Especiales
+    const RYACHU_WALLET = "0x208157b5ec396759e8754058108ecf53e32392ff".toLowerCase();
+    const ITSUKI_WALLET = "0xfab5835ca14fb3f9f478c5e4d733734e6394e03f".toLowerCase();
+
+    const QUICK_EMOJIS = ["🔥", "🚀", "💎", "💻", "⚡", "🤖", "🔴", "👑"];
+
+    const CHANNELS = [
+      { id: "general", name: "GENERAL" },
+      { id: "spanish", name: "SPANISH" },
+      { id: "english", name: "ENGLISH" },
+      { id: "crypto", name: "CRYPTO" }
+    ];
 
     function App() {
       const [user, setUser] = useState(null);
+      const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0]);
       const [messages, setMessages] = useState([]);
+      const [onlineUsers, setOnlineUsers] = useState([]);
       const [inputText, setInputText] = useState("");
-      const [isMenuOpen, setIsMenuOpen] = useState(false);
-      const chatEndRef = useRef(null);
+      const [isMobileMenu, setIsMobileMenu] = useState(false);
+      const dummyRef = useRef(null);
 
-      // Autenticación y Carga de Mensajes Reales
       useEffect(() => {
-        const address = sessionStorage.getItem('muzz_wallet_address');
-        if (!address) { window.location.href = 'login.html'; return; }
+        const wallet = sessionStorage.getItem('muzz_wallet_address');
         
-        setUser({ address, name: address.startsWith('0x') ? `Node_${address.slice(-4)}` : address });
+        if (!wallet) {
+          window.location.href = 'index.html';
+          return;
+        }
 
-        const msgRef = database.ref('messages/general').limitToLast(50);
-        msgRef.on('value', snap => {
-          const data = snap.val();
-          if (data) {
-            const list = Object.keys(data).map(id => ({ id, ...data[id] }));
-            setMessages(list);
-          }
+        auth.signInAnonymously().then(async (userCredential) => {
+          const uid = userCredential.user.uid;
+          const walletKey = wallet.toLowerCase();
+          
+          const myPresenceRef = database.ref(`presence/${uid}`);
+          const connectedRef = database.ref(".info/connected");
+
+          connectedRef.on("value", (snap) => {
+            if (snap.val() === true) {
+              myPresenceRef.onDisconnect().remove();
+              
+              let finalUsername = `Node_${wallet.slice(-4)}`;
+              let isAdmin = false;
+
+              if (walletKey === RYACHU_WALLET) {
+                finalUsername = "Ryachu";
+                isAdmin = true;
+              } else if (walletKey === ITSUKI_WALLET) {
+                finalUsername = "Itsuki";
+                isAdmin = true;
+              }
+
+              const userData = {
+                username: finalUsername,
+                wallet: walletKey,
+                online: true,
+                uid: uid,
+                isRyachu: isAdmin
+              };
+
+              myPresenceRef.set(userData);
+              setUser({ ...userData, address: wallet });
+            }
+          });
         });
-        return () => msgRef.off();
+
+        database.ref('presence').on('value', snap => {
+          const data = snap.val();
+          setOnlineUsers(data ? Object.values(data) : []);
+        });
       }, []);
 
-      useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+      useEffect(() => {
+        if (!user) return;
+        const msgRef = database.ref('messages/' + selectedChannel.id).limitToLast(50);
+        msgRef.on('value', snap => {
+          const data = snap.val();
+          setMessages(data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : []);
+        });
+        return () => msgRef.off();
+      }, [selectedChannel, user]);
 
-      const handleSend = () => {
+      useEffect(() => { dummyRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+      const handleSend = async () => {
         if (!inputText.trim()) return;
-        database.ref('messages/general').push({
+        await database.ref('messages/' + selectedChannel.id).push({
           content: inputText,
-          username: user.name,
-          address: user.address,
-          timestamp: Date.now()
+          userId: user.uid,
+          username: user.username,
+          isRyachu: user.isRyachu,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
         });
         setInputText("");
       };
 
-      if (!user) return <div className="h-screen flex items-center justify-center text-red-600 font-bold">CARGANDO...</div>;
+      if (!user) return (
+        <div className="h-screen w-screen bg-black flex flex-col items-center justify-center fixed inset-0">
+            <i className="fas fa-shield-halved text-red-600 text-4xl mb-4 animate-pulse"></i>
+            <div className="text-red-600 font-mono text-xs tracking-[0.3em]">VALIDATING_ENCRYPTED_SESSION...</div>
+        </div>
+      );
 
       return (
-        <div className="app-wrapper">
-          {/* OVERLAY */}
-          <div className={`overlay ${isMenuOpen ? 'show' : ''}`} onClick={() => setIsMenuOpen(false)} />
-
-          {/* SIDEBAR MOBILE */}
-          <nav className={`mobile-nav p-6 ${isMenuOpen ? 'open' : ''}`}>
-            <h1 className="font-orbitron font-bold text-xl text-red-600 mb-10 italic">MUZZSNAP</h1>
-            <div className="space-y-4">
-              <button onClick={() => window.location.href='social.html'} className="w-full flex items-center gap-4 p-4 rounded-xl bg-red-600/10 border border-red-600/30 text-red-500 font-bold">
-                <i className="fas fa-globe"></i> SOCIAL FEED
-              </button>
-              <button onClick={() => setIsMenuOpen(false)} className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/5 text-white font-bold border border-white/10">
-                <i className="fas fa-comment-dots"></i> GENERAL CHAT
-              </button>
-            </div>
-          </nav>
-
-          <div className="flex flex-1 overflow-hidden">
-            {/* SIDEBAR DESKTOP */}
-            <aside className="hidden lg:flex w-72 bg-[#0c0c0c] border-r border-white/5 p-8 flex-col">
-              <h1 className="font-orbitron font-bold text-2xl text-red-600 mb-12 italic tracking-tighter">MUZZSNAP</h1>
-              <div className="space-y-4">
-                <button onClick={() => window.location.href='social.html'} className="w-full flex items-center gap-4 p-4 rounded-xl bg-red-600 text-white font-bold shadow-lg shadow-red-600/20 transition-transform active:scale-95">
-                  <i className="fas fa-rss"></i> SOCIAL FEED
-                </button>
-                <button className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/5 text-gray-400 font-bold">
-                  <i className="fas fa-comments"></i> CHAT GENERAL
-                </button>
+        <div className="flex h-screen w-screen bg-[#050505] p-2 lg:p-4 gap-4 overflow-hidden fixed inset-0">
+          
+          {/* SIDEBAR */}
+          <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-64 panel-3d rounded-3xl p-6 flex flex-col transition-transform duration-300 ${isMobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+            <div className="mb-8 flex items-center gap-3">
+              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(255,0,0,0.5)]">
+                <i className="fas fa-ghost text-white text-xs"></i>
               </div>
-            </aside>
+              <h1 className="font-bold text-xl italic tracking-tighter font-orbitron">MUZZ<span className="text-red-600">SNAP</span></h1>
+            </div>
 
-            {/* CHAT MAIN AREA */}
-            <main className="flex-1 flex flex-col bg-[#050505]">
-              {/* HEADER */}
-              <header className="h-16 flex items-center px-4 bg-black/40 border-b border-white/10 flex-shrink-0">
-                <button onClick={() => setIsMenuOpen(true)} className="lg:hidden text-red-600 text-xl w-10 h-10 flex items-center justify-center">
-                  <i className="fas fa-bars"></i>
+            <div className="flex-1 overflow-y-auto pr-2">
+              <p className="text-[9px] text-gray-600 font-bold tracking-[0.2em] mb-4 uppercase">Access_Channels</p>
+              {CHANNELS.map(ch => (
+                <button key={ch.id} onClick={() => { setSelectedChannel(ch); setIsMobileMenu(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all channel-btn-3d ${selectedChannel.id === ch.id ? 'active' : 'text-gray-500 hover:text-gray-300'}`}>
+                  <span className="text-red-900">#</span> {ch.name}
                 </button>
-                <h2 className="text-xs font-black tracking-[0.3em] text-red-600 uppercase ml-2 italic">/ terminal_general</h2>
-              </header>
+              ))}
 
-              {/* MESSAGES */}
-              <div className="flex-1 overflow-y-auto p-4 custom-scroll flex flex-col gap-4">
-                {messages.map(msg => (
-                  <div key={msg.id} className={`flex flex-col ${msg.address === user.address ? 'items-end' : 'items-start'}`}>
-                    <span className="text-[9px] font-mono text-gray-600 mb-1 px-2 uppercase">{msg.username}</span>
-                    <div className={`bubble ${msg.address === user.address ? 'me' : 'other'}`}>
-                      {msg.content}
+              <p className="text-[9px] text-gray-600 font-bold tracking-[0.2em] mt-8 mb-4 uppercase">Nodes_Online ({onlineUsers.length})</p>
+              {onlineUsers.map((u, i) => (
+                <div key={i} className={`flex items-center gap-2 text-[11px] px-2 py-1 ${u.isRyachu ? 'ryachu-name' : 'text-gray-400'}`}>
+                  <div className={`w-1 h-1 rounded-full ${u.isRyachu ? 'bg-yellow-400' : 'bg-green-500'}`}></div>
+                  {u.username}
+                </div>
+              ))}
+            </div>
+
+            <button onClick={() => {sessionStorage.clear(); window.location.reload()}} className="mt-4 w-full py-2 text-[10px] border border-red-900/30 text-red-900 rounded-lg uppercase">Disconnect</button>
+          </aside>
+
+          {/* CHAT MAIN */}
+          <main className="flex-1 panel-3d rounded-3xl flex flex-col overflow-hidden relative border border-white/5 min-h-0">
+            <header className="h-14 flex-shrink-0 flex items-center justify-between px-6 bg-white/5 backdrop-blur-md border-b border-white/5">
+              <div className="flex items-center gap-4">
+                <button onClick={() => setIsMobileMenu(true)} className="lg:hidden text-red-600"><i className="fas fa-bars"></i></button>
+                <h2 className="text-sm font-bold tracking-widest text-red-600">#{selectedChannel.name}</h2>
+              </div>
+              <div className="text-[9px] font-mono text-gray-600">
+                {user.isRyachu ? "ROOT_ADMIN" : `ADDR: ${user.address.slice(0,6)}...${user.address.slice(-4)}`}
+              </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-4 lg:p-6 flex flex-col min-h-0">
+              {messages.map(msg => {
+                const isMe = msg.userId === user.uid;
+                return (
+                  <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-4`}>
+                    {!isMe && <span className={`text-[9px] font-bold ml-1 mb-1 uppercase ${msg.isRyachu ? 'ryachu-name' : 'text-gray-600'}`}>{msg.username}</span>}
+                    <div className={`bubble-3d ${isMe ? 'me' : 'other'}`}>
+                      <p className="text-[13px] leading-relaxed">{msg.content}</p>
                     </div>
                   </div>
+                );
+              })}
+              <div ref={dummyRef}></div>
+            </div>
+
+            <div className="p-4 bg-black/20 flex-shrink-0">
+              {/* Barra de Emojis Rápidos */}
+              <div className="flex gap-3 mb-3 px-2">
+                {QUICK_EMOJIS.map(emoji => (
+                  <button key={emoji} onClick={() => setInputText(inputText + emoji)} className="hover:scale-125 transition-transform text-lg grayscale hover:grayscale-0">
+                    {emoji}
+                  </button>
                 ))}
-                <div ref={chatEndRef} />
               </div>
 
-              {/* INPUT CONTAINER (Siempre Estático abajo) */}
-              <div className="p-4 bg-[#0c0c0c] border-t border-white/10 flex-shrink-0">
-                <div className="max-w-4xl mx-auto flex items-center bg-black/50 border border-white/10 rounded-2xl p-2 pl-4 focus-within:border-red-600/50 transition-all">
-                  <input 
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    type="text" 
-                    placeholder="Escribe un mensaje en el canal..." 
-                    className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-white font-mono h-10"
-                  />
-                  <button onClick={handleSend} className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center ml-2 shadow-lg shadow-red-600/20 active:scale-90 transition-transform">
-                    <i className="fas fa-paper-plane text-white text-xs"></i>
-                  </button>
-                </div>
+              <div className="flex items-center bg-black/40 border border-white/5 rounded-2xl p-2 pl-4 shadow-inner">
+                <input 
+                  value={inputText} 
+                  onChange={e => setInputText(e.target.value)} 
+                  onKeyDown={e => e.key === 'Enter' && handleSend()} 
+                  placeholder="Transmit encrypted message..." 
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-xs hacker-input" 
+                />
+                <button onClick={handleSend} className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,0,0,0.3)] hover:bg-red-500 transition-colors">
+                  <i className="fas fa-paper-plane text-[12px]"></i>
+                </button>
               </div>
-            </main>
-          </div>
+            </div>
+          </main>
+          
+          {isMobileMenu && <div onClick={() => setIsMobileMenu(false)} className="fixed inset-0 bg-black/80 z-40 lg:hidden backdrop-blur-sm"></div>}
         </div>
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
