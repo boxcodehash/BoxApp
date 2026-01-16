@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - Terminal Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MuzzSnap - Mobile Optimized</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -15,123 +15,124 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Orbitron:wght@400;900&display=swap');
     
-    :root { --muzz-red: #ff0000; --ryachu-gold: #ffcc00; --itsuki-blue: #00d4ff; }
+    :root { --muzz-red: #ff0000; }
 
-    html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }
-    body.dark-theme { background: #050505; color: white; }
-    body.light-theme { background: #f0f2f5; color: #1a1a1a; }
+    /* Evita el scroll horizontal y ajusta a altura real de móvil */
+    html, body { 
+      height: 100%; 
+      margin: 0; 
+      padding: 0; 
+      overflow: hidden; 
+      background: #050505; 
+      color: white;
+      position: fixed; /* Evita rebotes de scroll en iOS */
+      width: 100%;
+    }
 
-    .panel-3d { border-radius: 24px; transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%; }
-    .dark-theme .panel-3d { background: #0c0c0c; border: 1px solid rgba(255,0,0,0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-    .light-theme .panel-3d { background: #ffffff; border: 1px solid #e0e0e0; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    .panel-3d { 
+      background: #0c0c0c; 
+      border: 1px solid rgba(255,0,0,0.15); 
+      display: flex; 
+      flex-direction: column; 
+      height: 100%;
+    }
 
-    .bubble-3d { padding: 12px 16px; border-radius: 20px; font-size: 14px; max-width: 85%; line-height: 1.4; position: relative; }
-    .bubble-3d.me { background: linear-gradient(145deg, #ff0000, #b30000); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .dark-theme .bubble-3d.other { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.05); }
-    .light-theme .bubble-3d.other { background: #ffffff; border: 1px solid #e0e0e0; color: black; }
-    
-    .edit-btn { opacity: 0; transition: opacity 0.2s; cursor: pointer; margin-right: 8px; font-size: 10px; color: #666; }
-    .flex-col:hover .edit-btn { opacity: 1; }
+    .bubble-3d { 
+      padding: 10px 14px; 
+      border-radius: 18px; 
+      font-size: 14px; 
+      max-width: 85%; 
+      word-wrap: break-word; /* Evita que el texto largo rompa el diseño */
+    }
+    .bubble-3d.me { background: linear-gradient(145deg, #ff0000, #b30000); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .bubble-3d.other { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.05); align-self: flex-start; border-bottom-left-radius: 4px; }
 
     .date-divider {
-      display: flex; align-items: center; text-align: center; margin: 20px 0;
-      font-size: 10px; font-family: 'Orbitron', sans-serif; color: #666; letter-spacing: 2px;
+      display: flex; align-items: center; text-align: center; margin: 24px 0;
+      font-size: 9px; font-family: 'Orbitron', sans-serif; color: #555; letter-spacing: 2px;
     }
-    .date-divider::before, .date-divider::after {
-      content: ''; flex: 1; border-bottom: 1px solid rgba(255,0,0,0.1);
-    }
-    .date-divider:not(:empty)::before { margin-right: 1em; }
-    .date-divider:not(:empty)::after { margin-left: 1em; }
+    .date-divider::before, .date-divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,0,0,0.1); }
+    .date-divider::before { margin-right: 15px; }
+    .date-divider::after { margin-left: 15px; }
 
-    .custom-scroll::-webkit-scrollbar { width: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: var(--muzz-red); border-radius: 10px; }
-    .hacker-input { font-family: 'Fira Code', monospace; }
-    .online-indicator { width: 8px; height: 8px; background: #39ff14; border-radius: 50%; box-shadow: 0 0 8px #39ff14; }
+    /* Botón de editar siempre visible en móvil para el autor */
+    .edit-trigger {
+      font-size: 10px;
+      color: #ff6666;
+      margin-right: 8px;
+      padding: 4px;
+      cursor: pointer;
+    }
+
+    .custom-scroll::-webkit-scrollbar { width: 3px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: var(--muzz-red); }
+
+    /* Ajuste para teclados de móvil */
+    .input-area {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
   </style>
 </head>
-<body class="dark-theme">
-  <div id="root" class="h-full"></div>
+<body>
+  <div id="root" class="h-full w-full"></div>
 
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
     
-    // Configuración Firebase (Mantenida igual)
+    // Configuración Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAe1-JfNde0NKIMdE7phfEXlm9JaqUH0jY",
       authDomain: "pulsari.firebaseapp.com",
       databaseURL: "https://pulsari-default-rtdb.firebaseio.com",
-      projectId: "pulsari",
-      storageBucket: "pulsari.firebasestorage.app",
-      messagingSenderId: "824306321233",
-      appId: "1:824306321233:web:2c9bfa02170a17d560b570"
+      projectId: "pulsari"
     };
 
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    const CHANNELS = [
-      { id: "general", name: "GENERAL" },
-      { id: "spanish", name: "ESPAÑOL" },
-      { id: "crypto", name: "CRYPTO" }
-    ];
-
     function App() {
       const [user, setUser] = useState(null);
       const [messages, setMessages] = useState([]);
-      const [onlineUsers, setOnlineUsers] = useState([]);
-      const [mutedUsers, setMutedUsers] = useState({});
       const [inputText, setInputText] = useState("");
-      const [isDark, setIsDark] = useState(true);
-      const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0]);
-      const [editingId, setEditingId] = useState(null); // Para rastrear qué mensaje editamos
-      const dummyRef = useRef(null);
+      const [editingId, setEditingId] = useState(null);
+      const scrollRef = useRef(null);
 
-      // --- Efectos Iniciales ---
       useEffect(() => {
-        const sessionData = sessionStorage.getItem('muzz_wallet_address');
-        if (!sessionData) { window.location.href = 'login.html'; return; }
-
-        firebase.auth().signInAnonymously().then((userCredential) => {
-          const uid = userCredential.user.uid;
-          const isWallet = !sessionData.startsWith('guest_');
-          let name = isWallet ? `Node_${sessionData.slice(-4)}` : sessionData.replace('guest_', '');
+        const sessionData = sessionStorage.getItem('muzz_wallet_address') || "Guest_" + Math.floor(Math.random() * 1000);
+        
+        firebase.auth().signInAnonymously().then((res) => {
+          const userData = {
+            uid: res.user.uid,
+            username: sessionData.includes('0x') ? `Node_${sessionData.slice(-4)}` : sessionData
+          };
+          setUser(userData);
           
-          setUser({ username: name, uid, role: "user" });
-          database.ref(`status/${uid}`).onDisconnect().remove();
-          database.ref(`status/${uid}`).set({ username: name, uid });
-          database.ref('status').on('value', snap => setOnlineUsers(snap.val() ? Object.values(snap.val()) : []));
+          // Escuchar mensajes
+          const msgRef = database.ref('messages/general').limitToLast(50);
+          msgRef.on('value', snap => {
+            const val = snap.val();
+            setMessages(val ? Object.keys(val).map(k => ({id:k, ...val[k]})) : []);
+          });
         });
       }, []);
 
       useEffect(() => {
-        if (!user) return;
-        const msgRef = database.ref('messages/' + selectedChannel.id).limitToLast(100);
-        msgRef.on('value', snap => {
-          const data = snap.val();
-          setMessages(data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : []);
-        });
-        return () => msgRef.off();
-      }, [selectedChannel, user]);
+        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }, [messages]);
 
-      useEffect(() => { dummyRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-
-      // --- Lógica de Envío / Edición ---
       const handleSend = () => {
         if (!inputText.trim()) return;
 
         if (editingId) {
-          // Actualizar mensaje existente
-          database.ref(`messages/${selectedChannel.id}/${editingId}`).update({
+          database.ref(`messages/general/${editingId}`).update({
             content: inputText,
-            edited: true,
-            editTimestamp: Date.now()
+            edited: true
           });
           setEditingId(null);
         } else {
-          // Crear mensaje nuevo
-          database.ref('messages/' + selectedChannel.id).push({
+          database.ref('messages/general').push({
             content: inputText,
             username: user.username,
             userId: user.uid,
@@ -146,89 +147,71 @@
         setInputText(msg.content);
       };
 
-      // --- Helper para Fechas ---
       const formatDate = (ts) => {
-        return new Date(ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        return new Date(ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
       };
 
       if (!user) return <div className="h-full flex items-center justify-center text-red-600 font-orbitron animate-pulse">CONNECTING...</div>;
 
       return (
-        <div className="flex h-screen p-2 md:p-6 gap-6 max-w-[1600px] mx-auto overflow-hidden">
-          {/* Sidebar Simplificado */}
-          <aside className="hidden lg:flex w-64 panel-3d p-6 flex-col">
-            <h1 className="font-orbitron font-black text-xl italic mb-8">MUZZ<span className="text-red-600">SNAP</span></h1>
-            <div className="flex-1 space-y-4">
-              <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Canales</p>
-              {CHANNELS.map(ch => (
-                <button key={ch.id} onClick={() => setSelectedChannel(ch)} 
-                  className={`w-full text-left px-4 py-2 rounded-xl text-xs font-bold ${selectedChannel.id === ch.id ? 'bg-red-600/10 text-red-600' : 'text-gray-500'}`}>
-                  # {ch.name}
-                </button>
-              ))}
-            </div>
-          </aside>
+        <div className="flex flex-col h-full w-full max-w-md mx-auto panel-3d border-none sm:border-solid">
+          {/* Header */}
+          <header className="p-4 border-b border-white/10 flex justify-between items-center bg-black/50 backdrop-blur-md">
+            <h1 className="font-orbitron font-black text-sm tracking-tighter text-red-600">MUZZSNAP <span className="text-white opacity-50 text-[10px]">v2.1</span></h1>
+            <span className="text-[9px] bg-red-600/20 text-red-500 px-2 py-1 rounded border border-red-600/30 uppercase font-bold">Online</span>
+          </header>
 
-          {/* Chat Principal */}
-          <main className="flex-1 panel-3d flex flex-col overflow-hidden border border-white/5">
-            <header className="h-16 flex items-center justify-between px-8 border-b border-white/5">
-              <h2 className="text-sm font-black tracking-widest text-red-600 uppercase">/ {selectedChannel.name}</h2>
-            </header>
-
-            {/* Lista de Mensajes */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scroll">
-              {messages.map((msg, index) => {
-                const prevMsg = messages[index - 1];
-                const showDateDivider = !prevMsg || formatDate(msg.timestamp) !== formatDate(prevMsg.timestamp);
-
-                return (
-                  <React.Fragment key={msg.id}>
-                    {showDateDivider && (
-                      <div className="date-divider uppercase">{formatDate(msg.timestamp)}</div>
-                    )}
-                    <div className={`flex flex-col mb-4 ${msg.userId === user.uid ? 'items-end' : 'items-start'}`}>
-                      <div className="flex items-center mb-1">
-                        {msg.userId === user.uid && (
-                          <span onClick={() => startEdit(msg)} className="edit-btn">
-                            <i className="fas fa-pen mr-1"></i> EDITAR
-                          </span>
-                        )}
-                        <span className="text-[10px] font-black text-gray-500 uppercase">
-                          {msg.username} {msg.edited && <span className="text-[8px] italic opacity-50">(editado)</span>}
-                        </span>
-                      </div>
-                      <div className={`bubble-3d shadow-xl ${msg.userId === user.uid ? 'me' : 'other'}`}>
-                        {msg.content}
-                      </div>
+          {/* Área de Chat */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 custom-scroll">
+            {messages.map((msg, i) => {
+              const isMe = msg.userId === user.uid;
+              const showDate = !messages[i-1] || formatDate(msg.timestamp) !== formatDate(messages[i-1].timestamp);
+              
+              return (
+                <div key={msg.id}>
+                  {showDate && <div className="date-divider uppercase">{formatDate(msg.timestamp)}</div>}
+                  
+                  <div className={`flex flex-col mb-4 ${isMe ? 'items-end' : 'items-start'}`}>
+                    <div className="flex items-center mb-1 px-1">
+                      {isMe && (
+                        <button onClick={() => startEdit(msg)} className="edit-trigger">
+                          <i className="fas fa-edit"></i>
+                        </button>
+                      )}
+                      <span className="text-[10px] font-bold text-gray-500 uppercase">{msg.username}</span>
                     </div>
-                  </React.Fragment>
-                );
-              })}
-              <div ref={dummyRef}></div>
-            </div>
-
-            {/* Input de Mensaje */}
-            <div className="p-4 bg-black/20 border-t border-white/5">
-              {editingId && (
-                <div className="flex justify-between items-center mb-2 px-4 py-1 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                  <span className="text-[10px] text-blue-400 font-bold uppercase">Editando mensaje...</span>
-                  <button onClick={() => {setEditingId(null); setInputText("");}} className="text-blue-400 hover:text-white text-xs">Cancelar</button>
+                    
+                    <div className={`bubble-3d shadow-lg ${isMe ? 'me' : 'other'}`}>
+                      {msg.content}
+                      {msg.edited && <div className="text-[8px] opacity-40 text-right mt-1 italic">(editado)</div>}
+                    </div>
+                  </div>
                 </div>
-              )}
-              <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2 focus-within:border-red-600/50">
-                <input 
-                  value={inputText} 
-                  onChange={e => setInputText(e.target.value)} 
-                  onKeyDown={e => e.key === 'Enter' && handleSend()} 
-                  placeholder={editingId ? "Modifica tu mensaje..." : "Escribe un mensaje..."}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input px-4" 
-                />
-                <button onClick={handleSend} className={`w-10 h-10 ${editingId ? 'bg-blue-600' : 'bg-red-600'} rounded-xl flex items-center justify-center transition-all`}>
-                  <i className={`fas ${editingId ? 'fa-check' : 'fa-paper-plane'} text-white text-xs`}></i>
-                </button>
+              );
+            })}
+          </div>
+
+          {/* Input Fijo Abajo */}
+          <div className="input-area p-4 bg-black/80 border-t border-white/5 backdrop-blur-xl">
+            {editingId && (
+              <div className="flex justify-between items-center mb-2 px-3 py-2 bg-red-600/10 border border-red-600/20 rounded-lg">
+                <span className="text-[9px] text-red-500 font-bold uppercase">Editando mensaje seleccionado</span>
+                <button onClick={() => {setEditingId(null); setInputText("");}} className="text-red-500 text-xs">✕</button>
               </div>
+            )}
+            <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-1.5 focus-within:border-red-600/40">
+              <input 
+                value={inputText} 
+                onChange={e => setInputText(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSend()}
+                placeholder="Escribe aquí..."
+                className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-3 h-10 outline-none"
+              />
+              <button onClick={handleSend} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${editingId ? 'bg-blue-600 shadow-blue-900' : 'bg-red-600 shadow-red-900 shadow-lg'}`}>
+                <i className={`fas ${editingId ? 'fa-check' : 'fa-paper-plane'} text-xs`}></i>
+              </button>
             </div>
-          </main>
+          </div>
         </div>
       );
     }
