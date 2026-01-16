@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MuzzSnap Multiplatform</title>
+  <title>MuzzSnap - Complete Edition</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -16,51 +16,43 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Orbitron:wght@400;900&display=swap');
-    
     :root { --app-height: 100%; }
+    html, body { margin: 0; padding: 0; width: 100%; height: var(--app-height); overflow: hidden; background: #050505; }
 
-    html, body { 
-      margin: 0; padding: 0; width: 100%; height: var(--app-height);
-      overflow: hidden; background: #050505; 
-    }
-
-    /* Contenedor Responsivo: 100% en móvil, centrado en Desktop */
     .main-wrapper {
-      max-width: 500px; /* Ancho ideal tipo app */
-      margin: 0 auto;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      background: #000;
-      border-left: 1px solid #111;
-      border-right: 1px solid #111;
-      position: relative;
+      max-width: 500px; margin: 0 auto; height: 100%; display: flex; flex-direction: column;
+      background: #000; border-left: 1px solid #111; border-right: 1px solid #111; position: relative;
     }
 
-    .bubble {
-      max-width: 85%; padding: 12px 16px; border-radius: 20px;
-      font-size: 14px; line-height: 1.4; position: relative;
-      word-wrap: break-word;
+    /* Panel de Emojis Original Adaptado */
+    .emoji-window {
+      background: #0c0c0c; border: 1px solid #222; border-radius: 20px 20px 0 0;
+      position: absolute; bottom: 80px; left: 0; right: 0; z-index: 50;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.8); display: flex; flex-direction: column;
     }
+    .emoji-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+      padding: 15px; max-height: 200px; overflow-y: auto;
+    }
+    .emoji-btn { font-size: 1.4rem; cursor: pointer; transition: transform 0.1s; display: flex; justify-content: center; }
+    .emoji-btn:active { transform: scale(1.3); }
+    .emoji-tab { padding: 8px 12px; font-size: 9px; font-weight: 900; color: #555; cursor: pointer; border-bottom: 2px solid transparent; }
+    .emoji-tab.active { color: #ff0000; border-bottom: 2px solid #ff0000; }
+
+    /* Estilos de Burbujas y Fecha */
+    .bubble { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
     .me { background: linear-gradient(135deg, #ff0000, #990000); color: white; border-bottom-right-radius: 4px; }
     .other { background: #1a1a1a; border: 1px solid #333; border-bottom-left-radius: 4px; }
 
     .date-tag {
-      display: flex; align-items: center; margin: 25px 0;
-      font-family: 'Orbitron', sans-serif; font-size: 9px; color: #444; letter-spacing: 2px;
+      display: flex; align-items: center; margin: 25px 0; font-family: 'Orbitron', sans-serif;
+      font-size: 9px; color: #444; letter-spacing: 2px;
     }
     .date-tag::before, .date-tag::after { content: ''; flex: 1; height: 1px; background: #111; }
     .date-tag::before { margin-right: 15px; }
     .date-tag::after { margin-left: 15px; }
 
-    /* Botón de edición discreto */
-    .edit-pill {
-      font-size: 9px; background: #222; color: #888;
-      padding: 2px 8px; border-radius: 6px; margin-left: 10px;
-      text-transform: uppercase; cursor: pointer; transition: all 0.2s;
-    }
-    .edit-pill:hover { background: #333; color: #fff; }
-
+    .edit-pill { font-size: 9px; background: #222; color: #888; padding: 2px 8px; border-radius: 6px; margin-left: 10px; text-transform: uppercase; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
   </style>
 </head>
@@ -80,11 +72,23 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
+    // CATEGORÍAS ORIGINALES
+    const EMOJIS = {
+      "FACES": ["😊","😂","😉","😍","😘","😛","😅","😢","😭","😠","😈","👽","🤖","🤡","💀","👻","💩"],
+      "HANDS": ["👍","👎","👌","✌️","👏","👋","🙏","💪","☝️","🖖"],
+      "OBJECTS": ["❤️","⭐","🔥","📚","💻","📱","📷","🔑","🔒","💡","💰","💎"],
+      "NATURE": ["☀️","☁️","🌈","🌳","🌸","🌵","🐱","🐶","🦁","🦄","🐉","🐍"],
+      "FOOD": ["🍕","🍔","🌮","🍣","🍰","🍦","☕","🍺","🍷","🍸"],
+      "ACTIVITIES": ["⚽","🏀","🎾","🎵","🎸","🎮","♟️","🎨","🎬"]
+    };
+
     function App() {
       const [user, setUser] = useState(null);
       const [messages, setMessages] = useState([]);
       const [inputText, setInputText] = useState("");
       const [editingId, setEditingId] = useState(null);
+      const [showEmoji, setShowEmoji] = useState(false);
+      const [emojiTab, setEmojiTab] = useState("FACES");
       const scrollRef = useRef(null);
 
       useEffect(() => {
@@ -95,7 +99,6 @@
         const session = sessionStorage.getItem('muzz_wallet_address') || "Guest";
         firebase.auth().signInAnonymously().then(res => {
           setUser({ uid: res.user.uid, name: session.includes('0x') ? `Node_${session.slice(-4)}` : session });
-          
           database.ref('messages/general').limitToLast(50).on('value', snap => {
             const data = snap.val();
             setMessages(data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : []);
@@ -104,9 +107,7 @@
         return () => window.removeEventListener('resize', setHeight);
       }, []);
 
-      useEffect(() => {
-        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }, [messages]);
+      useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [messages]);
 
       const handleSend = () => {
         if (!inputText.trim()) return;
@@ -114,46 +115,33 @@
           database.ref(`messages/general/${editingId}`).update({ content: inputText, edited: true });
           setEditingId(null);
         } else {
-          database.ref('messages/general').push({
-            content: inputText, userId: user.uid, username: user.name, timestamp: Date.now()
-          });
+          database.ref('messages/general').push({ content: inputText, userId: user.uid, username: user.name, timestamp: Date.now() });
         }
-        setInputText("");
+        setInputText(""); setShowEmoji(false);
       };
 
       const formatDate = (ts) => new Date(ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 
-      if (!user) return <div className="h-full w-full flex items-center justify-center bg-black text-red-600 font-orbitron">SYNCING...</div>;
+      if (!user) return <div className="h-full w-full flex items-center justify-center bg-black text-red-600 font-orbitron italic animate-pulse">CONNECTING...</div>;
 
       return (
         <div className="main-wrapper">
-          {/* Header */}
           <header className="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-black/50 backdrop-blur-md">
             <h1 className="font-orbitron font-black text-red-600 tracking-tighter italic">MUZZSNAP</h1>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Active</span>
-            </div>
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
           </header>
 
-          {/* Chat con segregación por día */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 no-scrollbar">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 no-scrollbar" onClick={() => setShowEmoji(false)}>
             {messages.map((msg, i) => {
               const isMe = msg.userId === user.uid;
               const showDate = !messages[i-1] || formatDate(msg.timestamp) !== formatDate(messages[i-1].timestamp);
-              
               return (
                 <div key={msg.id} className="mb-5">
                   {showDate && <div className="date-tag uppercase">{formatDate(msg.timestamp)}</div>}
-                  
                   <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                     <div className="flex items-center mb-1.5 px-1">
                       <span className="text-[10px] text-gray-600 font-bold uppercase tracking-wider">{msg.username}</span>
-                      {isMe && (
-                        <div onClick={() => { setEditingId(msg.id); setInputText(msg.content); }} className="edit-pill">
-                          Editar
-                        </div>
-                      )}
+                      {isMe && <div onClick={() => { setEditingId(msg.id); setInputText(msg.content); }} className="edit-pill">Editar</div>}
                     </div>
                     <div className={`bubble shadow-xl ${isMe ? 'me' : 'other'}`}>
                       {msg.content}
@@ -165,27 +153,37 @@
             })}
           </div>
 
-          {/* Input Fijo Abajo */}
+          {/* Selector de Emojis Original Adaptado */}
+          {showEmoji && (
+            <div className="emoji-window">
+              <div className="flex border-b border-white/5 overflow-x-auto no-scrollbar">
+                {Object.keys(EMOJIS).map(tab => (
+                  <button key={tab} onClick={() => setEmojiTab(tab)} className={`emoji-tab ${emojiTab === tab ? 'active' : ''}`}>{tab}</button>
+                ))}
+              </div>
+              <div className="emoji-grid no-scrollbar">
+                {EMOJIS[emojiTab].map(e => <span key={e} onClick={() => setInputText(inputText + e)} className="emoji-btn">{e}</span>)}
+              </div>
+            </div>
+          )}
+
           <footer className="p-4 bg-black border-t border-white/5 pb-8 sm:pb-4">
             {editingId && (
               <div className="flex justify-between items-center mb-2 px-3 py-1 bg-red-950/30 border border-red-900/50 rounded-lg">
-                <span className="text-[9px] text-red-500 font-bold uppercase tracking-widest">Editando mensaje</span>
+                <span className="text-[9px] text-red-500 font-bold uppercase tracking-widest">Editando Mensaje</span>
                 <button onClick={() => {setEditingId(null); setInputText("");}} className="text-red-500 text-xs px-2">✕</button>
               </div>
             )}
-            <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-1.5 focus-within:border-red-600/50 transition-all">
+            <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-1.5 focus-within:border-red-600/50">
+              <button onClick={() => setShowEmoji(!showEmoji)} className="w-10 h-10 text-gray-500 hover:text-red-500 transition-colors">
+                <i className="far fa-smile text-xl"></i>
+              </button>
               <input 
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
+                type="text" value={inputText} onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Escribe un mensaje..."
-                className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-4 outline-none"
+                placeholder="Escribe un mensaje..." className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-2 outline-none text-white"
               />
-              <button 
-                onClick={handleSend}
-                className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors shadow-lg shadow-red-900/20"
-              >
+              <button onClick={handleSend} className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center">
                 <i className={`fas ${editingId ? 'fa-check' : 'fa-paper-plane'} text-white text-xs`}></i>
               </button>
             </div>
