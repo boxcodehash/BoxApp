@@ -1,4 +1,3 @@
-Aquí está el código HTML completo con el menú funcionando:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -606,7 +605,7 @@ Aquí está el código HTML completo con el menú funcionando:
 <body>
 
     <!-- Mobile Menu Button -->
-    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
         <i class="fas fa-bars"></i>
     </button>
 
@@ -643,7 +642,7 @@ Aquí está el código HTML completo con el menú funcionando:
                 <i class="fas fa-info-circle"></i>
                 <span>About</span>
             </a>
-            <a href="swap.html" target="_blank" class="nav-item">
+            <a href="https://app.uniswap.org/#/swap?outputCurrency=0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0&chain=mainnet&theme=dark" target="_blank" class="nav-item">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Buy Muzz</span>
             </a>
@@ -651,7 +650,7 @@ Aquí está el código HTML completo con el menú funcionando:
 
         <button class="disconnect-btn">
             <i class="fas fa-power-off"></i>
-            <span>V 1.2</span>
+            <span>Disconnect</span>
         </button>
     </div>
 
@@ -659,7 +658,7 @@ Aquí está el código HTML completo con el menú funcionando:
     <div class="main-content" id="mainContent">
         <!-- Top Bar -->
         <div class="top-bar">
-            <div class="section-title"></div>
+            <div class="section-title">/ GENERAL</div>
             <div class="lang-switch">
                 <button onclick="setLang('en')" class="lang-btn">EN</button>
                 <button onclick="setLang('es')" class="lang-btn">ES</button>
@@ -670,11 +669,11 @@ Aquí está el código HTML completo con el menú funcionando:
         <div class="content-area">
             <!-- Hero Section -->
             <div class="hero-section">
-                <div class="hero-subtitle" data-i18n="hero.subtitle">System Pulsari</div>
+                <div class="hero-subtitle">System Pulsari</div>
                 <h1 class="glitch hero-title">
                     MUZZLE<span style="color: white;">TOKEN</span>
                 </h1>
-                <p class="hero-subtitle" data-i18n="hero.desc">DECENTRALIZED COMMUNICATION INTERFACE</p>
+                <p class="hero-subtitle">DECENTRALIZED COMMUNICATION INTERFACE</p>
             </div>
 
             <!-- Cards Grid -->
@@ -684,7 +683,7 @@ Aquí está el código HTML completo con el menú funcionando:
                         <i class="fas fa-project-diagram"></i>
                     </div>
                     <h3 class="card-title">MuzzSocial</h3>
-                    <p class="card-desc" data-i18n="social.desc">The first truly borderless social grid. Immutable, censorship-resistant, and community-owned.</p>
+                    <p class="card-desc">The first truly borderless social grid. Immutable, censorship-resistant, and community-owned.</p>
                     <div class="card-footer">STAKE: 20-Million MUZZLE</div>
                 </div>
 
@@ -693,7 +692,7 @@ Aquí está el código HTML completo con el menú funcionando:
                         <i class="fas fa-ghost"></i>
                     </div>
                     <h3 class="card-title">MuzzChat</h3>
-                    <p class="card-desc" data-i18n="chat.desc">Encrypted P2P nodes. Secure 2-room architecture per user. No logs, no traces, total silence.</p>
+                    <p class="card-desc">Encrypted P2P nodes. Secure 2-room architecture per user. No logs, no traces, total silence.</p>
                     <div class="card-footer">STAKE: 20-Million MUZZLE</div>
                 </div>
 
@@ -702,7 +701,7 @@ Aquí está el código HTML completo con el menú funcionando:
                         <i class="fas fa-shield-virus"></i>
                     </div>
                     <h3 class="card-title">MuzzDAO</h3>
-                    <p class="card-desc" data-i18n="dao.desc">The core authority. Propose and execute protocols. Power is distributed, not centralized.</p>
+                    <p class="card-desc">The core authority. Propose and execute protocols. Power is distributed, not centralized.</p>
                     <div class="card-footer">GOVERNANCE OPEN</div>
                 </div>
             </div>
@@ -742,70 +741,133 @@ Aquí está el código HTML completo con el menú funcionando:
     </div>
 
     <script>
-        // Toggle mobile menu
-        function toggleMobileMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const menuBtn = document.querySelector('.mobile-menu-btn');
+        // Debug: verificar que el script se carga
+        console.log('✅ Script cargado correctamente');
+
+        // Toggle mobile menu con prevención de propagación
+        function toggleMobileMenu(event) {
+            if (event) {
+                event.stopPropagation();
+            }
             
-            // Toggle visibility
-            if (sidebar.style.transform === 'translateX(0px)' || sidebar.style.transform === '') {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            
+            console.log('🔘 Toggle menu clicked');
+            
+            // Obtener el estado actual de manera más robusta
+            const currentTransform = window.getComputedStyle(sidebar).transform;
+            const isHidden = sidebar.style.transform === 'translateX(-100%)' || 
+                            currentTransform === 'matrix(1, 0, 0, 1, -280, 0)' ||
+                            sidebar.style.transform === '';
+            
+            if (isHidden) {
+                // Mostrar menú
+                sidebar.style.transform = 'translateX(0)';
+                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
+                console.log('✅ Menú abierto');
+            } else {
+                // Ocultar menú
                 sidebar.style.transform = 'translateX(-100%)';
                 menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-            } else {
-                sidebar.style.transform = 'translateX(0px)';
-                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
+                console.log('❌ Menú cerrado');
             }
         }
 
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const menuBtn = document.querySelector('.mobile-menu-btn');
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM cargado completamente');
             
-            if (window.innerWidth <= 1024) {
-                if (!sidebar.contains(event.target) && !menuBtn.contains(event.target)) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            
+            // Verificar que los elementos existen
+            if (!sidebar) {
+                console.error('❌ Error: No se encontró el elemento sidebar');
+                return;
+            }
+            
+            if (!menuBtn) {
+                console.error('❌ Error: No se encontró el botón del menú');
+                return;
+            }
+            
+            console.log('✅ Elementos del menú encontrados');
+            
+            // Inicializar estado del sidebar
+            function initializeSidebar() {
+                if (window.innerWidth <= 1024) {
                     sidebar.style.transform = 'translateX(-100%)';
                     menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    console.log('📱 Sidebar inicializado para MOBILE');
+                } else {
+                    sidebar.style.transform = '';
+                    console.log('💻 Sidebar inicializado para DESKTOP');
                 }
             }
-        });
-
-        // Close menu when clicking a nav item
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function() {
+            
+            // Inicializar al cargar
+            initializeSidebar();
+            
+            // Asignar evento al botón
+            menuBtn.addEventListener('click', toggleMobileMenu);
+            console.log('✅ Event listener del botón configurado');
+            
+            // Cerrar menú al hacer clic fuera
+            document.addEventListener('click', function(event) {
                 if (window.innerWidth <= 1024) {
-                    const sidebar = document.getElementById('sidebar');
-                    const menuBtn = document.querySelector('.mobile-menu-btn');
-                    sidebar.style.transform = 'translateX(-100%)';
-                    menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    const isClickInsideSidebar = sidebar.contains(event.target);
+                    const isClickOnButton = menuBtn.contains(event.target);
+                    
+                    if (!isClickInsideSidebar && !isClickOnButton) {
+                        const isVisible = sidebar.style.transform === 'translateX(0px)' ||
+                                         sidebar.style.transform === 'translateX(0)';
+                        
+                        if (isVisible) {
+                            sidebar.style.transform = 'translateX(-100%)';
+                            menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                            console.log('❌ Menú cerrado (click fuera)');
+                        }
+                    }
                 }
             });
-        });
-
-        // Initialize sidebar state on load
-        window.addEventListener('load', function() {
-            if (window.innerWidth <= 1024) {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.style.transform = 'translateX(-100%)';
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            const sidebar = document.getElementById('sidebar');
-            if (window.innerWidth > 1024) {
-                sidebar.style.transform = '';
-            } else {
-                sidebar.style.transform = 'translateX(-100%)';
-            }
+            console.log('✅ Event listener de click fuera configurado');
+            
+            // Cerrar menú al hacer clic en nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 1024) {
+                        sidebar.style.transform = 'translateX(-100%)';
+                        menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        console.log('❌ Menú cerrado (nav item clicked)');
+                    }
+                });
+            });
+            console.log('✅ Event listeners de nav items configurados (' + navItems.length + ' items)');
+            
+            // Manejar redimensionamiento de ventana
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    initializeSidebar();
+                    console.log('🔄 Ventana redimensionada - sidebar reinicializado');
+                }, 250);
+            });
+            console.log('✅ Event listener de resize configurado');
+            
+            console.log('🎉 Todos los event listeners configurados correctamente');
         });
 
         // Language switch function
         function setLang(lang) {
-            console.log('Language changed to:', lang);
-            // Add your language switching logic here
+            console.log('🌐 Idioma cambiado a: ' + lang);
+            // Aquí puedes agregar la lógica de cambio de idioma
         }
+        
+        console.log('🚀 Script completamente cargado y listo');
     </script>
 
 </body>
-</html>
+    </html>
