@@ -21,9 +21,15 @@
     <div class="loader"></div>
     <script>
         // Registro simplificado
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => console.log("PWA Ready"));
-        }
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // REGISTRO RELATIVO (Sin la barra inicial /)
+      navigator.serviceWorker.register('sw.js') 
+        .then(reg => console.log('PWA: Protocolo Activo'))
+        .catch(err => console.log('PWA: Error de registro', err));
+    });
+  }
+
 
         // Redirección
         setTimeout(() => {
