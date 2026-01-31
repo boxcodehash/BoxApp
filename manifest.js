@@ -1,7 +1,7 @@
 {
   "name": "MuzzSnap Protocol",
   "short_name": "MuzzSnap",
-  "start_url": "login.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#ff0000",
