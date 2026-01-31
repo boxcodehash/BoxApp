@@ -2,37 +2,39 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MuzzSnap | Protocol</title>
-    
-    <link rel="manifest" href="manifest.json">
+
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#050505">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png">
 
-    <style>
-        body { background: #050505; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .loader { width: 40px; height: 40px; border: 3px solid #333; border-bottom-color: #ff0000; border-radius: 50%; animation: rotation 1s linear infinite; }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-    <div class="loader"></div>
     <script>
-        // Registro simplificado
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // REGISTRO RELATIVO (Sin la barra inicial /)
-      navigator.serviceWorker.register('sw.js') 
-        .then(reg => console.log('PWA: Protocolo Activo'))
-        .catch(err => console.log('PWA: Error de registro', err));
-    });
-  
-        // Redirección
-        setTimeout(() => {
-            window.location.replace('login.html');
-        }, 800);
+        // REGISTRO DEL SERVICE WORKER (FORZADO PARA ANDROID)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js', { scope: './' })
+                    .then(() => console.log("PWA: Lista para instalar"))
+                    .catch(err => console.error("PWA: Error", err));
+            });
+        }
     </script>
-</body>
-</html>
+    
+    ```
+
+---
+
+### ¿Por qué sigue sin salir el botón en Android?
+Si después de subir estos 3 archivos no ves el aviso automático:
+
+1.  **Interacción Obligatoria:** Chrome no muestra el botón de "Instalar" apenas entras. Debes navegar un poco o hacer clic en algún botón para que el navegador confíe en el sitio.
+2.  **Limpiar Caché:** Si entraste antes y falló, Chrome guardó el error. Ve a **Configuración > Privacidad > Borrar datos de navegación** (solo de la última hora) y vuelve a cargar el link.
+3.  **El "Menú de los 3 puntos":** En Android, abre el menú de Chrome (arriba a la derecha). Si ves la opción **"Instalar aplicación"**, significa que el código está perfecto. Si dice "Agregar a la pantalla de inicio", es que el Service Worker aún no ha sido detectado.
+
+**Nota para iPhone:** En iPhone **NUNCA** verás un botón. Apple obliga a los usuarios a ir a **Compartir > Agregar a la pantalla de inicio**. Una vez hecho esto, el icono aparecerá en el menú del iPhone y se abrirá como una App nativa.
+
+¿Quieres que te prepare un **botón personalizado dentro de la web** que diga "INSTALAR APP" y que solo se muestre cuando el navegador esté listo?
+
