@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - Encrypted Terminal</title>
+  <title>MuzzSnap - Secure Identity</title>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -16,31 +16,25 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap');
-    :root{--muzz-red:#ff0000;--ryachu-gold:#ffcc00;--itsuki-blue:#00d4ff}
-    html,body{height:100%;overflow:hidden;margin:0;padding:0}
-    body.dark-theme{background:#050505;color:white}
-    body.light-theme{background:#f0f2f5;color:#1a1a1a}
-    .panel-3d{border-radius:24px;transition:all 0.3s ease;display:flex;flex-direction:column;height:100%}
-    .dark-theme .panel-3d{background:#0c0c0c;border:1px solid rgba(255,0,0,0.15);box-shadow:0 10px 30px rgba(0,0,0,0.8)}
-    .bubble-3d{padding:12px 16px;border-radius:20px;font-size:14px;max-width:85%;line-height:1.4;position:relative}
-    .bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white;align-self:flex-end;border-bottom-right-radius:4px}
-    .dark-theme .bubble-3d.other{background:#1a1a1a;border:1px solid rgba(255,255,255,0.05)}
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Orbitron:wght@400;900&display=swap');
+    :root{--muzz-red:#ff0000}
+    body{background:#050505;color:white;font-family:'Inter',sans-serif;height:100vh;overflow:hidden}
+    .panel-3d{background:#0c0c0c;border:1px solid rgba(255,0,0,0.15);border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.8)}
+    .hacker-input{font-family:'Fira Code',monospace;color:#39ff14!important}
+    .bubble-3d{padding:12px 16px;border-radius:20px;font-size:14px;max-width:85%}
+    .bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white;align-self:flex-end}
+    .bubble-3d.other{background:#1a1a1a;border:1px solid rgba(255,255,255,0.05)}
     .custom-scroll::-webkit-scrollbar{width:4px}
     .custom-scroll::-webkit-scrollbar-thumb{background:var(--muzz-red);border-radius:10px}
-    .online-indicator{width:8px;height:8px;background:#39ff14;border-radius:50%;box-shadow:0 0 8px #39ff14}
-    .ryachu-name{color:var(--ryachu-gold);font-weight:800}
-    .itsuki-name{color:var(--itsuki-blue);font-weight:800}
-    .hacker-input{font-family:'Fira Code',monospace; color:#39ff14!important}
   </style>
 </head>
-<body class="dark-theme">
+<body>
   <div id="root" class="h-full"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef, Fragment } = React;
+    const {useState, useEffect, useRef} = React;
 
-    // Configuración Firebase (Ofuscada como en tu original)
+    // Configuración Firebase
     const fbConf = {
       apiKey: atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
       authDomain: atob('cHVsc2FyaS5maXJlYmFzZWFwcC5jb20='),
@@ -52,204 +46,197 @@
     if (!firebase.apps.length) firebase.initializeApp(fbConf);
     const db = firebase.database();
 
-    // Roles Especiales
-    const admins = {
-      R: atob('MHgyMDgxNTdiNWVjMzk2NzU5ZTg3NTQwNTgxMDhlY2Y1M2UzMjM5MmZm').toLowerCase(),
-      I: atob('MHhmYWI1ODM1Y2ExNGZiM2Y5Zjk3OGM1ZTRkNzMzNzM0ZTYzOTRlMDNm').toLowerCase()
-    };
-
-    const channels = [
-      { id: "general", name: "GENERAL" },
-      { id: "spanish", name: "ESPAÑOL" },
-      { id: "dao", name: "DAO" }
-    ];
-
     function App() {
       const [user, setUser] = useState(null);
       const [messages, setMessages] = useState([]);
       const [onlineUsers, setOnlineUsers] = useState([]);
       const [input, setInput] = useState("");
-      const [activeChan, setActiveChan] = useState(channels[0]);
-      const [targetUser, setTargetUser] = useState(null); // Para DMs
-      const [isMobileMenu, setMobileMenu] = useState(false);
+      const [targetUser, setTargetUser] = useState(null);
+      
+      const [authStep, setAuthStep] = useState("loading"); 
+      const [regName, setRegName] = useState("");
+      const [regPin, setRegPin] = useState("");
+      const [errorMsg, setErrorMsg] = useState("");
+
       const scrollRef = useRef(null);
 
-      // --- Lógica de Cifrado ---
-      const getSecretKey = (peerId) => {
-        if (!user || !peerId) return "public_key";
-        return [user.uid, peerId].sort().join('_muzz_');
-      };
-
-      const encrypt = (text, peerId) => {
-        return CryptoJS.AES.encrypt(text, getSecretKey(peerId)).toString();
-      };
-
-      const decrypt = (cipher, peerId) => {
-        try {
-          const bytes = CryptoJS.AES.decrypt(cipher, getSecretKey(peerId));
-          return bytes.toString(CryptoJS.enc.Utf8) || "🔒 Mensaje Cifrado";
-        } catch (e) { return "❌ Error de Decifrado"; }
-      };
-
-      // Autenticación y Estado
       useEffect(() => {
-        const addr = sessionStorage.getItem('muzz_wallet_address');
-        if (!addr) { window.location.href = 'login.html'; return; }
-
-        firebase.auth().signInAnonymously().then((cred) => {
+        const wallet = sessionStorage.getItem('muzz_wallet_address');
+        
+        firebase.auth().signInAnonymously().then(async (cred) => {
           const uid = cred.user.uid;
-          const isWallet = !addr.startsWith('guest_');
-          let name = "", role = "user";
 
-          if (isWallet) {
-            const lowAddr = addr.toLowerCase();
-            if (lowAddr === admins.R) { name = "Ryachu"; role = "ryachu"; }
-            else if (lowAddr === admins.I) { name = "Itsuki"; role = "itsuki"; }
-            else { name = `Node_${addr.slice(-4)}`; }
+          // Si viene de Wallet, omitimos el registro de PIN
+          if (wallet && !wallet.startsWith('guest_')) {
+            const userData = { 
+                username: `Node_${wallet.slice(-4)}`, 
+                uid: uid, 
+                type: 'wallet' 
+            };
+            completeLogin(userData);
           } else {
-            name = addr.replace('guest_', '');
-            role = "guest";
+            setAuthStep("auth_screen");
           }
-
-          const userData = { username: name, uid: uid, role: role };
-          setUser(userData);
-
-          db.ref(`status/${uid}`).onDisconnect().remove();
-          db.ref(`status/${uid}`).set(userData);
-          
-          db.ref('status').on('value', snap => setOnlineUsers(snap.val() ? Object.values(snap.val()) : []));
         });
       }, []);
 
-      // Escuchar Mensajes (Públicos o DMs)
-      useEffect(() => {
-        if (!user) return;
-        let path = `messages/${activeChan.id}`;
-        
-        if (targetUser) {
-          const chatId = [user.uid, targetUser.uid].sort().join('_');
-          path = `pms/${chatId}`;
-        }
-
-        const msgRef = db.ref(path).limitToLast(40);
-        msgRef.on('value', snap => {
-          const data = snap.val();
-          setMessages(data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : []);
-        });
-        return () => msgRef.off();
-      }, [activeChan, targetUser, user]);
-
-      useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-
-      const sendMessage = () => {
-        if (!input.trim()) return;
-        
-        let path = `messages/${activeChan.id}`;
-        let finalContent = input;
-
-        // Cifrar si es mensaje privado
-        if (targetUser) {
-          const chatId = [user.uid, targetUser.uid].sort().join('_');
-          path = `pms/${chatId}`;
-          finalContent = encrypt(input, targetUser.uid);
-        }
-
-        db.ref(path).push({
-          content: finalContent,
-          username: user.username,
-          userId: user.uid,
-          role: user.role,
-          timestamp: Date.now(),
-          encrypted: !!targetUser
-        });
-
-        setInput("");
+      const completeLogin = (userData) => {
+        setUser(userData);
+        setAuthStep("chat");
+        db.ref(`status/${userData.uid}`).onDisconnect().remove();
+        db.ref(`status/${userData.uid}`).set(userData);
+        db.ref('status').on('value', s => setOnlineUsers(s.val() ? Object.values(s.val()) : []));
       };
 
-      if (!user) return <div className="h-full flex items-center justify-center text-red-600 font-orbitron animate-pulse">BOOTING ENCRYPTED TERMINAL...</div>;
+      const handleAuth = async () => {
+        setErrorMsg("");
+        const nameKey = regName.trim().toLowerCase();
+        
+        if (nameKey.length < 3) { setErrorMsg("NAME TOO SHORT"); return; }
+        if (regPin.length !== 4) { setErrorMsg("PIN MUST BE 4 CHARACTERS"); return; }
 
-      return (
-        <div className="flex h-screen p-2 md:p-6 gap-6 max-w-[1600px] mx-auto overflow-hidden">
-          {/* Menú Lateral */}
-          <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-72 transition-all duration-300 transform panel-3d p-6 flex flex-col ${isMobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 shadow-2xl'}`}>
-            <div className="mb-8 flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30"><i className="fas fa-lock text-white"></i></div>
-              <h1 className="font-orbitron font-black text-xl italic tracking-tighter">MUZZ<span className="text-red-600">SNAP</span></h1>
+        const userRef = db.ref(`accounts/${nameKey}`);
+        const snap = await userRef.once('value');
+
+        if (snap.exists()) {
+          // El usuario existe, intentamos Login
+          const existingUser = snap.val();
+          if (existingUser.pin === regPin) {
+            completeLogin(existingUser);
+          } else {
+            // Si el nombre existe pero el PIN no coincide
+            setErrorMsg("USERNAME NOT AVAILABLE"); 
+          }
+        } else {
+          // El usuario no existe, creamos Registro Nuevo
+          const uid = firebase.auth().currentUser.uid;
+          const newUserData = {
+            username: regName.trim(),
+            pin: regPin,
+            uid: uid,
+            type: 'manual',
+            timestamp: Date.now()
+          };
+          await userRef.set(newUserData);
+          completeLogin(newUserData);
+        }
+      };
+
+      // Cifrado AES para DMs
+      const getSecretKey = (pId) => [user.uid, pId].sort().join('_secret_');
+      const encrypt = (t, pId) => CryptoJS.AES.encrypt(t, getSecretKey(pId)).toString();
+      const decrypt = (c, pId) => {
+        try {
+          const b = CryptoJS.AES.decrypt(c, getSecretKey(pId));
+          return b.toString(CryptoJS.enc.Utf8) || "🔒 Encrypted";
+        } catch(e) { return "❌ Error"; }
+      };
+
+      useEffect(() => {
+        if (authStep !== "chat") return;
+        const path = targetUser ? `pms/${[user.uid, targetUser.uid].sort().join('_')}` : `messages/general`;
+        const mRef = db.ref(path).limitToLast(30);
+        mRef.on('value', s => {
+          const d = s.val();
+          setMessages(d ? Object.keys(d).map(k => ({id:k, ...d[k]})) : []);
+        });
+        return () => mRef.off();
+      }, [authStep, targetUser]);
+
+      useEffect(() => { scrollRef.current?.scrollIntoView({behavior:'smooth'}); }, [messages]);
+
+      // Pantalla de Autenticación (User + PIN)
+      if (authStep === "auth_screen") {
+        return (
+          <div className="h-full flex items-center justify-center p-6 bg-black">
+            <div className="panel-3d p-8 w-full max-w-md text-center">
+              <h2 className="font-orbitron text-red-600 text-2xl mb-2 italic">TERMINAL LOGIN</h2>
+              <p className="text-gray-500 text-[10px] mb-8 tracking-[0.3em]">SECURE ACCESS PROTOCOL</p>
+              
+              <div className="space-y-4">
+                <div className="text-left">
+                  <label className="text-[10px] text-red-500 font-bold ml-2">USER_ID</label>
+                  <input value={regName} onChange={e => setRegName(e.target.value.replace(/[^a-zA-Z0-9]/g,""))} placeholder="Satoshi" className="w-full bg-black border border-white/10 p-4 rounded-xl hacker-input focus:border-red-600 outline-none" />
+                </div>
+                
+                <div className="text-left">
+                  <label className="text-[10px] text-red-500 font-bold ml-2">4-CHAR PIN (LETTERS/NUMBERS)</label>
+                  <input maxLength="4" value={regPin} onChange={e => setRegPin(e.target.value)} placeholder="X7R2" className="w-full bg-black border border-white/10 p-4 rounded-xl hacker-input focus:border-red-600 outline-none text-center tracking-[1em]" />
+                </div>
+
+                {errorMsg && <p className="text-red-500 text-xs font-bold animate-pulse uppercase">{errorMsg}</p>}
+
+                <button onClick={handleAuth} className="w-full bg-red-600 py-4 rounded-xl text-white font-black font-orbitron hover:bg-red-500 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)]">ACCESS SYSTEM</button>
+              </div>
             </div>
+          </div>
+        );
+      }
 
-            <div className="flex-1 overflow-y-auto custom-scroll space-y-6">
-              <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Canales Públicos</p>
-                {channels.map(c => (
-                  <button key={c.id} onClick={() => { setActiveChan(c); setTargetUser(null); setMobileMenu(false); }} 
-                    className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all ${(activeChan.id === c.id && !targetUser) ? 'bg-red-600/10 text-red-600 border-l-2 border-red-600' : 'text-gray-500 hover:text-white'}`}>
-                    # {c.name}
-                  </button>
+      // Chat Principal
+      if (authStep === "chat") {
+        return (
+          <div className="flex h-screen p-0 md:p-6 gap-6 max-w-[1600px] mx-auto">
+            <aside className="hidden lg:flex w-72 panel-3d p-6 flex-col">
+              <h1 className="font-orbitron font-black text-xl mb-8">MUZZ<span className="text-red-600">SNAP</span></h1>
+              <div className="flex-1 overflow-y-auto custom-scroll">
+                <p className="text-[10px] text-gray-500 font-bold mb-4 uppercase">Online Users</p>
+                {onlineUsers.filter(u => u.uid !== user.uid).map(u => (
+                  <div key={u.uid} onClick={() => setTargetUser(u)} className={`p-3 rounded-xl cursor-pointer mb-2 flex items-center gap-3 ${targetUser?.uid === u.uid ? 'bg-red-600/20 border border-red-600/30' : 'hover:bg-white/5'}`}>
+                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e]"></div>
+                    <span className="text-xs font-bold uppercase">{u.username}</span>
+                  </div>
                 ))}
               </div>
+            </aside>
 
-              <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Mensajes Privados (Click to Chat)</p>
-                <div className="space-y-2">
-                  {onlineUsers.filter(u => u.uid !== user.uid).map(u => (
-                    <div key={u.uid} onClick={() => { setTargetUser(u); setMobileMenu(false); }} 
-                      className={`flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer hover:bg-white/5 transition-all ${targetUser?.uid === u.uid ? 'bg-red-600/20 border border-red-600/30' : ''}`}>
-                      <span className="online-indicator"></span>
-                      <span className={`text-[11px] font-bold uppercase truncate flex-1 ${u.role==='ryachu'?'ryachu-name':u.role==='itsuki'?'itsuki-name':'text-gray-400'}`}>{u.username}</span>
-                      <i className="fas fa-shield-alt text-[9px] text-red-900/50"></i>
+            <main className="flex-1 panel-3d flex flex-col overflow-hidden relative">
+              <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 bg-white/5">
+                <span className="text-red-600 font-black text-sm tracking-widest uppercase">
+                  {targetUser ? `PRIVATE: ${targetUser.username}` : "/ PUBLIC_STATION"}
+                </span>
+                {targetUser && <button onClick={() => setTargetUser(null)} className="text-[10px] text-gray-500">EXIT_DM</button>}
+              </header>
+
+              <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 custom-scroll">
+                {messages.map(m => (
+                  <div key={m.id} className={`flex flex-col ${m.userId === user.uid ? 'items-end' : 'items-start'}`}>
+                    <span className="text-[9px] text-gray-600 mb-1">{m.username} {m.encrypted && "🔒"}</span>
+                    <div className={`bubble-3d ${m.userId === user.uid ? 'me' : 'other'}`}>
+                      {m.encrypted ? decrypt(m.content, (m.userId === user.uid ? targetUser?.uid : m.userId)) : m.content}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            <button onClick={() => {sessionStorage.clear(); window.location.reload();}} className="mt-6 w-full py-3 text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black hover:bg-red-600/5 transition-all">
-              <i className="fas fa-power-off mr-2"></i>Logout
-            </button>
-          </aside>
-
-          {/* Área de Chat */}
-          <main className="flex-1 panel-3d flex flex-col overflow-hidden border border-white/5 relative">
-            <header className="h-16 flex items-center justify-between px-8 bg-white/5 border-b border-white/5">
-              <div className="flex items-center gap-4">
-                <button onClick={() => setMobileMenu(true)} className="lg:hidden text-red-600"><i className="fas fa-bars"></i></button>
-                <h2 className="text-sm font-black tracking-widest text-red-600 uppercase italic">
-                  {targetUser ? <span className="flex items-center gap-2"><i className="fas fa-user-secret"></i> Privado: {targetUser.username}</span> : `/ ${activeChan.name}`}
-                </h2>
-              </div>
-              {targetUser && <button onClick={() => setTargetUser(null)} className="text-[9px] font-bold text-gray-500 hover:text-white uppercase"><i className="fas fa-times mr-2"></i>Cerrar Chat</button>}
-            </header>
-
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-4 custom-scroll">
-              {messages.map((m) => (
-                <div key={m.id} className={`flex flex-col ${m.userId === user.uid ? 'items-end' : 'items-start'}`}>
-                  <span className="text-[9px] font-bold text-gray-500 mb-1 px-2 uppercase">{m.username} {m.encrypted && "🔒"}</span>
-                  <div className={`bubble-3d shadow-xl ${m.userId === user.uid ? 'me' : 'other'}`}>
-                    {m.encrypted ? decrypt(m.content, (m.userId === user.uid ? targetUser?.uid : m.userId)) : m.content}
                   </div>
-                </div>
-              ))}
-              <div ref={scrollRef}></div>
-            </div>
-
-            {/* Input */}
-            <div className="p-4 md:p-6 bg-black/40 border-t border-white/5">
-              <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2 focus-within:border-red-600/50 transition-all">
-                <input 
-                  value={input} 
-                  onChange={e => setInput(e.target.value)} 
-                  onKeyDown={e => e.key === 'Enter' && sendMessage()}
-                  placeholder={targetUser ? `Mensaje E2EE para ${targetUser.username}...` : "Escribir en el canal..."}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input px-4"
-                />
-                <button onClick={sendMessage} className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center hover:bg-red-500 transition-all shadow-lg">
-                  <i className="fas fa-paper-plane text-white"></i>
-                </button>
+                ))}
+                <div ref={scrollRef}></div>
               </div>
-            </div>
-          </main>
-        </div>
-      );
+
+              <div className="p-6 bg-black">
+                <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-2 pl-4">
+                  <input 
+                    value={input} 
+                    onChange={e => setInput(e.target.value)} 
+                    onKeyDown={e => e.key === 'Enter' && (()=>{
+                      const path = targetUser ? `pms/${[user.uid, targetUser.uid].sort().join('_')}` : `messages/general`;
+                      db.ref(path).push({
+                        content: targetUser ? encrypt(input, targetUser.uid) : input,
+                        username: user.username,
+                        userId: user.uid,
+                        timestamp: Date.now(),
+                        encrypted: !!targetUser
+                      });
+                      setInput("");
+                    })()}
+                    placeholder="Type message..." 
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input" 
+                  />
+                  <button onClick={() => {}} className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center"><i className="fas fa-paper-plane text-white"></i></button>
+                </div>
+              </div>
+            </main>
+          </div>
+        );
+      }
+      return null;
     }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
