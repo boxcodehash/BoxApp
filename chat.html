@@ -1,162 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MuzzSnap – Private DM Edition</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MuzzSnap - Terminal Edition</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
-<style>
-body{background:#050505;color:white}
-.bubble-3d{padding:12px 16px;border-radius:16px;max-width:80%}
-.bubble-3d.me{background:#ff0000;color:white;align-self:flex-end}
-.bubble-3d.other{background:#1a1a1a}
-.private-msg{color:#00aaff}
-.online-indicator{width:8px;height:8px;background:#39ff14;border-radius:50%}
-</style>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Orbitron:wght@400;900&display=swap');
+    :root{--muzz-red:#ff0000;--pm-blue:#00aaff}
+    html,body{height:100%;margin:0;background:#050505;color:white;overflow:hidden}
+    .panel-3d{border-radius:24px;background:#0c0c0c;border:1px solid rgba(255,0,0,0.15)}
+    .bubble-3d{padding:12px 16px;border-radius:20px;max-width:85%}
+    .bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white;align-self:flex-end}
+    .bubble-3d.other{background:#1a1a1a}
+    .pm{color:var(--pm-blue)}
+    .online-indicator{width:8px;height:8px;background:#39ff14;border-radius:50%}
+  </style>
 </head>
 
 <body>
-<div id="root"></div>
+<div id="root" class="h-full"></div>
 
 <script type="text/babel">
 const {useState,useEffect,useRef}=React;
 
-const firebaseConfig={
-  apiKey:"YOUR_API_KEY",
-  authDomain:"YOUR_DOMAIN",
-  databaseURL:"YOUR_DB_URL",
-  projectId:"YOUR_PROJECT",
+const fb={
+  apiKey:atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
+  authDomain:atob('cHVsc2FyaS5maXJlYmFzZWFwcC5jb20='),
+  databaseURL:atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
+  projectId:atob('cHVsc2FyaQ=='),
+  storageBucket:atob('cHVsc2FyaS5maXJlYmFzZXN0b3JhZ2UuYXBw'),
+  messagingSenderId:atob('ODI0MzA2MzIxMjMz'),
+  appId:atob('MTo4MjQzMDYzMjEyMzM6d2ViOjJjOWJmYTAyMTcwYTE3ZDU2MGI1NzA=')
 };
 
-firebase.initializeApp(firebaseConfig);
+if(!firebase.apps.length)firebase.initializeApp(fb);
 const db=firebase.database();
 
 function App(){
 
-const [user,setUser]=useState(null);
+const [me,setMe]=useState(null);
 const [online,setOnline]=useState([]);
 const [messages,setMessages]=useState([]);
 const [input,setInput]=useState("");
 
-const [privateUser,setPrivateUser]=useState(null);
-const [privateMessages,setPrivateMessages]=useState([]);
-const [isPrivate,setIsPrivate]=useState(false);
+const [pmUser,setPmUser]=useState(null);
+const [pmMsgs,setPmMsgs]=useState([]);
+const [pmMode,setPmMode]=useState(false);
 
 const endRef=useRef(null);
 
 useEffect(()=>{
-  const wallet=sessionStorage.getItem("muzz_wallet_address");
-  if(!wallet){location.href="login.html";return;}
+  const w=sessionStorage.getItem("muzz_wallet_address");
+  if(!w){location.href="login.html";return;}
 
-  firebase.auth().signInAnonymously().then(res=>{
-    const uid=res.user.uid;
-    const username=wallet.startsWith("guest_")?wallet.replace("guest_",""):`Node_${wallet.slice(-4)}`;
-    setUser({uid,username,wallet});
+  firebase.auth().signInAnonymously().then(r=>{
+    const uid=r.user.uid;
+    const isWallet=!w.startsWith("guest_");
+    const username=isWallet?`Node_${w.slice(-4)}`:w.replace("guest_","");
+    setMe({uid,username,isWallet});
 
-    db.ref("status/"+uid).set({uid,username});
+    db.ref("status/"+uid).set({uid,username,isWallet});
     db.ref("status/"+uid).onDisconnect().remove();
 
     db.ref("status").on("value",s=>{
       setOnline(s.val()?Object.values(s.val()):[]);
     });
+
+    db.ref("messages/general").limitToLast(50).on("value",s=>{
+      const v=s.val();
+      setMessages(v?Object.values(v):[]);
+    });
   });
 },[]);
 
 useEffect(()=>{
-  db.ref("messages/general").limitToLast(50).on("value",snap=>{
-    const v=snap.val();
-    setMessages(v?Object.values(v):[]);
-  });
-},[]);
+  if(!pmMode||!pmUser)return;
+  const id=[me.uid,pmUser.uid].sort().join("_");
+  const ref=db.ref("privateMessages/"+id).limitToLast(50);
 
-useEffect(()=>{
-  if(!privateUser||!isPrivate)return;
-  const id=[user.uid,privateUser.uid].sort().join("_");
-  db.ref("privateMessages/"+id).limitToLast(50).on("value",s=>{
+  ref.on("value",s=>{
     const v=s.val();
-    setPrivateMessages(v?Object.values(v):[]);
+    setPmMsgs(v?Object.values(v):[]);
   });
-},[privateUser,isPrivate]);
+
+  return()=>ref.off();
+},[pmUser,pmMode]);
 
 useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"})});
 
 const send=()=>{
   if(!input.trim())return;
 
-  if(isPrivate&&privateUser){
-    const id=[user.uid,privateUser.uid].sort().join("_");
+  if(pmMode&&pmUser){
+    const id=[me.uid,pmUser.uid].sort().join("_");
     db.ref("privateMessages/"+id).push({
-      from:user.uid,
-      to:privateUser.uid,
-      content:input,
-      timestamp:Date.now()
+      from:me.uid,to:pmUser.uid,content:input,timestamp:Date.now()
     });
     setInput("");
     return;
   }
 
   db.ref("messages/general").push({
-    username:user.username,
-    content:input,
-    userId:user.uid,
-    timestamp:Date.now()
+    userId:me.uid,username:me.username,content:input,timestamp:Date.now()
   });
   setInput("");
 };
 
-const openDM=(u)=>{
-  if(!u.username.startsWith("Node_"))return;
-  setPrivateUser(u);
-  setIsPrivate(true);
+const openPM=(u)=>{
+  if(!me.isWallet||!u.isWallet||u.uid===me.uid)return;
+  setPmUser(u);
+  setPmMode(true);
 };
 
-if(!user)return <div className="p-10">Connecting...</div>;
+if(!me)return <div className="p-10 text-red-600">CONNECTING...</div>;
 
 return(
-<div className="flex h-screen">
+<div className="flex h-screen p-4 gap-4">
 
-<aside className="w-64 border-r border-white/10 p-4">
-<h2 className="font-bold mb-4">Online</h2>
-{online.map(o=>(
-<div key={o.uid} className="flex gap-2 items-center cursor-pointer"
- onClick={()=>openDM(o)}>
+<aside className="w-64 panel-3d p-4">
+<h2 className="font-bold mb-4">ONLINE</h2>
+{online.map(u=>(
+<div key={u.uid}
+ onClick={()=>openPM(u)}
+ className="flex items-center gap-2 cursor-pointer hover:text-blue-400">
 <span className="online-indicator"></span>
-<span className="hover:text-blue-400">{o.username}</span>
+<span>{u.username}</span>
 </div>
 ))}
 
-{isPrivate&&(
-<button className="mt-4 w-full bg-blue-600/20 text-blue-400 p-2 rounded"
-onClick={()=>{setIsPrivate(false);setPrivateUser(null);}}>
-← Back to Public
+{pmMode&&(
+<button onClick={()=>{setPmMode(false);setPmUser(null);}}
+ className="mt-4 w-full bg-blue-600/20 text-blue-400 rounded p-2 text-xs">
+← Back to Public Chat
 </button>
 )}
 </aside>
 
-<main className="flex-1 flex flex-col">
+<main className="flex-1 panel-3d flex flex-col">
+
 <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
 
-{!isPrivate&&messages.map((m,i)=>(
-<div key={i}
- className={`bubble-3d ${m.userId===user.uid?'me':'other'}`}>
-{m.content}
+{pmMode&&(
+<div className="text-xs text-blue-400 mb-2">
+🔐 Private chat with {pmUser.username}
 </div>
-))}
+)}
 
-{isPrivate&&privateMessages.map((m,i)=>(
+{(!pmMode?messages:pmMsgs).map((m,i)=>(
 <div key={i}
- className={`bubble-3d private-msg ${m.from===user.uid?'me':'other'}`}>
+ className={`bubble-3d ${m.userId===me.uid||m.from===me.uid?'me':'other'} ${pmMode?'pm':''}`}>
 {m.content}
 </div>
 ))}
@@ -165,13 +169,14 @@ onClick={()=>{setIsPrivate(false);setPrivateUser(null);}}>
 </div>
 
 <div className="p-4 border-t border-white/10 flex gap-2">
-<input className="flex-1 bg-black border p-2"
-value={input}
-onChange={e=>setInput(e.target.value)}
-onKeyDown={e=>e.key==="Enter"&&send()}
-placeholder={isPrivate?"Private message...":"Public message..."} />
+<input
+ value={input}
+ onChange={e=>setInput(e.target.value)}
+ onKeyDown={e=>e.key==="Enter"&&send()}
+ placeholder={pmMode?"Private message...":"Public message..."}
+ className="flex-1 bg-black border border-white/10 rounded p-2"/>
 <button onClick={send}
-className="bg-red-600 px-4 rounded">Send</button>
+ className="bg-red-600 px-4 rounded">Send</button>
 </div>
 
 </main>
