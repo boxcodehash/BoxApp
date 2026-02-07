@@ -1,147 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MuzzSnap</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MuzzSnap - Terminal Edition</title>
 
-  <!-- LIBS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 
-  <!-- FIREBASE -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-  <!-- UI -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Fira+Code&display=swap');
-    body { background:#050505; color:white; margin:0; height:100vh }
-    .panel-main { background:#0c0c0c; border:1px solid rgba(255,0,0,.2); border-radius:20px }
-    .bubble { padding:10px 15px; border-radius:16px; max-width:80% }
-    .bubble.me { background:#ff0000; margin-left:auto }
-    .bubble.other { background:#1a1a1a; border:1px solid rgba(255,255,255,.05) }
-    .custom-scroll::-webkit-scrollbar { width:4px }
-    .custom-scroll::-webkit-scrollbar-thumb { background:#ff0000 }
-    .font-orbitron { font-family:'Orbitron',sans-serif }
-    .hacker-font { font-family:'Fira Code',monospace }
-  </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap');
+:root{--muzz-red:#ff0000;--ryachu-gold:#ffcc00;--itsuki-blue:#00d4ff}
+html,body{height:100%;overflow:hidden;margin:0;padding:0}
+body.dark-theme{background:#050505;color:white}
+.panel-3d{border-radius:24px;display:flex;flex-direction:column;height:100%}
+.bubble-3d{padding:12px 16px;border-radius:20px;font-size:14px;max-width:85%}
+.bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white}
+.bubble-3d.other{background:#1a1a1a;border:1px solid rgba(255,255,255,0.05)}
+.ryachu-name{color:var(--ryachu-gold);font-weight:800}
+.itsuki-name{color:var(--itsuki-blue);font-weight:800}
+.online-indicator{width:8px;height:8px;background:#39ff14;border-radius:50%}
+.admin-btn{font-size:10px;padding:8px;border-radius:8px;background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.3);color:#ff0000;font-weight:bold}
+</style>
 </head>
 
-<body>
+<body class="dark-theme">
 <div id="root" class="h-full"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const{useState:_0xa1,useEffect:_0xa2,useRef:_0xa3}=React;
 
-const firebaseConfig = {
-  apiKey: atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
-  databaseURL: atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
-  projectId: atob('cHVsc2FyaQ==')
+/* Firebase (ofuscado) */
+const _0xfb={
+ apiKey:atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
+ authDomain:atob('cHVsc2FyaS5maXJlYmFzZWFwcC5jb20='),
+ databaseURL:atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
+ projectId:atob('cHVsc2FyaQ==')
+};
+if(!firebase.apps.length)firebase.initializeApp(_0xfb);
+const _0xdb=firebase.database();
+
+/* Wallets especiales */
+const _0xad={
+ R:atob('MHgyMDgxNTdiNWVjMzk2NzU5ZTg3NTQwNTgxMDhlY2Y1M2UzMjM5MmZm').toLowerCase(),
+ I:atob('MHhmYWI1ODM1Y2ExNGZiM2Y5Zjk3OGM1ZTRkNzMzNzM0ZTYzOTRlMDNm').toLowerCase()
 };
 
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-firebase.auth().signInAnonymously();
-const db = firebase.database();
+/* 🔐 Private Access Config */
+const _0xpk={
+ C:atob('MHhlZjNkQWE1ZkRhOEFkN2FhYkZGNDU2OGYxRjc4MDYxZmQ2MjZCOGYw').toLowerCase(),
+ W:'0xbeec8f1fee64627f83f0188eae621f367a6bcb8a',
+ M:1000000,
+ A:[
+  {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}
+ ]
+};
 
-function App() {
-  const [user, setUser] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const endRef = useRef();
+function App(){
+ const[_0xb1,_0xb2]=_0xa1(null);
+ const[_0xb3,_0xb4]=_0xa1([]);
+ const[_0xb5,_0xb6]=_0xa1([]);
+ const[_0xpr,_0xps]=_0xa1(false);
 
-  useEffect(() => {
-    const addr = sessionStorage.getItem("muzz_wallet_address");
-    if (!addr) location.href="login.html";
-    setUser({ addr, name:`🧬 Node_${addr.slice(-4)}` });
-  }, []);
+ /* LOGIN */
+ _0xa2(()=>{
+  const w=sessionStorage.getItem('muzz_wallet_address');
+  if(!w){window.location.href='login.html';return;}
 
-  useEffect(() => {
-    if (!user) return;
-    const ref = db.ref("messages/general").limitToLast(100);
-    ref.on("value", s => {
-      const v = s.val();
-      if (v) setMessages(Object.values(v));
-    });
-    return () => ref.off();
-  }, [user]);
+  firebase.auth().signInAnonymously().then(r=>{
+    const uid=r.user.uid;
+    const isWallet=!w.startsWith('guest_');
+    let name="Guest",role="guest";
 
-  useEffect(()=>endRef.current?.scrollIntoView({behavior:"smooth"}),[messages]);
+    if(isWallet){
+      const wl=w.toLowerCase();
+      if(wl===_0xad.R){name="Ryachu";role="ryachu";}
+      else if(wl===_0xad.I){name="Itsuki";role="itsuki";}
+      else name="Node_"+w.slice(-4);
+    }
+    _0xb2({uid,username:name,role,isWallet});
+    _0xdb.ref(`status/${uid}`).set({username:name,role,uid});
+    _0xdb.ref('status').on('value',s=>_0xb6(s.val()?Object.values(s.val()):[]));
+  });
+ },[]);
 
-  const send = () => {
-    if (!input.trim()) return;
-    db.ref("messages/general").push({
-      sender:user.addr,
-      username:user.name,
-      content:input,
-      timestamp:Date.now()
-    });
-    setInput("");
-  };
+ /* 🔒 PRIVATE CHECK */
+ _0xa2(()=>{
+  const w=sessionStorage.getItem('muzz_wallet_address');
+  if(!w||w.startsWith('guest_'))return;
+  if(w.toLowerCase()===_0xpk.W){_0xps(true);return;}
+  if(!window.ethereum)return;
 
-  if (!user) return <div className="h-screen flex items-center justify-center text-red-600 animate-pulse">🔐 Enlazando nodo…</div>;
+  const p=new ethers.providers.Web3Provider(window.ethereum);
+  const c=new ethers.Contract(_0xpk.C,_0xpk.A,p);
+  (async()=>{
+    try{
+      const b=await c.balanceOf(w);
+      const d=await c.decimals();
+      if(Number(ethers.utils.formatUnits(b,d))>=_0xpk.M)_0xps(true);
+    }catch(e){}
+  })();
+ },[]);
 
-  return (
-    <div className="flex h-screen p-4 gap-6 bg-black">
+ if(!_0xb1)return <div className="flex items-center justify-center h-full text-red-600 animate-pulse">CONNECTING…</div>;
 
-      {/* MENU */}
-      <aside className="hidden lg:flex w-64 panel-main p-6 flex-col">
-        <h1 className="font-orbitron text-red-600 font-black text-xl mb-8">🚀 MUZZSNAP</h1>
+ return(
+ <div className="flex h-screen p-4 gap-4">
+  <aside className="w-64 panel-3d p-6">
+   <h1 className="font-orbitron text-xl mb-6">MUZZ<span className="text-red-600">SNAP</span></h1>
 
-        <button className="p-3 mb-2 rounded-xl bg-red-600/10 text-red-500 font-bold">
-          💬 # General
-        </button>
+   {_0xpr&&(
+    <button
+     onClick={()=>window.location.href='private.html'}
+     className="mb-4 w-full py-3 text-[10px] border border-red-600/40 text-red-500 rounded-xl uppercase font-black tracking-widest hover:bg-red-600 hover:text-white transition-all">
+     🔒 Private
+    </button>
+   )}
 
-        <button className="p-3 mb-2 rounded-xl hover:bg-white/5 text-gray-400">
-          📡 Nodes
-        </button>
+   <button onClick={()=>{sessionStorage.clear();window.location.href='login.html'}}
+    className="mt-auto w-full py-3 text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black">
+    <i className="fas fa-power-off mr-2"></i>Disconnect
+   </button>
+  </aside>
 
-        <button className="p-3 mb-2 rounded-xl hover:bg-white/5 text-gray-400">
-          🧠 AI
-        </button>
-
-        <button onClick={()=>{sessionStorage.clear();location.reload()}}
-          className="mt-auto p-3 text-xs text-red-800 border border-red-900/30 rounded-xl">
-          ❌ Cerrar Nodo
-        </button>
-      </aside>
-
-      {/* CHAT */}
-      <main className="flex-1 panel-main flex flex-col overflow-hidden">
-        <header className="p-4 border-b border-white/5 flex justify-between">
-          <span className="text-red-600 font-orbitron font-bold">🟢 /general</span>
-          <span className="text-xs hacker-font text-gray-500">{user.addr.slice(0,10)}…</span>
-        </header>
-
-        <div className="flex-1 overflow-y-auto p-6 custom-scroll">
-          {messages.map((m,i)=>(
-            <div key={i} className={`mb-4 ${m.sender===user.addr?'text-right':''}`}>
-              <div className={`bubble ${m.sender===user.addr?'me':'other'}`}>{m.content}</div>
-            </div>
-          ))}
-          <div ref={endRef}/>
-        </div>
-
-        <div className="p-4 border-t border-white/5 flex gap-2">
-          <input className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 text-red-500 hacker-font"
-            value={input}
-            onChange={e=>setInput(e.target.value)}
-            onKeyDown={e=>e.key==="Enter"&&send()}
-            placeholder="💬 Escribe algo…" />
-          <button onClick={send} className="bg-red-600 px-4 rounded-xl">🚀</button>
-        </div>
-      </main>
+  <main className="flex-1 panel-3d p-6">
+   {_0xb3.map((m,i)=>(
+    <div key={i} className="mb-3">
+     <span className={`text-xs ${m.role==='ryachu'?'ryachu-name':m.role==='itsuki'?'itsuki-name':''}`}>
+      {m.role==='ryachu'&&'👑 '}{m.role==='itsuki'&&'💎 '}{m.username}
+     </span>
+     <div className={`bubble-3d ${m.userId===_0xb1.uid?'me':'other'}`}>{m.content}</div>
     </div>
-  );
+   ))}
+  </main>
+ </div>
+ );
 }
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
