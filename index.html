@@ -1,227 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - Terminal Edition</title>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MuzzSnap | Protocol</title>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap');
-    :root{--muzz-red:#ff0000;--ryachu-gold:#ffcc00;--itsuki-blue:#00d4ff}
-    html,body{height:100%;overflow:hidden;margin:0;padding:0}
-    body.dark-theme{background:#050505;color:white}
-    .panel-3d{border-radius:24px;transition:all 0.3s ease;display:flex;flex-direction:column;height:100%}
-    .dark-theme .panel-3d{background:#0c0c0c;border:1px solid rgba(255,0,0,0.15);box-shadow:0 10px 30px rgba(0,0,0,0.8)}
-    .bubble-3d{padding:12px 16px;border-radius:20px;font-size:14px;max-width:85%;line-height:1.4;position:relative}
-    .bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white;align-self:flex-end;border-bottom-right-radius:4px}
-    .dark-theme .bubble-3d.other{background:#1a1a1a;border:1px solid rgba(255,255,255,0.05)}
-    .custom-scroll::-webkit-scrollbar{width:4px}.custom-scroll::-webkit-scrollbar-thumb{background:var(--muzz-red);border-radius:10px}
-    .btn-private-gold { background: linear-gradient(90deg, #ff0000, #990000); border: 1px solid #ff0000; box-shadow: 0 0 15px rgba(255,0,0,0.4); }
-    .btn-private-gold:hover { transform: scale(1.02); filter: brightness(1.2); }
-  </style>
+    <script>
+        if (window.top !== window.self) {
+            window.top.location.replace(window.self.location.href);
+        }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Fira+Code&display=swap');
+        body { background-color: #050505; color: white; font-family: sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+        .logo-glow { box-shadow: 0 0 40px rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.3s; cursor: pointer; }
+        .logo-glow:active { transform: scale(0.95); }
+        .loading-spinner { animation: spin 1s linear infinite; border: 3px solid transparent; border-top-color: #ff0000; border-radius: 50%; }
+        .hacker-input { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,0,0,0.2); color: #39ff14; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
-<body class="dark-theme">
-  <div id="root" class="h-full"></div>
+<body>
 
-  <script type="text/babel">
-    const { useState: _0xa1, useEffect: _0xa2, useRef: _0xa3 } = React;
-
-    // --- CONFIGURACIÓN TOKEN GATING ---
-    const MUZZLE_CONTRACT = "0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0";
-    const EXCLUDED_WALLET = "0xBEec8F1fee64627F83F0188eAe621F367A6bCb8a".toLowerCase();
-    const MIN_TOKENS = 1000000n * (10n ** 18n); // 1M con 18 decimales
-    const ABI_MIN = [{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
-
-    // Firebase Config (Ofuscado)
-    const _0xfb = {
-      apiKey: atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
-      databaseURL: atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
-      projectId: atob('cHVsc2FyaQ==')
-    };
-
-    if (!firebase.apps.length) firebase.initializeApp(_0xfb);
-    const _0xdb = firebase.database();
-
-    function App() {
-      const [_0xb1, _0xb2] = _0xa1(null); // User
-      const [_0xb3, _0xb4] = _0xa1([]); // Messages
-      const [_0xb5, _0xb6] = _0xa1([]); // Status
-      const [_0xc1, _0xc2] = _0xa1(""); // Input text
-      const [_0xc9, _0xd0] = _0xa1({id:"general", name:"GENERAL"}); // Channel
-      const [_showPrivate, _setPrivate] = _0xa1(false); // Visibility of Private Button
-      const _0xe1 = _0xa3(null); // Scroll ref
-
-      _0xa2(() => {
-        const addr = sessionStorage.getItem('muzz_wallet_address');
-        if (!addr) { window.location.href = 'login.html'; return; }
-
-        // --- LÓGICA DE VALIDACIÓN PRIVADA ---
-        const checkAccess = async () => {
-          const userAddr = addr.toLowerCase();
-          
-          // 1. Excluir wallet específica (Acceso VIP)
-          if (userAddr === EXCLUDED_WALLET) {
-            _setPrivate(true);
-            return;
-          }
-
-          // 2. Verificar balance para los demás
-          try {
-            if (window.ethereum) {
-              const provider = new ethers.BrowserProvider(window.ethereum);
-              const contract = new ethers.Contract(MUZZLE_CONTRACT, ABI_MIN, provider);
-              const balance = await contract.balanceOf(addr);
-              if (balance >= MIN_TOKENS) {
-                _setPrivate(true);
-              }
-            }
-          } catch (e) { console.error("Error en contrato:", e); }
-        };
-
-        checkAccess();
-
-        // Login anónimo Firebase
-        firebase.auth().signInAnonymously().then((u) => {
-          const name = addr.startsWith('0x') ? `Node_${addr.slice(-4)}` : addr;
-          _0xb2({ username: name, uid: u.user.uid, address: addr });
-          
-          _0xdb.ref(`status/${u.user.uid}`).onDisconnect().remove();
-          _0xdb.ref(`status/${u.user.uid}`).set({ username: name, uid: u.user.uid });
-        });
-
-        _0xdb.ref('status').on('value', s => _0xb6(s.val() ? Object.values(s.val()) : []));
-      }, []);
-
-      _0xa2(() => {
-        if (!_0xb1) return;
-        const ref = _0xdb.ref('messages/' + _0xc9.id).limitToLast(50);
-        ref.on('value', s => {
-          const data = s.val();
-          _0xb4(data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : []);
-        });
-        return () => ref.off();
-      }, [_0xc9, _0xb1]);
-
-      _0xa2(() => { _0xe1.current?.scrollIntoView({ behavior: 'smooth' }); }, [_0xb3]);
-
-      const sendMessage = () => {
-        if (!_0xc1.trim()) return;
-        _0xdb.ref('messages/' + _0xc9.id).push({
-          content: _0xc1,
-          username: _0xb1.username,
-          userId: _0xb1.uid,
-          timestamp: Date.now()
-        });
-        _0xc2("");
-      };
-
-      if (!_0xb1) return <div className="h-full flex items-center justify-center text-red-600 font-orbitron animate-pulse">AUTH VALIDATION...</div>;
-
-      return (
-        <div className="flex h-screen p-2 md:p-6 gap-6 max-w-[1600px] mx-auto overflow-hidden">
-          {/* ASIDE / MENU */}
-          <aside className="w-72 lg:w-64 panel-3d p-6 flex flex-col hidden md:flex">
-            <div className="mb-8 flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
-                <i className="fas fa-ghost text-white text-sm"></i>
-              </div>
-              <h1 className="font-orbitron font-black text-xl italic tracking-tighter">MUZZ<span className="text-red-600">SNAP</span></h1>
+    <div class="text-center px-6 w-full max-w-sm">
+        <div id="btnConnect" class="relative inline-block mb-6" onclick="accessWithWallet()">
+            <div id="loadingUI" class="hidden absolute inset-0 z-20 flex items-center justify-center bg-black/50 rounded-3xl">
+                <div class="loading-spinner w-12 h-12"></div>
             </div>
-
-            <div className="flex-1 space-y-6 overflow-y-auto custom-scroll pr-2">
-              {/* CANALES PUBLICOS */}
-              <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Channels</p>
-                {['GENERAL', 'ESPAÑOL', 'DAO'].map(c => (
-                  <button key={c} onClick={() => _0xd0({id: c.toLowerCase(), name: c})}
-                    className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all ${_0xc9.name === c ? 'bg-red-600/10 text-red-600 border-l-2 border-red-600' : 'text-gray-500 hover:text-white'}`}>
-                    # {c}
-                  </button>
-                ))}
-              </div>
-
-              {/* BOTÓN PRIVADO DINÁMICO */}
-              {_showPrivate && (
-                <div>
-                  <p className="text-[10px] text-red-500 font-bold tracking-[0.3em] mb-4 uppercase">Secure Access</p>
-                  <a href="private.html" className="btn-private-gold w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white transition-all">
-                    <i className="fas fa-user-secret text-sm"></i>
-                    Private Archive
-                  </a>
-                </div>
-              )}
-
-              {/* ONLINE STATUS */}
-              <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Online — {_0xb5.length}</p>
-                <div className="space-y-3">
-                  {_0xb5.map((u, i) => (
-                    <div key={i} className="flex items-center gap-3 px-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_5px_#22c55e]"></span>
-                      <span className="text-[11px] font-bold text-gray-400 truncate uppercase">{u.username}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <button onClick={() => {sessionStorage.clear(); window.location.href='login.html'}} 
-              className="mt-6 w-full py-3 text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black tracking-widest hover:bg-red-600/5 transition-all">
-              <i className="fas fa-power-off mr-2"></i>Disconnect
-            </button>
-          </aside>
-
-          {/* MAIN CHAT AREA */}
-          <main className="flex-1 panel-3d flex flex-col overflow-hidden border border-white/5 relative">
-            <header className="h-16 flex items-center justify-between px-8 bg-white/5 border-b border-white/5">
-              <h2 className="text-sm font-black tracking-[0.2em] text-red-600 uppercase italic">/ {_0xc9.name}</h2>
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                Node ID: <span className="text-red-500">{_0xb1.address.slice(0,6)}...</span>
-              </div>
-            </header>
-
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-5 custom-scroll">
-              {_0xb3.map((m, i) => (
-                <div key={m.id} className={`flex flex-col ${m.userId === _0xb1.uid ? 'items-end' : 'items-start'}`}>
-                  <span className="text-[9px] font-black mb-1.5 uppercase px-2 text-gray-500">{m.username}</span>
-                  <div className={`bubble-3d shadow-xl ${m.userId === _0xb1.uid ? 'me' : 'other'}`}>
-                    {m.content}
-                  </div>
-                </div>
-              ))}
-              <div ref={_0xe1}></div>
-            </div>
-
-            {/* INPUT AREA */}
-            <div className="p-4 md:p-6 bg-black/40 border-t border-white/5">
-              <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2.5 pl-5 focus-within:border-red-600/50 transition-all shadow-inner">
-                <input 
-                  value={_0xc1} 
-                  onChange={e => _0xc2(e.target.value)} 
-                  onKeyDown={e => e.key === 'Enter' && sendMessage()}
-                  placeholder="Transmit secure message..."
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input text-red-500"
-                />
-                <button onClick={sendMessage} className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center hover:bg-red-500 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)]">
-                  <i className="fas fa-paper-plane text-white"></i>
-                </button>
-              </div>
-            </div>
-          </main>
+            <img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440" 
+                 class="logo-glow w-32 h-32 md:w-40 md:h-40 rounded-3xl">
         </div>
-      );
-    }
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
+
+        <h1 style="font-family: 'Orbitron';" class="text-2xl font-black tracking-tighter italic mb-1">
+            MUZZ<span class="text-red-600">SNAP</span>
+        </h1>
+        <p id="statusText" class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-8">Tap logo for Wallet or use Guest below</p>
+
+        <div class="space-y-4 mb-8">
+            <input type="text" id="usernameInput" placeholder="ENTER_NICKNAME..." 
+                   class="w-full p-3 rounded-xl hacker-input text-center text-xs border-dashed">
+            <button onclick="accessWithGuest()" class="w-full py-2 text-[9px] font-bold text-gray-500 hover:text-red-500 uppercase tracking-widest transition-colors">
+                [ Initialize Guest Protocol ]
+            </button>
+        </div>
+
+        <div id="errorBox" class="hidden p-3 rounded-lg bg-red-900/20 border border-red-500/50 mb-6">
+            <p id="errorTitle" class="text-red-500 text-[10px] font-bold uppercase mb-1"></p>
+            <p id="errorDesc" class="text-gray-400 text-[10px] leading-tight"></p>
+        </div>
+
+        <div class="text-[9px] text-gray-700 font-mono uppercase tracking-widest">
+            &copy; 2025 Protocol Ryachu Edition
+        </div>
+    </div>
+
+    <script>
+        const loadingUI = document.getElementById('loadingUI');
+        const errorBox = document.getElementById('errorBox');
+
+        function showError(title, desc) {
+            errorBox.classList.remove('hidden');
+            document.getElementById('errorTitle').innerText = title;
+            document.getElementById('errorDesc').innerText = desc;
+            loadingUI.classList.add('hidden');
+        }
+
+        async function accessWithWallet() {
+            errorBox.classList.add('hidden');
+            
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    loadingUI.classList.remove('hidden');
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    sessionStorage.setItem('muzz_wallet_address', accounts[0]);
+                    window.location.href = 'chat.html';
+                } catch (err) {
+                    showError("AUTH_FAILED", "Conexión rechazada.");
+                }
+            } else {
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                if (isMobile) {
+                    // Intenta abrir el sitio dentro de la App de MetaMask
+                    const dappUrl = window.location.href.split('//')[1];
+                    window.location.href = `https://metamask.app.link/dapp/${dappUrl}`;
+                } else {
+                    showError("NO_WALLET", "Instala MetaMask o usa un navegador Web3.");
+                }
+            }
+        }
+
+        function accessWithGuest() {
+            const user = document.getElementById('usernameInput').value.trim();
+            if (!user) {
+                showError("REQUIRED", "Ingresa un nickname.");
+                return;
+            }
+            // Guarda con prefijo para aplicar restricciones en chat.html
+            sessionStorage.setItem('muzz_wallet_address', `guest_${user}`);
+            window.location.href = 'chat.html';
+        }
+    </script>
 </body>
 </html>
