@@ -1,240 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muzzle Token – Ecosystem</title>
-    
-    <meta name="theme-color" content="#030303">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MuzzSnap - Terminal Edition</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-        :root {
-            --neon: #ff0000;
-            --neon-glow: rgba(255, 0, 0, 0.4);
-            --bg: #0a0a0a;
-            --sidebar-bg: rgba(15, 15, 15, 0.85);
-            --border: rgba(255, 0, 0, 0.15);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background: linear-gradient(135deg, #0a0a0a 0%, #0f0000 100%);
-            color: #fff;
-            font-family: 'Rajdhani', sans-serif;
-            overflow-x: hidden;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-        }
-
-        /* Sidebar Transparente y Oculto */
-        .sidebar {
-            width: 280px;
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(15px);
-            height: 100vh;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--border);
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
-            transform: translateX(-100%);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sidebar.active { transform: translateX(0); }
-
-        .mobile-menu-btn {
-            position: fixed; top: 20px; left: 20px; z-index: 200;
-            background: rgba(15, 15, 15, 0.95); border: 1px solid var(--border);
-            color: var(--neon); width: 48px; height: 48px; border-radius: 12px;
-            cursor: pointer; backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .logo-container {
-            display: flex; align-items: center; gap: 14px; margin-bottom: 48px;
-            padding-bottom: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .logo-icon {
-            width: 52px; height: 52px; background: linear-gradient(135deg, var(--neon), #cc0000);
-            border-radius: 14px; display: flex; align-items: center; justify-content: center;
-            font-size: 26px; box-shadow: 0 4px 20px var(--neon-glow);
-        }
-
-        .logo-text { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.4rem; }
-        .logo-text span { color: var(--neon); text-shadow: 0 0 10px var(--neon-glow); }
-
-        .nav-item {
-            padding: 14px 16px; margin-bottom: 6px; border-radius: 10px;
-            color: rgba(255, 255, 255, 0.6); cursor: pointer;
-            transition: 0.3s; display: flex; align-items: center; gap: 14px;
-            text-decoration: none;
-        }
-
-        .nav-item:hover { background: rgba(255, 0, 0, 0.1); color: white; }
-        .nav-item.active { background: rgba(255, 0, 0, 0.15); color: var(--neon); border-left: 3px solid var(--neon); }
-
-        .main-content { flex: 1; height: 100vh; overflow-y: auto; padding-top: 80px; }
-
-        .top-bar {
-            background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 20px 40px; display: flex; justify-content: flex-end;
-            position: fixed; top: 0; width: 100%; z-index: 50;
-        }
-
-        .cards-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 32px; padding: 40px; max-width: 1400px; margin: 0 auto;
-        }
-
-        .card {
-            background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(30, 0, 0, 0.6) 100%);
-            border: 1px solid var(--border); border-radius: 16px;
-            padding: 40px 32px; text-align: center; transition: 0.4s;
-        }
-
-        .card:hover { transform: translateY(-10px); border-color: var(--neon); box-shadow: 0 0 30px var(--neon-glow); }
-        .card-icon { font-size: 3rem; color: var(--neon); margin-bottom: 24px; filter: drop-shadow(0 0 10px var(--neon-glow)); }
-
-        .btn-stake {
-            display: inline-block; margin-top: 15px; padding: 10px 20px;
-            border: 1px solid var(--neon); border-radius: 8px;
-            color: var(--neon); text-decoration: none; font-weight: bold;
-            transition: 0.3s; font-family: 'Orbitron'; font-size: 0.8rem;
-        }
-
-        .btn-stake:hover { background: var(--neon); color: #000; box-shadow: 0 0 20px var(--neon-glow); }
-
-        /* Estilos de Redes Sociales (Original) */
-        .footer { text-align: center; padding: 50px 40px; border-top: 1px solid var(--border); }
-        .footer-copy { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: rgba(255, 255, 255, 0.3); letter-spacing: 0.3em; margin-bottom: 20px; text-transform: uppercase; }
-        .social-links { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; }
-        .social-links a {
-            color: rgba(255, 255, 255, 0.5); transition: all 0.3s; text-decoration: none;
-            display: flex; align-items: center; justify-content: center;
-            width: 48px; height: 48px; border-radius: 12px;
-            background: rgba(20, 20, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .social-links a:hover { color: var(--neon); background: rgba(255, 0, 0, 0.1); border-color: var(--neon); transform: translateY(-4px); box-shadow: 0 8px 20px var(--neon-glow); }
-    </style>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap');
+    :root{--muzz-red:#ff0000;--ryachu-gold:#ffcc00;--itsuki-blue:#00d4ff}
+    html,body{height:100%;overflow:hidden;margin:0;padding:0}
+    body.dark-theme{background:#050505;color:white}
+    .panel-3d{border-radius:24px;transition:all 0.3s ease;display:flex;flex-direction:column;height:100%}
+    .dark-theme .panel-3d{background:#0c0c0c;border:1px solid rgba(255,0,0,0.15);box-shadow:0 10px 30px rgba(0,0,0,0.8)}
+    .bubble-3d{padding:12px 16px;border-radius:20px;font-size:14px;max-width:85%;line-height:1.4;position:relative}
+    .bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white;align-self:flex-end;border-bottom-right-radius:4px}
+    .dark-theme .bubble-3d.other{background:#1a1a1a;border:1px solid rgba(255,255,255,0.05)}
+    .custom-scroll::-webkit-scrollbar{width:4px}.custom-scroll::-webkit-scrollbar-thumb{background:var(--muzz-red);border-radius:10px}
+    .btn-private-gold { background: linear-gradient(90deg, #ff0000, #990000); border: 1px solid #ff0000; box-shadow: 0 0 15px rgba(255,0,0,0.4); }
+    .btn-private-gold:hover { transform: scale(1.02); filter: brightness(1.2); }
+  </style>
 </head>
-<body>
+<body class="dark-theme">
+  <div id="root" class="h-full"></div>
 
-    <button class="mobile-menu-btn" onclick="toggleMenu()">
-        <i class="fas fa-bars" id="menuIcon"></i>
-    </button>
+  <script type="text/babel">
+    const { useState: _0xa1, useEffect: _0xa2, useRef: _0xa3 } = React;
 
-    <div class="sidebar" id="sidebar">
-        <div class="logo-container">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="logo-icon"><i class="fas fa-bolt"></i></div>
-                <div class="logo-text">MUZZ<span>SNAP</span></div>
-            </div>
-        </div>
+    // --- CONFIGURACIÓN TOKEN GATING ---
+    const MUZZLE_CONTRACT = "0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0";
+    const EXCLUDED_WALLET = "0xBEec8F1fee64627F83F0188eAe621F367A6bCb8a".toLowerCase();
+    const MIN_TOKENS = 1000000n * (10n ** 18n); // 1M con 18 decimales
+    const ABI_MIN = [{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 
-        <div class="nav-section">
-            <div class="nav-label">Navigation</div>
-            <a href="https://muzzsnap.com" class="nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
-            <a href="login.html" class="nav-item"><i class="fas fa-rocket"></i><span>MuzzSnap</span></a>
-            <a href="https://www.team.finance/view-coin/0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0?name=MuzzleToken&symbol=MUZZ&chainid=0x1" target="_blank" class="nav-item">
-                <i class="fas fa-coins"></i><span>Staking</span>
-            </a>
-            <a href="#whitepaper" class="nav-item"><i class="fas fa-file-alt"></i><span>Whitepaper</span></a>
-            <a href="#roadmap" class="nav-item"><i class="fas fa-route"></i><span>Roadmap</span></a>
-            <a href="swap.html" target="_blank" class="nav-item"><i class="fas fa-shopping-cart"></i><span>Buy Muzz</span></a>
-        </div>
+    // Firebase Config (Ofuscado)
+    const _0xfb = {
+      apiKey: atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
+      databaseURL: atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
+      projectId: atob('cHVsc2FyaQ==')
+    };
 
-        <button class="disconnect-btn" style="margin-top: auto; padding: 14px; color: var(--neon); border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.3);">
-            <i class="fas fa-power-off"></i><span> V 1.5 </span>
-        </button>
-    </div>
+    if (!firebase.apps.length) firebase.initializeApp(_0xfb);
+    const _0xdb = firebase.database();
 
-    <div class="main-content">
-        <div class="top-bar">
-            <div style="display: flex; gap: 8px;">
-                <button style="padding: 8px 16px; color: white; font-size: 0.8rem; font-weight: bold;">EN</button>
-                <button style="padding: 8px 16px; color: rgba(255,255,255,0.5); font-size: 0.8rem;">ES</button>
-            </div>
-        </div>
+    function App() {
+      const [_0xb1, _0xb2] = _0xa1(null); // User
+      const [_0xb3, _0xb4] = _0xa1([]); // Messages
+      const [_0xb5, _0xb6] = _0xa1([]); // Status
+      const [_0xc1, _0xc2] = _0xa1(""); // Input text
+      const [_0xc9, _0xd0] = _0xa1({id:"general", name:"GENERAL"}); // Channel
+      const [_showPrivate, _setPrivate] = _0xa1(false); // Visibility of Private Button
+      const _0xe1 = _0xa3(null); // Scroll ref
 
-        <div class="content-area">
-            <div class="hero-section" style="text-align: center; margin-bottom: 60px;">
-                <h1 style="font-family: 'Orbitron'; font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 900; color: var(--neon); text-shadow: 0 0 20px var(--neon-glow);">MUZZLE TOKEN</h1>
-                <p style="letter-spacing: 0.3em; color: rgba(255,255,255,0.6); text-transform: uppercase;">Decentralized Ecosystem</p>
-            </div>
+      _0xa2(() => {
+        const addr = sessionStorage.getItem('muzz_wallet_address');
+        if (!addr) { window.location.href = 'login.html'; return; }
 
-            <div class="cards-grid">
-                <div class="card">
-                    <div class="card-icon"><i class="fas fa-project-diagram"></i></div>
-                    <h3 class="card-title">MuzzSocial</h3>
-                    <p class="card-desc">The first truly borderless social grid. Immutable and community-owned.</p>
-                    <div class="card-footer">STAKE: 20M MUZZLE</div>
-                </div>
+        // --- LÓGICA DE VALIDACIÓN PRIVADA ---
+        const checkAccess = async () => {
+          const userAddr = addr.toLowerCase();
+          
+          // 1. Excluir wallet específica (Acceso VIP)
+          if (userAddr === EXCLUDED_WALLET) {
+            _setPrivate(true);
+            return;
+          }
 
-                <div class="card">
-                    <div class="card-icon"><i class="fas fa-ghost"></i></div>
-                    <h3 class="card-title">MuzzChat</h3>
-                    <p class="card-desc">Encrypted P2P nodes. Secure 2-room architecture per user.</p>
-                    <div class="card-footer">STAKE: 20M MUZZLE</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon"><i class="fas fa-shield-virus"></i></div>
-                    <h3 class="card-title">MuzzDAO</h3>
-                    <p class="card-desc">The core authority. Propose and execute protocols.</p>
-                    <div class="card-footer">GOVERNANCE OPEN</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon"><i class="fas fa-lock"></i></div>
-                    <h3 class="card-title">MUZZ Staking</h3>
-                    <p class="card-desc">Stake your tokens and earn rewards within the ecosystem.</p>
-                    <a href="https://www.team.finance/view-coin/0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0?name=MuzzleToken&symbol=MUZZ&chainid=0x1" target="_blank" class="btn-stake">ACCESS STAKING</a>
-                </div>
-            </div>
-
-            <div class="footer">
-                <p class="footer-copy">MuzzSnap © 2026</p>
-                <div class="social-links">
-                    <a href="https://x.com/MuzzleToken" target="_blank" title="X (Twitter)"><i class="fab fa-x-twitter"></i></a>
-                    <a href="https://t.me/MuzzSnap" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
-                    <a href="https://www.mexc.com/dex/trade?pair_ca=0x06D9CdDD7FCaF2e93573D04bE5DE2fc4dEA45F45&chain_id=1&token_ca=0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0" target="_blank" style="font-family: 'Orbitron'; font-weight: 900; font-size: 0.85rem;">MEXC</a>
-                    <a href="https://coinmarketcap.com/currencies/muzzletoken/" target="_blank" title="CoinMarketCap">
-                        <svg style="width: 22px; height: 22px;" viewBox="0 0 128 128" fill="currentColor">
-                            <path d="M96.4 96.5C89.7 103.2 81.1 107.9 71.7 110.2 62.3 112.5 52.5 112.3 43.2 109.7 33.9 107.1 25.5 102.2 18.7 95.5 12 88.8 7.3 80.2 5 71.1 2.7 61.9 2.9 52.3 5.6 43.2 8.3 34.1 13.3 25.9 20.1 19.4 26.9 12.9 35.3 8.4 44.4 6.4 53.6 4.3 63.1 4.7 72 7.5L72 32.5C67.7 31.3 63.2 31.3 58.9 32.4 54.6 33.6 50.7 35.9 47.5 39.1 44.3 42.3 42 46.2 40.8 50.5 39.7 54.8 39.7 59.3 40.9 63.6 42.1 67.9 44.4 71.8 47.6 75 50.8 78.2 54.7 80.5 59 81.7 63.3 82.8 67.8 82.8 72.1 81.7 76.4 80.5 80.3 78.2 83.5 75L96.4 96.5Z"/>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const icon = document.getElementById('menuIcon');
-            sidebar.classList.toggle('active');
-            icon.classList.toggle('fa-bars');
-            icon.classList.toggle('fa-times');
-        }
-        document.addEventListener('click', function(e) {
-            const sidebar = document.getElementById('sidebar');
-            const btn = document.querySelector('.mobile-menu-btn');
-            if (!sidebar.contains(e.target) && !btn.contains(e.target) && sidebar.classList.contains('active')) {
-                toggleMenu();
+          // 2. Verificar balance para los demás
+          try {
+            if (window.ethereum) {
+              const provider = new ethers.BrowserProvider(window.ethereum);
+              const contract = new ethers.Contract(MUZZLE_CONTRACT, ABI_MIN, provider);
+              const balance = await contract.balanceOf(addr);
+              if (balance >= MIN_TOKENS) {
+                _setPrivate(true);
+              }
             }
+          } catch (e) { console.error("Error en contrato:", e); }
+        };
+
+        checkAccess();
+
+        // Login anónimo Firebase
+        firebase.auth().signInAnonymously().then((u) => {
+          const name = addr.startsWith('0x') ? `Node_${addr.slice(-4)}` : addr;
+          _0xb2({ username: name, uid: u.user.uid, address: addr });
+          
+          _0xdb.ref(`status/${u.user.uid}`).onDisconnect().remove();
+          _0xdb.ref(`status/${u.user.uid}`).set({ username: name, uid: u.user.uid });
         });
-    </script>
+
+        _0xdb.ref('status').on('value', s => _0xb6(s.val() ? Object.values(s.val()) : []));
+      }, []);
+
+      _0xa2(() => {
+        if (!_0xb1) return;
+        const ref = _0xdb.ref('messages/' + _0xc9.id).limitToLast(50);
+        ref.on('value', s => {
+          const data = s.val();
+          _0xb4(data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : []);
+        });
+        return () => ref.off();
+      }, [_0xc9, _0xb1]);
+
+      _0xa2(() => { _0xe1.current?.scrollIntoView({ behavior: 'smooth' }); }, [_0xb3]);
+
+      const sendMessage = () => {
+        if (!_0xc1.trim()) return;
+        _0xdb.ref('messages/' + _0xc9.id).push({
+          content: _0xc1,
+          username: _0xb1.username,
+          userId: _0xb1.uid,
+          timestamp: Date.now()
+        });
+        _0xc2("");
+      };
+
+      if (!_0xb1) return <div className="h-full flex items-center justify-center text-red-600 font-orbitron animate-pulse">AUTH VALIDATION...</div>;
+
+      return (
+        <div className="flex h-screen p-2 md:p-6 gap-6 max-w-[1600px] mx-auto overflow-hidden">
+          {/* ASIDE / MENU */}
+          <aside className="w-72 lg:w-64 panel-3d p-6 flex flex-col hidden md:flex">
+            <div className="mb-8 flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
+                <i className="fas fa-ghost text-white text-sm"></i>
+              </div>
+              <h1 className="font-orbitron font-black text-xl italic tracking-tighter">MUZZ<span className="text-red-600">SNAP</span></h1>
+            </div>
+
+            <div className="flex-1 space-y-6 overflow-y-auto custom-scroll pr-2">
+              {/* CANALES PUBLICOS */}
+              <div>
+                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Channels</p>
+                {['GENERAL', 'ESPAÑOL', 'DAO'].map(c => (
+                  <button key={c} onClick={() => _0xd0({id: c.toLowerCase(), name: c})}
+                    className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all ${_0xc9.name === c ? 'bg-red-600/10 text-red-600 border-l-2 border-red-600' : 'text-gray-500 hover:text-white'}`}>
+                    # {c}
+                  </button>
+                ))}
+              </div>
+
+              {/* BOTÓN PRIVADO DINÁMICO */}
+              {_showPrivate && (
+                <div>
+                  <p className="text-[10px] text-red-500 font-bold tracking-[0.3em] mb-4 uppercase">Secure Access</p>
+                  <a href="private.html" className="btn-private-gold w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white transition-all">
+                    <i className="fas fa-user-secret text-sm"></i>
+                    Private Archive
+                  </a>
+                </div>
+              )}
+
+              {/* ONLINE STATUS */}
+              <div>
+                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Online — {_0xb5.length}</p>
+                <div className="space-y-3">
+                  {_0xb5.map((u, i) => (
+                    <div key={i} className="flex items-center gap-3 px-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_5px_#22c55e]"></span>
+                      <span className="text-[11px] font-bold text-gray-400 truncate uppercase">{u.username}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <button onClick={() => {sessionStorage.clear(); window.location.href='login.html'}} 
+              className="mt-6 w-full py-3 text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black tracking-widest hover:bg-red-600/5 transition-all">
+              <i className="fas fa-power-off mr-2"></i>Disconnect
+            </button>
+          </aside>
+
+          {/* MAIN CHAT AREA */}
+          <main className="flex-1 panel-3d flex flex-col overflow-hidden border border-white/5 relative">
+            <header className="h-16 flex items-center justify-between px-8 bg-white/5 border-b border-white/5">
+              <h2 className="text-sm font-black tracking-[0.2em] text-red-600 uppercase italic">/ {_0xc9.name}</h2>
+              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                Node ID: <span className="text-red-500">{_0xb1.address.slice(0,6)}...</span>
+              </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-5 custom-scroll">
+              {_0xb3.map((m, i) => (
+                <div key={m.id} className={`flex flex-col ${m.userId === _0xb1.uid ? 'items-end' : 'items-start'}`}>
+                  <span className="text-[9px] font-black mb-1.5 uppercase px-2 text-gray-500">{m.username}</span>
+                  <div className={`bubble-3d shadow-xl ${m.userId === _0xb1.uid ? 'me' : 'other'}`}>
+                    {m.content}
+                  </div>
+                </div>
+              ))}
+              <div ref={_0xe1}></div>
+            </div>
+
+            {/* INPUT AREA */}
+            <div className="p-4 md:p-6 bg-black/40 border-t border-white/5">
+              <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2.5 pl-5 focus-within:border-red-600/50 transition-all shadow-inner">
+                <input 
+                  value={_0xc1} 
+                  onChange={e => _0xc2(e.target.value)} 
+                  onKeyDown={e => e.key === 'Enter' && sendMessage()}
+                  placeholder="Transmit secure message..."
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input text-red-500"
+                />
+                <button onClick={sendMessage} className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center hover:bg-red-500 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)]">
+                  <i className="fas fa-paper-plane text-white"></i>
+                </button>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
