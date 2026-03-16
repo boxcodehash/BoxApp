@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>MuzzSnap Social</title>
   <meta name="theme-color" content="#111418" />
   <style>
@@ -20,6 +20,10 @@
       --blue:#60a5fa;
       --shadow:0 18px 50px rgba(0,0,0,.35);
       --radius:22px;
+      --safe-top:env(safe-area-inset-top, 0px);
+      --safe-right:env(safe-area-inset-right, 0px);
+      --safe-bottom:env(safe-area-inset-bottom, 0px);
+      --safe-left:env(safe-area-inset-left, 0px);
     }
 
     *{box-sizing:border-box}
@@ -403,7 +407,7 @@
     .mobile-bottom{
       display:none;
       position:fixed;
-      left:12px;right:12px;bottom:12px;
+      left:calc(12px + var(--safe-left));right:calc(12px + var(--safe-right));bottom:calc(12px + var(--safe-bottom));
       z-index:30;
       background:rgba(18,23,29,.92);
       border:1px solid var(--line);
@@ -424,7 +428,7 @@
     .fab{
       display:none;
       position:fixed;
-      right:18px;bottom:86px;
+      right:calc(18px + var(--safe-right));bottom:calc(86px + var(--safe-bottom));
       width:64px;height:64px;border-radius:22px;
       border:none;color:#fff;font-size:24px;
       background:linear-gradient(145deg,#ff3d3d,#b10f0f);
@@ -442,12 +446,12 @@
       body{overflow:auto}
       .app{
         height:auto;
-        min-height:100vh;
+        min-height:100dvh;
         grid-template-columns:1fr;
-        padding:12px 12px 92px;
+        padding:calc(12px + var(--safe-top)) calc(12px + var(--safe-right)) calc(104px + var(--safe-bottom)) calc(12px + var(--safe-left));
       }
       .sidebar,.rightbar{display:none}
-      .feed-shell{min-height:calc(100vh - 104px)}
+      .feed-shell{min-height:0}
       .mobile-bottom,.fab{display:grid}
       .fab{display:block}
       .post-text,.post-media,.post-actions{margin-left:0}
