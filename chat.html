@@ -58,7 +58,6 @@
       overflow:hidden;
       transition:background .25s ease,color .25s ease;
       min-height:100dvh;
-      font-size:14px;
     }
     body.dark-theme{
       background:radial-gradient(circle at top, var(--dark-grad-1) 0%, var(--dark-grad-2) 36%, var(--dark-bg) 100%);
@@ -76,7 +75,7 @@
       height:100dvh;
       max-width:1520px;
       margin:0 auto;
-      padding:calc(14px + var(--safe-top)) calc(14px + var(--safe-right)) calc(14px + var(--safe-bottom)) calc(14px + var(--safe-left));
+      padding:calc(14px + var(--safe-top)) calc(14px + var(--safe-right)) calc(96px + var(--safe-bottom)) calc(14px + var(--safe-left));
       display:grid;
       grid-template-columns:320px minmax(0,1fr);
       gap:16px;
@@ -125,7 +124,7 @@
       box-shadow:0 0 24px rgba(255,45,45,.28);
       flex-shrink:0;
     }
-    .brand h1{margin:0;font-size:24px;font-weight:900;font-style:italic;letter-spacing:-.04em}
+    .brand h1{margin:0;font-size:28px;font-weight:900;font-style:italic;letter-spacing:-.04em}
     .brand h1 span{color:var(--red)}
 
     .topActions{display:flex;gap:8px;margin-bottom:14px}
@@ -219,7 +218,7 @@
       border-color:rgba(255,45,45,.18);
     }
     .metaText{
-      font-size:11px;line-height:1.45;
+      font-size:12px;line-height:1.5;
     }
     .dark-theme .metaText{color:var(--dark-muted)}
     .light-theme .metaText{color:var(--light-muted)}
@@ -227,7 +226,7 @@
     .onlineList{display:flex;flex-direction:column;gap:10px;overflow:auto;padding-right:4px}
     .onlineItem{display:flex;align-items:center;gap:10px;min-width:0}
     .onlineDot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(57,255,20,.5);flex-shrink:0}
-    .userName{font-weight:900;text-transform:uppercase;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .userName{font-weight:900;text-transform:uppercase;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .ryachu{color:var(--gold)}
     .itsuki{color:#00d4ff}
 
@@ -242,7 +241,7 @@
     }
     .dark-theme .pinnedBar{background:rgba(255,45,45,.07);border:1px solid rgba(255,45,45,.14)}
     .light-theme .pinnedBar{background:rgba(255,45,45,.08);border:1px solid rgba(255,45,45,.16)}
-    .pinText{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;overflow:auto;white-space:nowrap}
+    .pinText{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;overflow:auto;white-space:nowrap}
 
     .mainHead{
       padding:16px 18px;
@@ -254,8 +253,8 @@
     .light-theme .mainHead{border-color:var(--light-line)}
     .headLeft{display:flex;align-items:center;gap:12px;min-width:0}
     .menuBtn{display:none}
-    .headTitle{font-size:16px;font-weight:900;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .headSub{font-size:11px;margin-top:3px}
+    .headTitle{font-size:18px;font-weight:900;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .headSub{font-size:12px;margin-top:3px}
     .dark-theme .headSub{color:var(--dark-muted)}
     .light-theme .headSub{color:var(--light-muted)}
     .statusPill{
@@ -274,7 +273,7 @@
     .dark-theme .dayDivider::before,.dark-theme .dayDivider::after{background:var(--dark-line)}
     .light-theme .dayDivider::before,.light-theme .dayDivider::after{background:var(--light-line)}
     .dayDivider span{
-      padding:6px 12px;border-radius:999px;font-size:11px;font-weight:800;
+      padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;
     }
     .dark-theme .dayDivider span{background:rgba(255,255,255,.03);border:1px solid var(--dark-line);color:var(--dark-muted)}
     .light-theme .dayDivider span{background:rgba(255,255,255,.65);border:1px solid var(--light-line);color:var(--light-muted)}
@@ -282,12 +281,12 @@
     .msgRow{display:flex;margin-bottom:14px}
     .msgRow.me{justify-content:flex-end}
     .bubbleWrap{max-width:min(76%,620px)}
-    .msgMeta{display:flex;align-items:center;gap:8px;margin:0 4px 6px;font-size:11px;font-weight:700}
+    .msgMeta{display:flex;align-items:center;gap:8px;margin:0 4px 6px;font-size:12px;font-weight:700}
     .dark-theme .msgMeta{color:var(--dark-muted)}
     .light-theme .msgMeta{color:var(--light-muted)}
     .msgRow.me .msgMeta{justify-content:flex-end}
     .bubble{
-      padding:11px 13px;border-radius:18px;line-height:1.4;word-break:break-word;white-space:pre-wrap;border:1px solid transparent;font-size:13.5px;
+      padding:12px 14px;border-radius:18px;line-height:1.45;word-break:break-word;white-space:pre-wrap;border:1px solid transparent;font-size:14px;
       box-shadow:0 10px 24px rgba(0,0,0,.08);
     }
     .msgRow.other .bubble{border-bottom-left-radius:6px}
@@ -314,7 +313,7 @@
     .light-theme .composerBox{background:var(--light-input);border-color:var(--light-line)}
     .composerInput{
       flex:1;background:transparent;border:none;outline:none;resize:none;min-height:24px;max-height:140px;padding:8px 6px 8px 2px;line-height:1.45;
-      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:14px;-webkit-user-select:text;user-select:text;pointer-events:auto;
+      font-family:'Fira Code', monospace;font-size:16px;-webkit-user-select:text;user-select:text;pointer-events:auto;
     }
     .dark-theme .composerInput{color:#d7e5f5}
     .light-theme .composerInput{color:#102033}
@@ -330,7 +329,7 @@
     .light-theme .emojiPanel{border:1px solid var(--light-line);background:rgba(255,255,255,.78)}
     .emojiTabs{display:flex;overflow:auto;gap:8px;padding:12px}
     .emojiGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;padding:0 12px 12px;max-height:210px;overflow:auto}
-    .emojiItem{height:38px;display:grid;place-items:center;border-radius:12px;font-size:22px;cursor:pointer}
+    .emojiItem{height:40px;display:grid;place-items:center;border-radius:12px;font-size:25px;cursor:pointer}
     .emojiItem:hover{background:rgba(255,45,45,.08)}
 
     .slidePanel{
@@ -361,7 +360,7 @@
       color:#fff;
     }
     .modalHead{padding:22px 24px 16px;border-bottom:1px solid rgba(255,45,45,.18)}
-    .modalTitle{font-size:20px;font-weight:900;letter-spacing:-.02em;text-transform:uppercase}
+    .modalTitle{font-size:22px;font-weight:900;letter-spacing:-.02em;text-transform:uppercase}
     .modalKicker{font-size:11px;letter-spacing:.35em;text-transform:uppercase;font-weight:900;color:#ff6f6f;margin-bottom:6px}
     .modalBody{padding:18px 24px}
     .ruleBox{margin-top:14px;padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
@@ -370,12 +369,102 @@
     .modalBtn.secondary{background:rgba(255,255,255,.06);color:#ddd;border:1px solid rgba(255,255,255,.1)}
     .modalBtn.primary{background:linear-gradient(145deg,var(--red),var(--red-2));color:#fff}
 
+
+    .floatingBottomNav{
+      position:fixed;
+      left:max(12px, var(--safe-left));
+      right:max(12px, var(--safe-right));
+      bottom:calc(10px + var(--safe-bottom));
+      z-index:140;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:10px;
+      border-radius:24px;
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      box-shadow:0 14px 34px rgba(0,0,0,.28);
+    }
+    .dark-theme .floatingBottomNav{
+      background:rgba(8,12,18,.9);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .light-theme .floatingBottomNav{
+      background:rgba(237,246,255,.92);
+      border:1px solid rgba(120,170,230,.28);
+    }
+    .bottomNavBtn{
+      flex:1;
+      min-width:0;
+      height:46px;
+      border:none;
+      border-radius:16px;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.02em;
+      transition:.2s ease;
+    }
+    .dark-theme .bottomNavBtn{
+      background:transparent;
+      color:var(--dark-text);
+    }
+    .light-theme .bottomNavBtn{
+      background:transparent;
+      color:var(--light-text);
+    }
+    .bottomNavBtn.active{
+      background:linear-gradient(145deg,var(--red),var(--red-2));
+      color:#fff;
+      box-shadow:0 10px 22px rgba(255,45,45,.22);
+    }
+    .bottomNavBtn:hover{transform:translateY(-1px)}
+
+    .bottomAdminMini{
+      position:fixed;
+      left:max(12px, var(--safe-left));
+      bottom:calc(74px + var(--safe-bottom));
+      z-index:141;
+      display:flex;
+      gap:8px;
+      padding:8px;
+      border-radius:18px;
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      box-shadow:0 12px 26px rgba(0,0,0,.2);
+    }
+    .dark-theme .bottomAdminMini{
+      background:rgba(16,18,22,.88);
+      border:1px solid rgba(255,45,45,.16);
+    }
+    .light-theme .bottomAdminMini{
+      background:rgba(247,251,255,.95);
+      border:1px solid rgba(255,45,45,.16);
+    }
+    .miniAdminBtn{
+      min-width:42px;
+      height:42px;
+      padding:0 12px;
+      border:none;
+      border-radius:14px;
+      background:rgba(255,45,45,.1);
+      color:var(--red);
+      font-size:12px;
+      font-weight:900;
+      transition:.2s ease;
+    }
+    .miniAdminBtn:hover{
+      background:var(--red);
+      color:#fff;
+      transform:translateY(-1px);
+    }
+
     .mobileDock{display:none !important}
 
     @media (max-width: 940px){
-      .appShell{grid-template-columns:1fr;padding:10px}
+      .appShell{grid-template-columns:1fr;padding:10px 10px calc(96px + var(--safe-bottom)) 10px}
       .sidebar{
-        position:fixed;top:10px;bottom:10px;left:10px;width:min(88vw,320px);z-index:60;
+        position:fixed;top:10px;bottom:calc(96px + var(--safe-bottom));left:10px;width:min(88vw,320px);z-index:60;
         transform:translateX(-110%);transition:transform .26s ease;
         min-height:auto;
       }
@@ -386,6 +475,19 @@
       .messagesArea{padding-bottom:24px}
       .mobileDock{display:none !important}
     }
+
+    @media (min-width: 1024px){
+      .floatingBottomNav{
+        left:50%;
+        right:auto;
+        transform:translateX(-50%);
+        width:min(720px, calc(100vw - 40px));
+      }
+      .bottomAdminMini{
+        left:max(12px, calc(50% - 360px));
+      }
+    }
+
   </style>
 </head>
 <body class="dark-theme">
@@ -453,6 +555,16 @@
       const statusRefRef = useRef(null);
 
       const isAdmin = !!(currentUser && (currentUser.role === 'ryachu' || currentUser.role === 'itsuki'));
+      const currentWallet = ((currentUser && currentUser.walletAddress) || sessionStorage.getItem('muzz_wallet_address') || '').toLowerCase();
+      const BOTTOM_SUBMENU_WALLETS = [
+        // Agrega aquí wallets autorizadas para ver el submenú inferior izquierdo
+        '0x1234567890abcdef1234567890abcdef12345678'.toLowerCase(),
+        '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd'.toLowerCase()
+      ];
+      const hasBottomSubmenuPermission =
+        !!isAdmin ||
+        sessionStorage.getItem('muzz_can_bottom_submenu') === '1' ||
+        BOTTOM_SUBMENU_WALLETS.includes(currentWallet);
 
       useEffect(() => {
         document.body.className = darkMode ? 'dark-theme' : 'light-theme';
@@ -612,6 +724,10 @@
         if (!gateSection('social')) return;
         window.location.href = 'social.html';
       };
+      const goHomeNav = () => { window.location.href = 'chat.html'; };
+      const goSocialNav = () => { window.location.href = 'social.html'; };
+      const goPrivateNav = () => { window.location.href = 'private.html'; };
+      const goExitNav = () => { window.location.href = 'login.html'; };
 
       const sendMessage = () => {
         if (!messageInput.trim() || !currentUser) return;
@@ -959,6 +1075,31 @@
             <a href="private.html"><i className="fas fa-user-secret"></i></a>
             <button onClick={() => setDarkMode(v => !v)}><i className={`fas ${darkMode ? 'fa-sun' : 'fa-moon'}`}></i></button>
           </nav>
+
+
+          {hasBottomSubmenuPermission && (
+            <div className="bottomAdminMini">
+              <button className="miniAdminBtn" onClick={adminActions.enablePinMode} title="Pin">
+                <i className="fas fa-thumbtack"></i>
+              </button>
+              <button className="miniAdminBtn" onClick={adminActions.openMutePanel} title="Mute">
+                <i className="fas fa-volume-mute"></i>
+              </button>
+              <button className="miniAdminBtn" onClick={adminActions.openBanPanel} title="Ban">
+                <i className="fas fa-user-slash"></i>
+              </button>
+              <button className="miniAdminBtn" onClick={adminActions.clearChat} title="Clear">
+                <i className="fas fa-trash"></i>
+              </button>
+            </div>
+          )}
+
+          <div className="floatingBottomNav">
+            <button className="bottomNavBtn active" onClick={goHomeNav}>Home</button>
+            <button className="bottomNavBtn" onClick={goSocialNav}>Social</button>
+            <button className="bottomNavBtn" onClick={goPrivateNav}>Private</button>
+            <button className="bottomNavBtn" onClick={goExitNav}>Exit</button>
+          </div>
 
           {modalOpen && (
             <div className="modalOverlay">
