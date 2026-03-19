@@ -21,7 +21,7 @@
       --red-2:#930000;
       --green:#39ff14;
       --gold:#ffcc00;
-      --blue:#8cc4ff;
+      --cyan:#00d4ff;
       --radius:24px;
       --shadow:0 20px 45px rgba(0,0,0,.42);
 
@@ -34,6 +34,7 @@
       --dark-text:#edf2f8;
       --dark-muted:#93a1b3;
       --dark-input:#0f141a;
+      --dark-chip:rgba(255,255,255,.04);
 
       --light-bg:#dbeafe;
       --light-grad-1:#eef7ff;
@@ -44,6 +45,7 @@
       --light-text:#112035;
       --light-muted:#5a6f89;
       --light-input:#f8fbff;
+      --light-chip:rgba(255,255,255,.64);
 
       --safe-top:env(safe-area-inset-top, 0px);
       --safe-right:env(safe-area-inset-right, 0px);
@@ -73,11 +75,11 @@
 
     .appShell{
       height:100dvh;
-      max-width:1520px;
+      max-width:1660px;
       margin:0 auto;
-      padding:calc(14px + var(--safe-top)) calc(14px + var(--safe-right)) calc(96px + var(--safe-bottom)) calc(14px + var(--safe-left));
+      padding:calc(14px + var(--safe-top)) calc(14px + var(--safe-right)) calc(14px + var(--safe-bottom)) calc(14px + var(--safe-left));
       display:grid;
-      grid-template-columns:320px minmax(0,1fr);
+      grid-template-columns:320px minmax(0,1fr) 290px;
       gap:16px;
     }
 
@@ -86,6 +88,7 @@
       box-shadow:var(--shadow);
       backdrop-filter:blur(10px);
       transition:background .25s ease,border-color .25s ease,color .25s ease;
+      min-height:0;
     }
     .dark-theme .card{
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
@@ -95,6 +98,9 @@
       background:linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.72));
       border:1px solid var(--light-line);
     }
+
+    .desktopOnly{display:block}
+    .mobileOnly{display:none}
 
     .sidebar{
       padding:18px;
@@ -114,6 +120,21 @@
       display:flex;
       flex-direction:column;
     }
+    .rightRail{
+      min-height:0;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      overflow:hidden;
+    }
+    .railCard{
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      overflow:hidden;
+    }
 
     .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
     .logo{
@@ -126,13 +147,16 @@
     }
     .brand h1{margin:0;font-size:28px;font-weight:900;font-style:italic;letter-spacing:-.04em}
     .brand h1 span{color:var(--red)}
+    .brandSub{font-size:12px;margin-top:4px}
+    .dark-theme .brandSub{color:var(--dark-muted)}
+    .light-theme .brandSub{color:var(--light-muted)}
 
     .topActions{display:flex;gap:8px;margin-bottom:14px}
-    .ghostBtn,.dangerBtn,.iconBtn,.themeBtn,.adminBtn,.navBtn,.chipBtn{
+    .ghostBtn,.dangerBtn,.iconBtn,.themeBtn,.adminBtn,.navBtn,.chipBtn,.subtleBtn{
       border:none;
       transition:.2s ease;
     }
-    .ghostBtn,.themeBtn,.iconBtn,.navBtn,.chipBtn{
+    .ghostBtn,.themeBtn,.iconBtn,.navBtn,.chipBtn,.subtleBtn{
       height:44px;
       border-radius:16px;
       padding:0 14px;
@@ -142,8 +166,9 @@
     .dark-theme .themeBtn,
     .dark-theme .iconBtn,
     .dark-theme .navBtn,
-    .dark-theme .chipBtn{
-      background:rgba(255,255,255,.04);
+    .dark-theme .chipBtn,
+    .dark-theme .subtleBtn{
+      background:var(--dark-chip);
       color:var(--dark-text);
       border:1px solid var(--dark-line);
     }
@@ -151,8 +176,9 @@
     .light-theme .themeBtn,
     .light-theme .iconBtn,
     .light-theme .navBtn,
-    .light-theme .chipBtn{
-      background:rgba(255,255,255,.55);
+    .light-theme .chipBtn,
+    .light-theme .subtleBtn{
+      background:var(--light-chip);
       color:var(--light-text);
       border:1px solid var(--light-line);
     }
@@ -165,7 +191,7 @@
       font-weight:900;
       box-shadow:0 12px 24px rgba(255,45,45,.2);
     }
-    .ghostBtn:hover,.themeBtn:hover,.iconBtn:hover,.navBtn:hover,.chipBtn:hover{transform:translateY(-1px)}
+    .ghostBtn:hover,.themeBtn:hover,.iconBtn:hover,.navBtn:hover,.chipBtn:hover,.subtleBtn:hover{transform:translateY(-1px)}
     .dangerBtn:hover{transform:translateY(-1px);filter:brightness(1.04)}
 
     .sectionLabel{
@@ -190,36 +216,23 @@
     }
     .adminBtn:hover{background:rgba(255,45,45,.14)}
 
-    .modBox{
-      border-radius:18px;
-      overflow:hidden;
-      margin-top:6px;
-    }
+    .modBox{border-radius:18px;overflow:hidden;margin-top:6px}
     .dark-theme .modBox{border:1px solid rgba(255,45,45,.16);background:rgba(255,45,45,.04)}
     .light-theme .modBox{border:1px solid rgba(255,45,45,.22);background:rgba(255,45,45,.06)}
-    .modHead{
-      padding:12px 14px;
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.16em;
-      color:var(--red);
-      text-transform:uppercase;
-    }
+    .modHead{padding:12px 14px;font-size:11px;font-weight:900;letter-spacing:.16em;color:var(--red);text-transform:uppercase}
     .modInner{padding:0 10px 10px;display:flex;flex-direction:column;gap:8px}
 
     .listWrap{display:flex;flex-direction:column;gap:8px}
     .navBtn{
-      width:100%;text-align:left;display:flex;align-items:center;gap:10px;
-      justify-content:flex-start;
+      width:100%;text-align:left;display:flex;align-items:center;gap:10px;justify-content:flex-start;
     }
     .navBtn.active{
       background:rgba(255,45,45,.08);
       color:var(--red);
       border-color:rgba(255,45,45,.18);
+      box-shadow:0 8px 20px rgba(255,45,45,.08);
     }
-    .metaText{
-      font-size:12px;line-height:1.5;
-    }
+    .metaText{font-size:12px;line-height:1.5}
     .dark-theme .metaText{color:var(--dark-muted)}
     .light-theme .metaText{color:var(--light-muted)}
 
@@ -228,9 +241,29 @@
     .onlineDot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(57,255,20,.5);flex-shrink:0}
     .userName{font-weight:900;text-transform:uppercase;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .ryachu{color:var(--gold)}
-    .itsuki{color:#00d4ff}
-
+    .itsuki{color:var(--cyan)}
     .disconnectWrap{margin-top:auto;padding-top:14px}
+
+    .railTitle{font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--red)}
+    .profileCard{display:flex;align-items:center;gap:12px}
+    .profileAvatar{
+      width:48px;height:48px;border-radius:16px;display:grid;place-items:center;flex-shrink:0;
+      background:linear-gradient(145deg,var(--red),#670000);color:#fff;box-shadow:0 10px 22px rgba(255,45,45,.18)
+    }
+    .profileName{font-size:15px;font-weight:900;letter-spacing:-.02em}
+    .profileMeta{font-size:12px}
+    .dark-theme .profileMeta{color:var(--dark-muted)}
+    .light-theme .profileMeta{color:var(--light-muted)}
+    .miniStatGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .miniStat{
+      padding:12px;border-radius:18px;border:1px solid transparent;
+    }
+    .dark-theme .miniStat{background:rgba(255,255,255,.03);border-color:var(--dark-line)}
+    .light-theme .miniStat{background:rgba(255,255,255,.65);border-color:var(--light-line)}
+    .miniStatValue{font-size:18px;font-weight:900;letter-spacing:-.03em}
+    .miniStatLabel{font-size:11px;text-transform:uppercase;letter-spacing:.16em;margin-top:4px}
+    .dark-theme .miniStatLabel{color:var(--dark-muted)}
+    .light-theme .miniStatLabel{color:var(--light-muted)}
 
     .pinnedBar{
       margin:14px 14px 0;
@@ -257,30 +290,26 @@
     .headSub{font-size:12px;margin-top:3px}
     .dark-theme .headSub{color:var(--dark-muted)}
     .light-theme .headSub{color:var(--light-muted)}
-    .statusPill{
-      height:42px;min-width:42px;border-radius:14px;display:grid;place-items:center;
-      background:linear-gradient(145deg,var(--red),#650000);color:#fff;box-shadow:0 0 18px rgba(255,45,45,.2);
-    }
+    .statusPill{height:42px;min-width:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,var(--red),#650000);color:#fff;box-shadow:0 0 18px rgba(255,45,45,.2)}
 
     .messagesArea{
       flex:1;
       overflow:auto;
       padding:22px 18px calc(18px + var(--safe-bottom));
       background:linear-gradient(180deg, rgba(255,255,255,.008), rgba(255,255,255,.02));
+      scrollbar-gutter:stable;
     }
     .dayDivider{display:flex;align-items:center;gap:10px;margin:14px 0 18px}
     .dayDivider::before,.dayDivider::after{content:'';height:1px;flex:1}
     .dark-theme .dayDivider::before,.dark-theme .dayDivider::after{background:var(--dark-line)}
     .light-theme .dayDivider::before,.light-theme .dayDivider::after{background:var(--light-line)}
-    .dayDivider span{
-      padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;
-    }
+    .dayDivider span{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800}
     .dark-theme .dayDivider span{background:rgba(255,255,255,.03);border:1px solid var(--dark-line);color:var(--dark-muted)}
     .light-theme .dayDivider span{background:rgba(255,255,255,.65);border:1px solid var(--light-line);color:var(--light-muted)}
 
     .msgRow{display:flex;margin-bottom:14px}
     .msgRow.me{justify-content:flex-end}
-    .bubbleWrap{max-width:min(76%,620px)}
+    .bubbleWrap{max-width:min(76%,680px)}
     .msgMeta{display:flex;align-items:center;gap:8px;margin:0 4px 6px;font-size:12px;font-weight:700}
     .dark-theme .msgMeta{color:var(--dark-muted)}
     .light-theme .msgMeta{color:var(--light-muted)}
@@ -295,6 +324,7 @@
     .msgRow.me .bubble{background:linear-gradient(145deg,var(--red),#ad0000);color:#fff;border-bottom-right-radius:6px;box-shadow:0 12px 24px rgba(255,45,45,.18)}
     .mutedBubble{opacity:.55}
 
+    .composerWrap{flex-shrink:0;position:relative}
     .composer{
       padding:12px 14px;
       position:relative;
@@ -313,7 +343,7 @@
     .light-theme .composerBox{background:var(--light-input);border-color:var(--light-line)}
     .composerInput{
       flex:1;background:transparent;border:none;outline:none;resize:none;min-height:24px;max-height:140px;padding:8px 6px 8px 2px;line-height:1.45;
-      font-family:'Fira Code', monospace;font-size:16px;-webkit-user-select:text;user-select:text;pointer-events:auto;
+      font-family:'Fira Code', monospace;font-size:15px;-webkit-user-select:text;user-select:text;pointer-events:auto;
     }
     .dark-theme .composerInput{color:#d7e5f5}
     .light-theme .composerInput{color:#102033}
@@ -332,33 +362,17 @@
     .emojiItem{height:40px;display:grid;place-items:center;border-radius:12px;font-size:25px;cursor:pointer}
     .emojiItem:hover{background:rgba(255,45,45,.08)}
 
-    .slidePanel{
-      margin:0 16px 12px;
-      border-radius:22px;
-      padding:12px;
-      overflow:auto;
-      max-height:220px;
-      flex-shrink:0;
-    }
+    .slidePanel{margin:0 16px 12px;border-radius:22px;padding:12px;overflow:auto;max-height:220px;flex-shrink:0}
     .dark-theme .slidePanel{border:1px solid var(--dark-line);background:rgba(12,16,20,.92)}
     .light-theme .slidePanel{border:1px solid var(--light-line);background:rgba(255,255,255,.78)}
     .selectList{display:flex;flex-direction:column;gap:8px}
-    .selectBtn{
-      width:100%;text-align:left;padding:12px 14px;border-radius:16px;border:1px solid transparent;background:transparent;font-weight:800;
-    }
+    .selectBtn{width:100%;text-align:left;padding:12px 14px;border-radius:16px;border:1px solid transparent;background:transparent;font-weight:800}
     .dark-theme .selectBtn{color:var(--dark-text)}
     .light-theme .selectBtn{color:var(--light-text)}
     .selectBtn:hover{background:rgba(255,45,45,.08);border-color:rgba(255,45,45,.16)}
 
-    .modalOverlay{
-      position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:16px;
-      background:rgba(0,0,0,.8);backdrop-filter:blur(8px);
-    }
-    .modalCard{
-      width:min(100%, 460px);border-radius:28px;overflow:hidden;
-      background:#111;border:1px solid rgba(255,45,45,.25);box-shadow:0 0 40px rgba(255,0,0,.14);
-      color:#fff;
-    }
+    .modalOverlay{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.8);backdrop-filter:blur(8px)}
+    .modalCard{width:min(100%, 460px);border-radius:28px;overflow:hidden;background:#111;border:1px solid rgba(255,45,45,.25);box-shadow:0 0 40px rgba(255,0,0,.14);color:#fff}
     .modalHead{padding:22px 24px 16px;border-bottom:1px solid rgba(255,45,45,.18)}
     .modalTitle{font-size:22px;font-weight:900;letter-spacing:-.02em;text-transform:uppercase}
     .modalKicker{font-size:11px;letter-spacing:.35em;text-transform:uppercase;font-weight:900;color:#ff6f6f;margin-bottom:6px}
@@ -369,125 +383,107 @@
     .modalBtn.secondary{background:rgba(255,255,255,.06);color:#ddd;border:1px solid rgba(255,255,255,.1)}
     .modalBtn.primary{background:linear-gradient(145deg,var(--red),var(--red-2));color:#fff}
 
+    .mobileDock,.mobileAdminDock{display:none}
 
-    .floatingBottomNav{
-      position:fixed;
-      left:max(12px, var(--safe-left));
-      right:max(12px, var(--safe-right));
-      bottom:calc(10px + var(--safe-bottom));
-      z-index:140;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      padding:10px;
-      border-radius:24px;
-      backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
-      box-shadow:0 14px 34px rgba(0,0,0,.28);
-    }
-    .dark-theme .floatingBottomNav{
-      background:rgba(8,12,18,.9);
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .light-theme .floatingBottomNav{
-      background:rgba(237,246,255,.92);
-      border:1px solid rgba(120,170,230,.28);
-    }
-    .bottomNavBtn{
-      flex:1;
-      min-width:0;
-      height:46px;
-      border:none;
-      border-radius:16px;
-      font-size:13px;
-      font-weight:900;
-      letter-spacing:.02em;
-      transition:.2s ease;
-    }
-    .dark-theme .bottomNavBtn{
-      background:transparent;
-      color:var(--dark-text);
-    }
-    .light-theme .bottomNavBtn{
-      background:transparent;
-      color:var(--light-text);
-    }
-    .bottomNavBtn.active{
-      background:linear-gradient(145deg,var(--red),var(--red-2));
-      color:#fff;
-      box-shadow:0 10px 22px rgba(255,45,45,.22);
-    }
-    .bottomNavBtn:hover{transform:translateY(-1px)}
+    .mobileSheetHeader{display:none}
 
-    .bottomAdminMini{
-      position:fixed;
-      left:max(12px, var(--safe-left));
-      bottom:calc(74px + var(--safe-bottom));
-      z-index:141;
-      display:flex;
-      gap:8px;
-      padding:8px;
-      border-radius:18px;
-      backdrop-filter:blur(14px);
-      -webkit-backdrop-filter:blur(14px);
-      box-shadow:0 12px 26px rgba(0,0,0,.2);
+    @media (max-width: 1180px){
+      .appShell{grid-template-columns:290px minmax(0,1fr)}
+      .rightRail{display:none}
     }
-    .dark-theme .bottomAdminMini{
-      background:rgba(16,18,22,.88);
-      border:1px solid rgba(255,45,45,.16);
-    }
-    .light-theme .bottomAdminMini{
-      background:rgba(247,251,255,.95);
-      border:1px solid rgba(255,45,45,.16);
-    }
-    .miniAdminBtn{
-      min-width:42px;
-      height:42px;
-      padding:0 12px;
-      border:none;
-      border-radius:14px;
-      background:rgba(255,45,45,.1);
-      color:var(--red);
-      font-size:12px;
-      font-weight:900;
-      transition:.2s ease;
-    }
-    .miniAdminBtn:hover{
-      background:var(--red);
-      color:#fff;
-      transform:translateY(-1px);
-    }
-
-    .mobileDock{display:none !important}
 
     @media (max-width: 940px){
-      .appShell{grid-template-columns:1fr;padding:10px 10px calc(96px + var(--safe-bottom)) 10px}
+      .desktopOnly{display:none}
+      .mobileOnly{display:block}
+      .appShell{grid-template-columns:1fr;padding:0;height:100dvh;max-width:none;gap:0}
       .sidebar{
-        position:fixed;top:10px;bottom:calc(96px + var(--safe-bottom));left:10px;width:min(88vw,320px);z-index:60;
-        transform:translateX(-110%);transition:transform .26s ease;
-        min-height:auto;
+        position:fixed;top:12px;bottom:12px;left:12px;width:min(88vw,336px);z-index:90;
+        transform:translateX(-110%);transition:transform .26s ease;min-height:auto;border-radius:28px;
       }
       .sidebar.open{transform:translateX(0)}
-      .mainPane{min-height:calc(100vh - 20px)}
+      .mainPane{
+        min-height:100dvh;
+        border-radius:0;
+        border-left:none;border-right:none;border-top:none;
+        box-shadow:none;
+      }
+      .dark-theme .mainPane{background:linear-gradient(180deg, rgba(15,18,24,.92), rgba(10,14,18,.98))}
+      .light-theme .mainPane{background:linear-gradient(180deg, rgba(237,246,255,.96), rgba(231,243,255,.98))}
+
+      .mobileSheetHeader{
+        display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid transparent
+      }
+      .dark-theme .mobileSheetHeader{border-color:var(--dark-line)}
+      .light-theme .mobileSheetHeader{border-color:var(--light-line)}
+
+      .mainHead{
+        position:sticky;top:0;z-index:5;
+        padding:calc(10px + var(--safe-top)) 14px 12px;
+        backdrop-filter:blur(16px);
+      }
+      .dark-theme .mainHead{background:rgba(11,15,20,.86)}
+      .light-theme .mainHead{background:rgba(237,246,255,.9)}
       .menuBtn{display:inline-grid;place-items:center}
-      .bubbleWrap{max-width:86%}
-      .messagesArea{padding-bottom:24px}
-      .mobileDock{display:none !important}
-    }
+      .statusPill{height:38px;min-width:38px;border-radius:12px}
+      .headTitle{font-size:16px}
+      .headSub{font-size:11px}
 
-    @media (min-width: 1024px){
-      .floatingBottomNav{
-        left:50%;
-        right:auto;
-        transform:translateX(-50%);
-        width:min(720px, calc(100vw - 40px));
-      }
-      .bottomAdminMini{
-        left:max(12px, calc(50% - 360px));
-      }
-    }
+      .pinnedBar{margin:10px 12px 0;padding:10px 12px;border-radius:18px}
+      .pinText{font-size:11px}
 
+      .messagesArea{
+        padding:14px 12px calc(10px + var(--safe-bottom) + 10px);
+        background:transparent;
+      }
+      .bubbleWrap{max-width:90%}
+      .msgRow{margin-bottom:12px}
+      .msgMeta{font-size:11px;margin-bottom:5px}
+      .bubble{font-size:13px;padding:11px 12px;border-radius:16px}
+      .dayDivider span{font-size:11px}
+
+      .emojiPanel,.slidePanel{margin:0 10px 10px;border-radius:18px}
+      .emojiTabs{padding:10px}
+      .emojiGrid{padding:0 10px 10px;grid-template-columns:repeat(6,1fr);gap:8px;max-height:160px}
+      .emojiItem{height:36px;font-size:22px}
+
+      .composer{
+        padding:10px 10px calc(10px + var(--safe-bottom) + 72px);
+        background:transparent;
+        border-top:none;
+      }
+      .composer.withKeyboard{padding-bottom:calc(10px + var(--safe-bottom) + 8px)}
+      .composerBox{padding:8px 9px;border-radius:20px;box-shadow:0 10px 24px rgba(0,0,0,.12)}
+      .composerInput{font-size:14px;min-height:22px;padding:7px 6px 7px 2px}
+      .dangerBtn,.iconBtn,.themeBtn,.ghostBtn,.subtleBtn{height:42px}
+
+      .mobileDock{
+        display:flex;position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe-bottom));z-index:40;
+        align-items:center;justify-content:space-between;gap:8px;padding:10px;border-radius:22px;
+        backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+        transition:transform .22s ease,opacity .22s ease;
+      }
+      .dark-theme .mobileDock{background:rgba(10,13,18,.9);border:1px solid rgba(255,255,255,.08);box-shadow:0 10px 34px rgba(0,0,0,.38)}
+      .light-theme .mobileDock{background:rgba(247,251,255,.94);border:1px solid rgba(120,170,230,.26);box-shadow:0 10px 34px rgba(70,110,160,.16)}
+      .mobileDock.hidden{opacity:0;transform:translateY(18px);pointer-events:none}
+      .dockBtn{
+        flex:1;border:none;height:46px;border-radius:16px;font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+      }
+      .dark-theme .dockBtn{background:transparent;color:var(--dark-text)}
+      .light-theme .dockBtn{background:transparent;color:var(--light-text)}
+      .dockBtn.active{background:linear-gradient(145deg,var(--red),#ac0000);color:#fff;box-shadow:0 0 18px rgba(255,45,45,.2)}
+      .dockBtn i{font-size:13px}
+
+      .mobileAdminDock{
+        display:flex;position:fixed;left:12px;bottom:calc(78px + var(--safe-bottom));z-index:41;gap:8px;padding:8px;border-radius:18px;
+        backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+        transition:transform .22s ease,opacity .22s ease;
+      }
+      .dark-theme .mobileAdminDock{background:rgba(16,18,22,.88);border:1px solid rgba(255,0,0,.16);box-shadow:0 8px 24px rgba(0,0,0,.32)}
+      .light-theme .mobileAdminDock{background:rgba(247,251,255,.95);border:1px solid rgba(255,0,0,.16);box-shadow:0 8px 24px rgba(70,110,160,.15)}
+      .mobileAdminDock.hidden{opacity:0;transform:translateY(18px);pointer-events:none}
+      .mobileAdminBtn{min-width:42px;height:42px;border:none;border-radius:14px;background:rgba(255,45,45,.1);color:var(--red);font-size:12px;font-weight:900}
+      .mobileAdminBtn:hover{background:var(--red);color:#fff}
+    }
   </style>
 </head>
 <body class="dark-theme">
@@ -529,6 +525,11 @@
       { id:'dao', name:'DAO', icon:'fa-landmark' }
     ];
 
+    const BOTTOM_SUBMENU_WALLETS = [
+      // Add approved wallets here
+      // '0x1234...'.toLowerCase()
+    ];
+
     function App(){
       const [currentUser, setCurrentUser] = useState(null);
       const [messages, setMessages] = useState([]);
@@ -548,27 +549,52 @@
       const [modalData, setModalData] = useState({
         title:'', message:'', confirmText:'OK', cancelText:'', onConfirm:null
       });
+      const [inputFocused, setInputFocused] = useState(false);
+      const [keyboardOpen, setKeyboardOpen] = useState(false);
+      const [isMobile, setIsMobile] = useState(window.innerWidth <= 940);
 
       const bottomRef = useRef(null);
       const textareaRef = useRef(null);
       const authUnsubRef = useRef(null);
-      const statusRefRef = useRef(null);
+      const layoutViewportHeightRef = useRef(window.innerHeight);
 
       const isAdmin = !!(currentUser && (currentUser.role === 'ryachu' || currentUser.role === 'itsuki'));
-      const currentWallet = ((currentUser && currentUser.walletAddress) || sessionStorage.getItem('muzz_wallet_address') || '').toLowerCase();
-      const BOTTOM_SUBMENU_WALLETS = [
-        // Agrega aquí wallets autorizadas para ver el submenú inferior izquierdo
-        '0x1234567890abcdef1234567890abcdef12345678'.toLowerCase(),
-        '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd'.toLowerCase()
-      ];
-      const hasBottomSubmenuPermission =
-        !!isAdmin ||
-        sessionStorage.getItem('muzz_can_bottom_submenu') === '1' ||
-        BOTTOM_SUBMENU_WALLETS.includes(currentWallet);
+      const exitUrl = sessionStorage.getItem('muzz_exit_url') || 'index.html';
+      const currentWallet = ((sessionStorage.getItem('muzz_wallet_address') || '') + '').toLowerCase();
+      const hasBottomSubmenuPermission = isAdmin || sessionStorage.getItem('muzz_can_bottom_submenu') === '1' || BOTTOM_SUBMENU_WALLETS.includes(currentWallet);
+      const hideMobileDock = !isMobile ? true : (inputFocused || keyboardOpen);
 
       useEffect(() => {
         document.body.className = darkMode ? 'dark-theme' : 'light-theme';
       }, [darkMode]);
+
+      useEffect(() => {
+        const onResize = () => {
+          setIsMobile(window.innerWidth <= 940);
+          layoutViewportHeightRef.current = Math.max(layoutViewportHeightRef.current, window.innerHeight);
+        };
+        onResize();
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+      }, []);
+
+      useEffect(() => {
+        const vv = window.visualViewport;
+        if (!vv) return;
+
+        const updateKeyboardState = () => {
+          const heightDiff = window.innerHeight - vv.height;
+          setKeyboardOpen(heightDiff > 120);
+        };
+
+        updateKeyboardState();
+        vv.addEventListener('resize', updateKeyboardState);
+        vv.addEventListener('scroll', updateKeyboardState);
+        return () => {
+          vv.removeEventListener('resize', updateKeyboardState);
+          vv.removeEventListener('scroll', updateKeyboardState);
+        };
+      }, []);
 
       useEffect(() => {
         const walletAddress = sessionStorage.getItem('muzz_wallet_address');
@@ -602,7 +628,6 @@
           setCurrentUser({ uid, username, role, isWallet, walletAddress });
 
           const statusRef = db.ref(`status/${uid}`);
-          statusRefRef.current = statusRef;
           statusRef.onDisconnect().remove();
           statusRef.set({ username, role, uid, wallet: isWallet ? walletAddress : null });
 
@@ -716,6 +741,7 @@
         return false;
       };
 
+      const goHome = () => window.location.href = 'chat.html';
       const goPrivate = () => {
         if (!gateSection('private')) return;
         window.location.href = 'private.html';
@@ -724,10 +750,10 @@
         if (!gateSection('social')) return;
         window.location.href = 'social.html';
       };
-      const goHomeNav = () => { window.location.href = 'chat.html'; };
-      const goSocialNav = () => { window.location.href = 'social.html'; };
-      const goPrivateNav = () => { window.location.href = 'private.html'; };
-      const goExitNav = () => { window.location.href = 'login.html'; };
+      const goExit = () => {
+        sessionStorage.clear();
+        window.location.href = exitUrl;
+      };
 
       const sendMessage = () => {
         if (!messageInput.trim() || !currentUser) return;
@@ -768,17 +794,20 @@
           setEmojiOpen(false);
           setBanPanelOpen(false);
           setMutePanelOpen(false);
+          setSidebarOpen(false);
         },
         removePin: () => db.ref('settings/pinned').remove(),
         openBanPanel: () => {
           setBanPanelOpen(v => !v);
           setMutePanelOpen(false);
           setEmojiOpen(false);
+          if (isMobile) setSidebarOpen(false);
         },
         openMutePanel: () => {
           setMutePanelOpen(v => !v);
           setBanPanelOpen(false);
           setEmojiOpen(false);
+          if (isMobile) setSidebarOpen(false);
         },
         banUser: (uid, username) => {
           if (confirm(`¿Banear permanentemente a ${username}?`)) {
@@ -813,6 +842,7 @@
       };
 
       const isMuted = currentUser && mutedMap[currentUser.uid] && mutedMap[currentUser.uid] > Date.now();
+      const currentRoleLabel = currentUser ? (currentUser.role === 'guest' ? 'Guest session' : currentUser.role === 'user' ? 'Wallet connected' : 'Admin access') : '';
 
       if (!currentUser) {
         return <div style={{display:'grid',placeItems:'center',height:'100%',color:'var(--red)',fontWeight:900,letterSpacing:'.2em'}}>CONNECTING...</div>;
@@ -822,21 +852,27 @@
         <>
           <div className="appShell">
             <aside className={`sidebar card ${sidebarOpen ? 'open' : ''}`}>
-              <div className="brand">
-                <div className="logo"><i className="fas fa-comments"></i></div>
-                <h1>MUZZ<span>SNAP</span></h1>
+              <div className="mobileSheetHeader mobileOnly">
+                <div style={{fontWeight:900, letterSpacing:'-.02em'}}>Menu</div>
+                <button className="iconBtn" onClick={() => setSidebarOpen(false)}><i className="fas fa-times"></i></button>
               </div>
 
-              <div className="topActions">
+              <div className="brand">
+                <div className="logo"><i className="fas fa-comments"></i></div>
+                <div>
+                  <h1>MUZZ<span>SNAP</span></h1>
+                  <div className="brandSub">Terminal social interface</div>
+                </div>
+              </div>
+
+              <div className="topActions desktopOnly">
                 <button className="themeBtn" title="Toggle theme" onClick={() => setDarkMode(v => !v)}>
                   <i className={`fas ${darkMode ? 'fa-sun' : 'fa-moon'}`}></i>
                 </button>
                 <button className="ghostBtn" onClick={() => window.location.href='index.html'}>
                   <i className="fas fa-arrow-left" style={{marginRight:8}}></i>Back
                 </button>
-                <button className="dangerBtn" onClick={() => { sessionStorage.clear(); window.location.href='index.html'; }}>
-                  Exit
-                </button>
+                <button className="dangerBtn" onClick={goExit}>Exit</button>
               </div>
 
               {isAdmin && (
@@ -872,6 +908,10 @@
 
               <div className="sectionLabel">Sections</div>
               <div className="listWrap">
+                <button className="navBtn" onClick={() => { goHome(); setSidebarOpen(false); }}>
+                  <i className="fas fa-house" style={{color:'var(--red)'}}></i>
+                  <span>Home</span>
+                </button>
                 <button className="navBtn" onClick={() => { goPrivate(); setSidebarOpen(false); }}>
                   <i className="fas fa-user-secret" style={{color:'var(--red)'}}></i>
                   <span>Private</span>
@@ -899,8 +939,14 @@
                 ))}
               </div>
 
-              <div className="disconnectWrap">
-                <button className="dangerBtn" style={{width:'100%'}} onClick={() => { sessionStorage.clear(); window.location.href='index.html'; }}>
+              <div className="disconnectWrap mobileOnly">
+                <button className="dangerBtn" style={{width:'100%'}} onClick={goExit}>
+                  <i className="fas fa-power-off" style={{marginRight:8}}></i>Disconnect
+                </button>
+              </div>
+
+              <div className="disconnectWrap desktopOnly">
+                <button className="dangerBtn" style={{width:'100%'}} onClick={goExit}>
                   <i className="fas fa-power-off" style={{marginRight:8}}></i>Disconnect
                 </button>
               </div>
@@ -931,10 +977,13 @@
                   </div>
                 </div>
                 <div style={{display:'flex',gap:8}}>
-                  <button className="iconBtn" onClick={() => setDarkMode(v => !v)} title="Theme">
+                  <button className="iconBtn desktopOnly" onClick={() => setDarkMode(v => !v)} title="Theme">
                     <i className={`fas ${darkMode ? 'fa-sun' : 'fa-moon'}`}></i>
                   </button>
-                  <button className="iconBtn" onClick={() => window.location.href='social.html'} title="Social">
+                  <button className="iconBtn mobileOnly" onClick={() => setDarkMode(v => !v)} title="Theme">
+                    <i className={`fas ${darkMode ? 'fa-sun' : 'fa-moon'}`}></i>
+                  </button>
+                  <button className="iconBtn desktopOnly" onClick={goSocial} title="Social">
                     <i className="fas fa-globe"></i>
                   </button>
                 </div>
@@ -1026,80 +1075,109 @@
                 <div ref={bottomRef}></div>
               </section>
 
-              <section className="composer">
-                <div className="composerBox">
-                  <button
-                    className="iconBtn"
-                    onClick={() => {
-                      setEmojiOpen(v => !v);
-                      setBanPanelOpen(false);
-                      setMutePanelOpen(false);
-                    }}
-                  >
-                    <i className="far fa-laugh-beam"></i>
+              <div className="composerWrap">
+                <section className={`composer ${hideMobileDock ? 'withKeyboard' : ''}`}>
+                  <div className="composerBox">
+                    <button
+                      className="iconBtn"
+                      onClick={() => {
+                        setEmojiOpen(v => !v);
+                        setBanPanelOpen(false);
+                        setMutePanelOpen(false);
+                      }}
+                    >
+                      <i className="far fa-laugh-beam"></i>
+                    </button>
+                    <textarea
+                      ref={textareaRef}
+                      className="composerInput"
+                      rows="1"
+                      value={messageInput}
+                      disabled={isMuted}
+                      placeholder={pinMode ? 'Escribe el mensaje a fijar...' : isMuted ? 'Estás silenciado...' : 'Transmit message...'}
+                      onChange={(e) => setMessageInput(e.target.value)}
+                      onFocus={() => setInputFocused(true)}
+                      onBlur={() => setInputFocused(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage();
+                        }
+                      }}
+                    />
+                  </div>
+                  <button className="dangerBtn" onClick={sendMessage}>
+                    <i className={`fas ${pinMode ? 'fa-thumbtack' : 'fa-paper-plane'}`}></i>
                   </button>
-                  <textarea
-                    ref={textareaRef}
-                    className="composerInput"
-                    rows="1"
-                    value={messageInput}
-                    disabled={isMuted}
-                    placeholder={pinMode ? 'Escribe el mensaje a fijar...' : isMuted ? 'Estás silenciado...' : 'Transmit message...'}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                  />
-                </div>
-                <button className="dangerBtn" onClick={sendMessage}>
-                  <i className={`fas ${pinMode ? 'fa-thumbtack' : 'fa-paper-plane'}`}></i>
-                </button>
-              </section>
+                </section>
+              </div>
             </main>
+
+            <aside className="rightRail desktopOnly">
+              <div className="railCard card">
+                <div className="railTitle">Session</div>
+                <div className="profileCard">
+                  <div className="profileAvatar"><i className="fas fa-user-astronaut"></i></div>
+                  <div style={{minWidth:0}}>
+                    <div className="profileName">{currentUser.username}</div>
+                    <div className="profileMeta">{currentRoleLabel}</div>
+                  </div>
+                </div>
+                <div className="miniStatGrid">
+                  <div className="miniStat">
+                    <div className="miniStatValue">{onlineCount}</div>
+                    <div className="miniStatLabel">Online</div>
+                  </div>
+                  <div className="miniStat">
+                    <div className="miniStatValue">{messages.length}</div>
+                    <div className="miniStatLabel">Loaded</div>
+                  </div>
+                </div>
+                <button className="subtleBtn" onClick={goPrivate}><i className="fas fa-user-secret" style={{marginRight:8}}></i>Private</button>
+                <button className="subtleBtn" onClick={goSocial}><i className="fas fa-globe" style={{marginRight:8}}></i>Social</button>
+              </div>
+
+              <div className="railCard card" style={{flex:1}}>
+                <div className="railTitle">Live Online</div>
+                <div className="onlineList">
+                  {onlineUsers.map((user, idx) => (
+                    <div className="onlineItem" key={(user.uid || '') + idx}>
+                      <span className="onlineDot"></span>
+                      <div style={{minWidth:0}}>
+                        <div className={`userName ${user.role === 'ryachu' ? 'ryachu' : user.role === 'itsuki' ? 'itsuki' : ''}`}>{user.username}</div>
+                        <div className="profileMeta">{user.role === 'guest' ? 'Guest' : user.role === 'user' ? 'Wallet' : 'Admin'}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </aside>
           </div>
 
-          {sidebarOpen && (
+          {sidebarOpen && isMobile && (
             <div
               onClick={() => setSidebarOpen(false)}
-              style={{position:'fixed', inset:0, background:'rgba(0,0,0,.72)', zIndex:50, backdropFilter:'blur(4px)'}}
+              style={{position:'fixed', inset:0, background:'rgba(0,0,0,.72)', zIndex:80, backdropFilter:'blur(4px)'}}
             ></div>
           )}
 
-          <nav className="mobileDock">
-            <button onClick={() => setSidebarOpen(true)} className="active"><i className="fas fa-bars"></i></button>
-            <a href="social.html"><i className="fas fa-globe"></i></a>
-            <button onClick={() => setEmojiOpen(v => !v)}><i className="far fa-laugh-beam"></i></button>
-            <a href="private.html"><i className="fas fa-user-secret"></i></a>
-            <button onClick={() => setDarkMode(v => !v)}><i className={`fas ${darkMode ? 'fa-sun' : 'fa-moon'}`}></i></button>
-          </nav>
-
-
-          {hasBottomSubmenuPermission && (
-            <div className="bottomAdminMini">
-              <button className="miniAdminBtn" onClick={adminActions.enablePinMode} title="Pin">
-                <i className="fas fa-thumbtack"></i>
-              </button>
-              <button className="miniAdminBtn" onClick={adminActions.openMutePanel} title="Mute">
-                <i className="fas fa-volume-mute"></i>
-              </button>
-              <button className="miniAdminBtn" onClick={adminActions.openBanPanel} title="Ban">
-                <i className="fas fa-user-slash"></i>
-              </button>
-              <button className="miniAdminBtn" onClick={adminActions.clearChat} title="Clear">
-                <i className="fas fa-trash"></i>
-              </button>
+          {isMobile && hasBottomSubmenuPermission && (
+            <div className={`mobileAdminDock ${hideMobileDock ? 'hidden' : ''}`}>
+              <button onClick={adminActions.enablePinMode} className="mobileAdminBtn" title="Pin"><i className="fas fa-thumbtack"></i></button>
+              <button onClick={adminActions.openMutePanel} className="mobileAdminBtn" title="Mute"><i className="fas fa-volume-mute"></i></button>
+              <button onClick={adminActions.openBanPanel} className="mobileAdminBtn" title="Ban"><i className="fas fa-user-slash"></i></button>
+              <button onClick={adminActions.clearChat} className="mobileAdminBtn" title="Clear"><i className="fas fa-trash"></i></button>
             </div>
           )}
 
-          <div className="floatingBottomNav">
-            <button className="bottomNavBtn active" onClick={goHomeNav}>Home</button>
-            <button className="bottomNavBtn" onClick={goSocialNav}>Social</button>
-            <button className="bottomNavBtn" onClick={goPrivateNav}>Private</button>
-            <button className="bottomNavBtn" onClick={goExitNav}>Exit</button>
-          </div>
+          {isMobile && (
+            <nav className={`mobileDock ${hideMobileDock ? 'hidden' : ''}`}>
+              <button className="dockBtn active" onClick={goHome}><i className="fas fa-house"></i><span>Home</span></button>
+              <button className="dockBtn" onClick={goSocial}><i className="fas fa-globe"></i><span>Social</span></button>
+              <button className="dockBtn" onClick={goPrivate}><i className="fas fa-user-secret"></i><span>Private</span></button>
+              <button className="dockBtn" onClick={goExit}><i className="fas fa-right-from-bracket"></i><span>Exit</span></button>
+            </nav>
+          )}
 
           {modalOpen && (
             <div className="modalOverlay">
