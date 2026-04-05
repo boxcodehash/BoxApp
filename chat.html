@@ -3,333 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MuzzSnap - Terminal Edition + Galaxy</title>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <title>MuzzSnap - Terminal Edition Secure</title>
+  <script>
+    window.__MUZZ_APPCHECK_KEY__ = window.__MUZZ_APPCHECK_KEY__ || 'RECAPTCHA_SITE_KEY';
+    if (window.top !== window.self) {
+      window.top.location.replace(window.self.location.href);
+    }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap');
-
-    :root {
-      --muzz-red: #ff0000;
-      --ryachu-gold: #ffcc00;
-      --itsuki-blue: #00d4ff;
-      --panel-dark: #0c0c0c;
-      --panel-light: #ffffff;
-      --glass-red: rgba(255, 0, 0, 0.08);
-    }
-
-    html, body {
-      height: 100%;
-      overflow: hidden;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      transition: background .25s ease, color .25s ease;
-    }
-
-    body.dark-theme {
-      background: #050505;
-      color: white;
-    }
-
-    body.light-theme {
-      background: #f0f2f5;
-      color: #1a1a1a;
-    }
-
-    .panel-3d {
-      border-radius: 24px;
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .dark-theme .panel-3d {
-      background: var(--panel-dark);
-      border: 1px solid rgba(255,0,0,0.15);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    }
-
-    .light-theme .panel-3d {
-      background: var(--panel-light);
-      border: 1px solid #e0e0e0;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    }
-
-    .bubble-3d {
-      padding: 12px 16px;
-      border-radius: 20px;
-      font-size: 14px;
-      max-width: 85%;
-      line-height: 1.4;
-      position: relative;
-      word-break: break-word;
-    }
-
-    .bubble-3d.me {
-      background: linear-gradient(145deg, #ff0000, #b30000);
-      color: white;
-      align-self: flex-end;
-      border-bottom-right-radius: 4px;
-    }
-
-    .dark-theme .bubble-3d.other {
-      background: #1a1a1a;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .light-theme .bubble-3d.other {
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
-      color: black;
-    }
-
-    .bubble-3d.muted {
-      opacity: 0.5;
-    }
-
-    .ryachu-name { color: var(--ryachu-gold); font-weight: 800; }
-    .itsuki-name { color: var(--itsuki-blue); font-weight: 800; }
-
-    .hacker-input {
-      font-family: 'Fira Code', monospace;
-    }
-
-    .dark-theme .hacker-input { color: #39ff14 !important; }
-
-    .emoji-window {
-      max-height: 180px;
-      overflow-y: auto;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-      padding: 15px;
-    }
-
-    .emoji-btn {
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: transform 0.2s;
-      display: flex;
-      justify-content: center;
-    }
-
-    .emoji-btn:hover { transform: scale(1.12); }
-
-    .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: var(--muzz-red); border-radius: 10px; }
-
-    .online-indicator {
-      width: 8px;
-      height: 8px;
-      background: #39ff14;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #39ff14;
-      flex-shrink: 0;
-    }
-
-    .admin-btn {
-      font-size: 10px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: rgba(255,0,0,0.1);
-      border: 1px solid rgba(255,0,0,0.3);
-      color: #ff0000;
-      font-weight: bold;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-
-    .admin-btn:hover {
-      background: #ff0000;
-      color: white;
-    }
-
-    .brand-badge {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(145deg, rgba(255,0,0,.18), rgba(255,80,0,.28));
-      box-shadow: 0 0 18px rgba(255,0,0,.25);
-    }
-
-    .identity-card,
-    .feature-card,
-    .section-card {
-      border-radius: 18px;
-      padding: 14px;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .dark-theme .identity-card,
-    .dark-theme .feature-card,
-    .dark-theme .section-card {
-      background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,0,0,.03));
-    }
-
-    .light-theme .identity-card,
-    .light-theme .feature-card,
-    .light-theme .section-card {
-      background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,240,240,.95));
-      border-color: rgba(255,0,0,0.12);
-    }
-
-    .wallet-chip {
-      font-size: 10px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,0,0,.22);
-      background: rgba(255,0,0,.08);
-      color: #ff6666;
-      font-family: 'Fira Code', monospace;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .section-btn {
-      width: 100%;
-      text-align: left;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,0,0,0.15);
-      transition: all .2s ease;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-    }
-
-    .section-btn.active {
-      color: #ff4d4d;
-      background: rgba(255,0,0,.08);
-      box-shadow: 0 0 18px rgba(255,0,0,.08);
-    }
-
-    .section-btn.ghost {
-      color: #9ca3af;
-      background: transparent;
-    }
-
-    .section-btn.ghost:hover {
-      color: white;
-      background: rgba(255,0,0,.06);
-    }
-
-    .galaxy-hero {
-      position: relative;
-      overflow: hidden;
-      border-radius: 22px;
-      padding: 18px;
-      border: 1px solid rgba(255,0,0,.18);
-      background:
-        radial-gradient(circle at 15% 20%, rgba(255,0,0,.18), transparent 35%),
-        radial-gradient(circle at 85% 30%, rgba(0,212,255,.12), transparent 28%),
-        linear-gradient(135deg, rgba(15,15,15,.94), rgba(35,0,0,.95));
-      box-shadow: inset 0 0 40px rgba(255,0,0,.06), 0 12px 30px rgba(0,0,0,.25);
-    }
-
-    .galaxy-hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(255,255,255,.025) 3px,
-        rgba(255,255,255,.025) 4px
-      );
-      opacity: .45;
-    }
-
-    .hero-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      color: #ffb4b4;
-      border: 1px solid rgba(255,0,0,.25);
-      background: rgba(255,0,0,.08);
-    }
-
-    .hero-action {
-      border: 1px solid rgba(255,0,0,.35);
-      background: linear-gradient(145deg, #ff1a1a, #9d0000);
-      color: white;
-      border-radius: 14px;
-      padding: 12px 16px;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      transition: transform .15s ease, box-shadow .15s ease;
-      box-shadow: 0 0 22px rgba(255,0,0,.18);
-    }
-
-    .hero-action:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 28px rgba(255,0,0,.28);
-    }
-
-    .sub-action {
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      color: #d1d5db;
-      border-radius: 14px;
-      padding: 12px 16px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-
-    .status-pill {
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
-      color: #9ca3af;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-
-    @media (max-width: 1024px) {
-      .galaxy-hero {
-        padding: 14px;
-      }
-    }
+    :root{--muzz-red:#ff0000;--ryachu-gold:#ffcc00;--itsuki-blue:#00d4ff}
+    html,body{height:100%;overflow:hidden;margin:0;padding:0}
+    body.dark-theme{background:#050505;color:white}
+    body.light-theme{background:#f0f2f5;color:#1a1a1a}
+    .panel-3d{border-radius:24px;transition:all .3s ease;display:flex;flex-direction:column;height:100%}
+    .dark-theme .panel-3d{background:#0c0c0c;border:1px solid rgba(255,0,0,.15);box-shadow:0 10px 30px rgba(0,0,0,.8)}
+    .light-theme .panel-3d{background:#ffffff;border:1px solid #e0e0e0;box-shadow:0 10px 30px rgba(0,0,0,.05)}
+    .bubble-3d{padding:12px 16px;border-radius:20px;font-size:14px;max-width:85%;line-height:1.4;position:relative;word-break:break-word}
+    .bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white;align-self:flex-end;border-bottom-right-radius:4px}
+    .dark-theme .bubble-3d.other{background:#1a1a1a;border:1px solid rgba(255,255,255,.05)}
+    .light-theme .bubble-3d.other{background:#ffffff;border:1px solid #e0e0e0;color:black}
+    .bubble-3d.muted{opacity:.5}
+    .ryachu-name{color:var(--ryachu-gold)!important;font-weight:800}
+    .itsuki-name{color:var(--itsuki-blue)!important;font-weight:800}
+    .hacker-input{font-family:'Fira Code',monospace}
+    .dark-theme .hacker-input{color:#39ff14!important}
+    .light-theme .hacker-input{color:#111827!important}
+    .emoji-window{max-height:180px;overflow-y:auto;display:grid;grid-template-columns:repeat(7,1fr);gap:10px;padding:15px}
+    .emoji-btn{font-size:1.5rem;cursor:pointer;transition:transform .2s;display:flex;justify-content:center}
+    .emoji-btn:hover{transform:scale(1.15)}
+    .custom-scroll::-webkit-scrollbar{width:4px;height:4px}
+    .custom-scroll::-webkit-scrollbar-thumb{background:var(--muzz-red);border-radius:10px}
+    .online-indicator{width:8px;height:8px;background:#39ff14;border-radius:50%;box-shadow:0 0 8px #39ff14}
+    .online-indicator.off{background:#666;box-shadow:none}
+    .admin-btn{font-size:10px;padding:8px 12px;border-radius:8px;background:rgba(255,0,0,.1);border:1px solid rgba(255,0,0,.3);color:#ff0000;font-weight:bold;transition:all .3s;cursor:pointer}
+    .admin-btn:hover{background:#ff0000;color:white}
+    .user-list-btn{width:100%;text-align:left;padding:10px 12px;border-radius:12px;transition:all .2s;cursor:pointer;background:transparent;border:none}
+    .dark-theme .user-list-btn:hover,.dark-theme .user-list-btn.active{background:rgba(255,0,0,.08)}
+    .light-theme .user-list-btn:hover,.light-theme .user-list-btn.active{background:rgba(255,0,0,.06)}
+    .dim{color:#6b7280}
+    .hidden-mobile{display:none}
+    .safe-bottom{padding-bottom:calc(env(safe-area-inset-bottom,0px))}
+    @media(min-width:1024px){.hidden-mobile{display:flex}.mobile-menu{display:none!important}}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:80;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+    .modal-card{width:100%;max-width:420px;border-radius:24px;padding:24px}
+    .dark-theme .modal-card{background:#0c0c0c;border:1px solid rgba(255,0,0,.2)}
+    .light-theme .modal-card{background:white;border:1px solid rgba(255,0,0,.15)}
   </style>
 </head>
 <body class="dark-theme">
   <div id="root" class="h-full"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+  <div id="guestPrivateModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="text-[10px] tracking-[0.3em] font-black text-red-600 uppercase mb-3">Access Restricted</div>
+      <h2 class="text-2xl font-black text-red-600 mb-2">PRIVATE requiere wallet</h2>
+      <p class="text-sm text-gray-400 leading-relaxed mb-5">La mensajería privada está disponible solo para sesiones autenticadas con wallet. Como invitado puedes seguir usando los canales públicos.</p>
+      <button id="closeGuestPrivateModal" class="w-full h-12 rounded-xl bg-red-600 text-white font-black uppercase tracking-wider">Entendido</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+    import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js';
+    import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js';
+    import { getDatabase, ref, set, update, remove, onValue, off, query, limitToLast, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
 
     const firebaseConfig = {
       apiKey: atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
@@ -341,549 +82,814 @@
       appId: atob('MTo4MjQzMDYzMjEyMzM6d2ViOjJjOWJmYTAyMTcwYTE3ZDU2MGI1NzA=')
     };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const functions = getFunctions(app, 'us-central1');
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(window.__MUZZ_APPCHECK_KEY__),
+      isTokenAutoRefreshEnabled: true
+    });
 
-    const db = firebase.database();
+    const postPublicMessage = httpsCallable(functions, 'postPublicMessage');
+    const pinPublicMessage = httpsCallable(functions, 'pinPublicMessage');
+    const clearPinnedMessage = httpsCallable(functions, 'clearPinnedMessage');
+    const clearPublicChannel = httpsCallable(functions, 'clearPublicChannel');
+    const moderateUser = httpsCallable(functions, 'moderateUser');
+    const sendPrivateMessage = httpsCallable(functions, 'sendPrivateMessage');
 
-    const SPECIAL_WALLETS = {
-      R: atob('MHgyMDgxNTdiNWVjMzk2NzU5ZTg3NTQwNTgxMDhlY2Y1M2UzMjM5MmZm').toLowerCase(),
-      I: atob('MHhmYWI1ODM1Y2ExNGZiM2Y5Zjk3OGM1ZTRkNzMzNzM0ZTYzOTRlMDNm').toLowerCase(),
+    const EMOJI = {
+      FACES:["😊","😂","😉","😍","😘","😛","😅","😢","😭","😠","😈","👽","🤖","🤡","💀","👻","💩"],
+      HANDS:["👍","👎","👌","✌️","👏","👋","🙏","💪","☝️","🖖"],
+      OBJECTS:["❤️","⭐","🔥","📚","💻","📱","📷","🔑","🔒","💡","💰","💎"],
+      NATURE:["☀️","☁️","🌈","🌳","🌸","🌵","🐱","🐶","🦁","🦄","🐉","🐍"],
+      FOOD:["🍕","🍔","🌮","🍣","🍰","🍦","☕","🍺","🍷","🍸"],
+      ACTIVITIES:["⚽","🏀","🎾","🎵","🎸","🎮","♟️","🎨","🎬"]
     };
-
-    const EMOJIS = {
-      FACES: ['😊','😂','😉','😍','😘','😛','😅','😢','😭','😠','😈','👽','🤖','🤡','💀','👻','💩'],
-      HANDS: ['👍','👎','👌','✌️','👏','👋','🙏','💪','☝️','🖖'],
-      OBJECTS: ['❤️','⭐','🔥','📚','💻','📱','📷','🔑','🔒','💡','💰','💎'],
-      NATURE: ['☀️','☁️','🌈','🌳','🌸','🌵','🐱','🐶','🦁','🦄','🐉','🐍'],
-      FOOD: ['🍕','🍔','🌮','🍣','🍰','🍦','☕','🍺','🍷','🍸'],
-      ACTIVITIES: ['⚽','🏀','🎾','🎵','🎸','🎮','♟️','🎨','🎬']
-    };
-
     const CHANNELS = [
       { id: 'general', name: 'GENERAL' },
       { id: 'spanish', name: 'ESPAÑOL' },
-      { id: 'dao', name: 'DAO' }
+      { id: 'dao', name: 'DAO' },
+      { id: 'private', name: 'PRIVATE' }
     ];
 
-    const GAME_ROUTE = 'muzzgalaxy_online_boss_firebase.html';
-    const LOGIN_ROUTE = 'login.html';
+    const state = {
+      user: null,
+      claims: null,
+      theme: localStorage.getItem('muzz_theme') || 'dark',
+      messages: [],
+      onlineUsers: [],
+      mutedMap: {},
+      pinned: '',
+      currentChannel: CHANNELS[0],
+      selectedPrivateUser: null,
+      privateDirectory: {},
+      showEmoji: false,
+      emojiTab: 'FACES',
+      pinMode: false,
+      showBanPanel: false,
+      showMutePanel: false,
+      draftText: '',
+      listenerRefs: {
+        messagesRef: null,
+        messagesCb: null,
+        statusRef: null,
+        statusCb: null,
+        pinnedRef: null,
+        pinnedCb: null,
+        mutedRef: null,
+        mutedCb: null,
+        privateUsersRef: null,
+        privateUsersCb: null
+      },
+      e2ee: {
+        privateKey: null,
+        publicJwk: null
+      }
+    };
 
-    function shortWallet(address) {
-      if (!address || address.startsWith('guest_')) return 'GUEST MODE';
-      return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    const root = document.getElementById('root');
+    const guestModal = document.getElementById('guestPrivateModal');
+    const closeGuestPrivateModal = document.getElementById('closeGuestPrivateModal');
+
+    function normalizeWallet(v){ return String(v || '').trim().toLowerCase(); }
+    function isWallet(v){ return /^0x[a-f0-9]{40}$/.test(normalizeWallet(v)); }
+    function shortWallet(v){ return v ? `${v.slice(0, 6)}...${v.slice(-4)}` : ''; }
+    function threadId(a,b){ return [normalizeWallet(a), normalizeWallet(b)].sort().join('__'); }
+    function isAdmin(){ return ['ryachu','itsuki'].includes(state.user?.role); }
+    function isGuest(){ return !state.user?.isWallet; }
+    function roleClass(role){ return role === 'ryachu' ? 'ryachu-name' : role === 'itsuki' ? 'itsuki-name' : 'text-gray-500'; }
+    function roleBadge(role){ return role === 'ryachu' ? '👑 ' : role === 'itsuki' ? '💎 ' : ''; }
+    function themeClass(){ return state.theme === 'dark' ? 'dark-theme' : 'light-theme'; }
+    function setTheme(next){
+      state.theme = next;
+      localStorage.setItem('muzz_theme', next);
+      document.body.className = next === 'dark' ? 'dark-theme' : 'light-theme';
+      render();
+    }
+    function escapeHtml(s=''){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+    function showToast(message){
+      console.log(message);
     }
 
-    function roleClass(role) {
-      if (role === 'ryachu') return 'ryachu-name';
-      if (role === 'itsuki') return 'itsuki-name';
-      return 'text-gray-400';
+    function currentMuteUntil(uid){
+      return Number(state.mutedMap[uid] || 0);
     }
 
-    function App() {
-      const [user, setUser] = useState(null);
-      const [messages, setMessages] = useState([]);
-      const [onlineUsers, setOnlineUsers] = useState([]);
-      const [mutedMap, setMutedMap] = useState({});
-      const [pinnedMessage, setPinnedMessage] = useState('');
-      const [messageInput, setMessageInput] = useState('');
-      const [darkMode, setDarkMode] = useState(true);
-      const [showEmoji, setShowEmoji] = useState(false);
-      const [emojiCategory, setEmojiCategory] = useState('FACES');
-      const [currentChannel, setCurrentChannel] = useState(CHANNELS[0]);
-      const [showSidebar, setShowSidebar] = useState(false);
-      const [showBanPanel, setShowBanPanel] = useState(false);
-      const [showMutePanel, setShowMutePanel] = useState(false);
-      const [pinMode, setPinMode] = useState(false);
-      const [walletAddress, setWalletAddress] = useState('');
-      const [authMode, setAuthMode] = useState('guest');
+    function ownMuted(){ return currentMuteUntil(state.user?.uid) > Date.now(); }
 
-      const bottomRef = useRef(null);
+    function displayName(user){
+      const base = user.username || (user.address ? `Node_${user.address.slice(-4)}` : 'Unknown');
+      return `${roleBadge(user.role)}${base}`.trim();
+    }
 
-      useEffect(() => {
-        document.body.className = darkMode ? 'dark-theme' : 'light-theme';
-      }, [darkMode]);
+    function formatDateDivider(d){
+      const now = new Date();
+      const y = new Date(now); y.setDate(y.getDate() - 1);
+      if (d.toDateString() === now.toDateString()) return 'HOY';
+      if (d.toDateString() === y.toDateString()) return 'AYER';
+      return d.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
+    }
 
-      useEffect(() => {
-        const storedWallet = sessionStorage.getItem('muzz_wallet_address');
-        const storedPlayerName = sessionStorage.getItem('muzz_player_name');
-        const storedAuthMode = sessionStorage.getItem('muzz_auth_mode');
-
-        if (!storedWallet) {
-          window.location.href = LOGIN_ROUTE;
-          return;
-        }
-
-        setWalletAddress(storedWallet);
-        setAuthMode(storedAuthMode || (storedWallet.startsWith('guest_') ? 'guest' : 'wallet'));
-
-        firebase.auth().signInAnonymously().then(({ user: authUser }) => {
-          const uid = authUser.uid;
-          const isWallet = !storedWallet.startsWith('guest_');
-          const walletLower = storedWallet.toLowerCase();
-          let username = storedPlayerName || '';
-          let role = 'user';
-
-          if (!username) {
-            if (isWallet) {
-              if (walletLower === SPECIAL_WALLETS.R) {
-                username = 'Ryachu';
-                role = 'ryachu';
-              } else if (walletLower === SPECIAL_WALLETS.I) {
-                username = 'Itsuki';
-                role = 'itsuki';
-              } else {
-                username = `Node_${storedWallet.slice(-4)}`;
-              }
-            } else {
-              username = storedWallet.replace('guest_', '');
-              role = 'guest';
-            }
-          } else if (walletLower === SPECIAL_WALLETS.R) {
-            role = 'ryachu';
-          } else if (walletLower === SPECIAL_WALLETS.I) {
-            role = 'itsuki';
-          } else if (!isWallet) {
-            role = 'guest';
-          }
-
-          const sessionUser = {
-            uid,
-            username,
-            role,
-            isWallet,
-            walletAddress: storedWallet,
-            authMode: storedAuthMode || (isWallet ? 'wallet' : 'guest')
-          };
-
-          sessionStorage.setItem('muzz_player_name', username);
-          sessionStorage.setItem('muzz_player_id', uid);
-          sessionStorage.setItem('muzz_auth_mode', sessionUser.authMode);
-
-          setUser(sessionUser);
-
-          const statusRef = db.ref(`status/${uid}`);
-          statusRef.onDisconnect().remove();
-          statusRef.set({
-            uid,
-            username,
-            role,
-            authMode: sessionUser.authMode,
-            walletShort: shortWallet(storedWallet)
-          });
-
-          const statusRoot = db.ref('status');
-          const pinnedRef = db.ref('settings/pinned');
-          const mutedRef = db.ref('muted');
-
-          statusRoot.on('value', snap => setOnlineUsers(snap.val() ? Object.values(snap.val()) : []));
-          pinnedRef.on('value', snap => setPinnedMessage(snap.val() || ''));
-          mutedRef.on('value', snap => setMutedMap(snap.val() || {}));
-        });
-      }, []);
-
-      useEffect(() => {
-        if (!user) return;
-        const msgRef = db.ref(`messages/${currentChannel.id}`).limitToLast(50);
-        msgRef.on('value', snap => {
-          const value = snap.val();
-          setMessages(value ? Object.keys(value).map(id => ({ id, ...value[id] })) : []);
-        });
-        return () => msgRef.off();
-      }, [currentChannel, user]);
-
-      useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, [messages]);
-
-      const isAdmin = user && (user.role === 'ryachu' || user.role === 'itsuki');
-      const isMuted = user && mutedMap[user.uid] && mutedMap[user.uid] > Date.now();
-
-      function toggleTheme() {
-        setDarkMode(v => !v);
-      }
-
-      function logout() {
-        sessionStorage.clear();
-        window.location.href = LOGIN_ROUTE;
-      }
-
-      function launchGalaxy() {
-        sessionStorage.setItem('muzz_last_section', 'galaxy');
-        window.location.href = GAME_ROUTE;
-      }
-
-      function sendMessage() {
-        if (!messageInput.trim()) return;
-
-        if (isMuted) {
-          alert('Estás silenciado temporalmente');
-          return;
-        }
-
-        if (pinMode && isAdmin) {
-          db.ref('settings/pinned').set(messageInput);
-          setPinMode(false);
-          setMessageInput('');
-          return;
-        }
-
-        db.ref(`messages/${currentChannel.id}`).push({
-          content: messageInput,
-          username: user.username,
-          role: user.role,
-          userId: user.uid,
-          timestamp: Date.now()
-        });
-
-        setMessageInput('');
-        setShowEmoji(false);
-      }
-
-      const adminActions = {
-        clearChat: () => {
-          if (confirm('¿Borrar todo el historial del chat?')) {
-            db.ref(`messages/${currentChannel.id}`).remove();
-          }
-        },
-        enablePinMode: () => {
-          setPinMode(true);
-          setMessageInput('');
-        },
-        removePin: () => db.ref('settings/pinned').remove(),
-        openBanPanel: () => setShowBanPanel(true),
-        openMutePanel: () => setShowMutePanel(true),
-        banUser: (uid, username) => {
-          if (confirm(`¿Banear permanentemente a ${username}?`)) {
-            db.ref(`banned/${uid}`).set(true);
-            db.ref(`status/${uid}`).remove();
-          }
-          setShowBanPanel(false);
-        },
-        muteUser: (uid, username) => {
-          const expiresAt = Date.now() + 60000;
-          db.ref(`muted/${uid}`).set(expiresAt);
-          setTimeout(() => db.ref(`muted/${uid}`).remove(), 60000);
-          alert(`${username} ha sido silenciado por 1 minuto`);
-          setShowMutePanel(false);
-        }
-      };
-
-      function formatDayLabel(date) {
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        if (date.toDateString() === today.toDateString()) return 'HOY';
-        if (date.toDateString() === yesterday.toDateString()) return 'AYER';
-        return date.toLocaleDateString('es-ES', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }).toUpperCase();
-      }
-
-      if (!user) {
-        return (
-          <div className="h-full flex items-center justify-center text-red-600 font-black tracking-[0.3em] uppercase animate-pulse">
-            Connecting...
+    function renderMessagesHtml(){
+      if (state.currentChannel.id === 'private' && !state.selectedPrivateUser) {
+        return `
+          <div class="h-full flex items-center justify-center">
+            <div class="text-center max-w-md">
+              <div class="text-red-600 text-4xl mb-4"><i class="fas fa-user-secret"></i></div>
+              <div class="text-sm font-black tracking-[0.3em] text-red-600 uppercase mb-3">Private Directory</div>
+              <div class="text-sm text-gray-500 leading-relaxed">Selecciona una wallet del panel izquierdo para abrir una conversación privada cifrada.</div>
+            </div>
           </div>
-        );
+        `;
+      }
+      if (!state.messages.length) {
+        return `
+          <div class="h-full flex items-center justify-center">
+            <div class="text-center">
+              <div class="text-red-600 text-3xl mb-3"><i class="fas fa-terminal"></i></div>
+              <div class="text-xs font-black tracking-[0.3em] text-red-600 uppercase mb-2">No Messages</div>
+              <div class="text-sm text-gray-500">Aún no hay mensajes en esta vista.</div>
+            </div>
+          </div>
+        `;
       }
 
-      return (
-        <div className="flex h-screen p-2 md:p-4 lg:p-6 gap-4 md:gap-6 max-w-[1600px] mx-auto overflow-hidden">
-          <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-72 lg:w-72 transition-all duration-300 transform panel-3d p-6 ${showSidebar ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none'}`}>
-            <div className="mb-6 flex items-center gap-3">
-              <div className="brand-badge">
-                <i className="fas fa-ghost text-white text-sm"></i>
-              </div>
-              <div>
-                <h1 className="font-black text-xl italic tracking-tighter" style={{ fontFamily: 'Orbitron, monospace' }}>
-                  MUZZ<span className="text-red-600">SNAP</span>
-                </h1>
-                <p className="text-[9px] uppercase tracking-[0.35em] text-gray-500 mt-1">Terminal Edition</p>
-              </div>
+      let html = '';
+      state.messages.forEach((msg, index) => {
+        const ts = new Date(msg.timestamp || Date.now());
+        const prev = index > 0 ? state.messages[index - 1] : null;
+        const prevDate = prev ? new Date(prev.timestamp || Date.now()) : null;
+        const needDivider = !prevDate || ts.toDateString() !== prevDate.toDateString();
+        const mine = (msg.userId && msg.userId === state.user.uid) || (msg.from && msg.from === state.user.uid);
+        const muted = msg.userId ? currentMuteUntil(msg.userId) > Date.now() : false;
+        const role = msg.role || msg.senderRole || 'user';
+        const username = msg.username || msg.senderName || (msg.from ? shortWallet(msg.from) : 'Unknown');
+
+        if (needDivider) {
+          html += `
+            <div class="flex items-center gap-4 my-4">
+              <div class="flex-1 h-px bg-gradient-to-r from-transparent via-red-600/30 to-transparent"></div>
+              <span class="text-[9px] font-black tracking-[0.3em] text-red-600/70 px-4 py-1.5 bg-red-600/5 rounded-full border border-red-600/20">${formatDateDivider(ts)}</span>
+              <div class="flex-1 h-px bg-gradient-to-r from-red-600/30 via-transparent to-transparent"></div>
+            </div>
+          `;
+        }
+
+        let contentHtml = '';
+        if (msg.type === 'img' && typeof msg.content === 'string' && msg.content.startsWith('data:image/')) {
+          contentHtml = `<img src="${msg.content}" class="rounded-xl max-h-72 max-w-full block" />`;
+        } else {
+          contentHtml = `<span>${escapeHtml(msg.content || '')}</span>`;
+        }
+
+        html += `
+          <div class="flex flex-col ${mine ? 'items-end' : 'items-start'}">
+            <span class="text-[10px] font-black mb-1.5 uppercase px-2 ${roleClass(role)}">${roleBadge(role)}${escapeHtml(username)} ${muted ? '🔇' : ''}</span>
+            <div class="bubble-3d shadow-xl ${mine ? 'me' : 'other'} ${muted ? 'muted' : ''}">
+              ${contentHtml}
+            </div>
+          </div>
+        `;
+      });
+      return html;
+    }
+
+    function renderOnlineUsersHtml(){
+      return state.onlineUsers.map(u => `
+        <div class="flex items-center gap-3 px-2">
+          <span class="online-indicator"></span>
+          <span class="text-[11px] truncate font-bold uppercase flex-1 ${roleClass(u.role)}">${roleBadge(u.role)}${escapeHtml(u.username || 'Unknown')}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderPrivateDirectoryHtml(){
+      const peers = Object.values(state.privateDirectory)
+        .filter(u => u.address !== state.user.uid)
+        .sort((a,b) => Number(Boolean(b.online)) - Number(Boolean(a.online)) || String(a.username || '').localeCompare(String(b.username || '')));
+      if (!peers.length) return `<div class="text-[12px] text-gray-500 px-2">No hay otras wallets disponibles todavía.</div>`;
+      return peers.map(u => `
+        <button class="user-list-btn ${state.selectedPrivateUser?.address === u.address ? 'active' : ''}" data-private-wallet="${u.address}">
+          <div class="flex items-center gap-3">
+            <span class="online-indicator ${u.online ? '' : 'off'}"></span>
+            <span class="flex-1 min-w-0">
+              <div class="text-[11px] font-black uppercase truncate ${roleClass(u.role)}">${roleBadge(u.role)}${escapeHtml(u.username || shortWallet(u.address))}</div>
+              <div class="text-[10px] text-gray-500 truncate">${escapeHtml(shortWallet(u.address))}</div>
+            </span>
+          </div>
+        </button>
+      `).join('');
+    }
+
+    function renderEmojiGridHtml(){
+      return Object.keys(EMOJI).map(key => `
+        <button class="px-4 py-2 text-[9px] font-black uppercase tracking-tighter ${state.emojiTab === key ? 'text-red-600 bg-red-600/5' : 'text-gray-500'}" data-emoji-tab="${key}">${key}</button>
+      `).join('');
+    }
+
+    function render(){
+      root.innerHTML = `
+        <div class="flex h-screen p-2 md:p-4 lg:p-6 gap-4 md:gap-6 max-w-[1600px] mx-auto overflow-hidden">
+          <aside id="sidebar" class="fixed lg:relative z-50 inset-y-0 left-0 w-72 lg:w-64 transition-all duration-300 transform panel-3d p-6 flex flex-col -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none">
+            <div class="mb-8 flex items-center gap-3">
+              <div class="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30"><i class="fas fa-ghost text-white text-sm"></i></div>
+              <h1 class="font-orbitron font-black text-xl italic tracking-tighter">MUZZ<span class="text-red-600">SNAP</span></h1>
             </div>
 
-            <div className="identity-card mb-6">
-              <div className="flex items-start justify-between gap-3">
+            <div class="flex-1 overflow-y-auto custom-scroll space-y-8 pr-2">
+              ${isAdmin() ? `
                 <div>
-                  <p className="text-[9px] uppercase tracking-[0.3em] text-gray-500 mb-2">Session</p>
-                  <p className={`text-sm font-black uppercase ${roleClass(user.role)}`}>
-                    {user.role === 'ryachu' && '👑 '}
-                    {user.role === 'itsuki' && '💎 '}
-                    {user.username}
-                  </p>
-                </div>
-                <span className="status-pill">{authMode === 'wallet' ? 'Wallet' : 'Guest'}</span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <span className="wallet-chip">
-                  <i className="fas fa-wallet"></i>
-                  {shortWallet(walletAddress)}
-                </span>
-              </div>
-            </div>
-
-            <div className="section-card mb-6">
-              <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Sections</p>
-              <div className="space-y-2">
-                <button className="section-btn active">
-                  <i className="fas fa-comments mr-2"></i>
-                  MuzzSnap Chat
-                </button>
-                <button onClick={launchGalaxy} className="section-btn ghost">
-                  <i className="fas fa-gamepad mr-2"></i>
-                  MuzzGalaxy
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto custom-scroll space-y-8 pr-2">
-              {isAdmin && (
-                <div>
-                  <p className="text-[9px] text-red-600 font-bold tracking-[0.3em] mb-4 uppercase">Admin Console</p>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <button onClick={adminActions.enablePinMode} className="admin-btn"><i className="fas fa-thumbtack mr-1"></i>FIJAR</button>
-                    <button onClick={adminActions.clearChat} className="admin-btn"><i className="fas fa-trash mr-1"></i>LIMPIAR</button>
+                  <p class="text-[9px] text-red-600 font-bold tracking-[0.3em] mb-4 uppercase">Admin Console</p>
+                  <div class="grid grid-cols-2 gap-2 mb-3">
+                    <button id="enablePinModeBtn" class="admin-btn"><i class="fas fa-thumbtack mr-1"></i>FIJAR</button>
+                    <button id="clearChatBtn" class="admin-btn"><i class="fas fa-trash mr-1"></i>LIMPIAR</button>
                   </div>
-                  <details className="bg-red-600/5 border border-red-600/20 rounded-lg">
-                    <summary className="cursor-pointer px-3 py-2 text-[9px] font-bold text-red-500 uppercase tracking-wider">Moderación ▼</summary>
-                    <div className="p-3 space-y-2 border-t border-red-600/20">
-                      <button onClick={adminActions.openBanPanel} className="w-full admin-btn text-left"><i className="fas fa-user-slash mr-2"></i>Banear Usuario</button>
-                      <button onClick={adminActions.openMutePanel} className="w-full admin-btn text-left"><i className="fas fa-volume-mute mr-2"></i>Mutear 1min</button>
+                  <div class="grid grid-cols-2 gap-2 mb-3">
+                    <button id="removePinBtn" class="admin-btn"><i class="fas fa-xmark mr-1"></i>QUITAR PIN</button>
+                    <button id="togglePrivateBtn" class="admin-btn"><i class="fas fa-user-secret mr-1"></i>DIRECTORY</button>
+                  </div>
+                  <details class="bg-red-600/5 border border-red-600/20 rounded-lg">
+                    <summary class="cursor-pointer px-3 py-2 text-[9px] font-bold text-red-500 uppercase tracking-wider">Moderación ▼</summary>
+                    <div class="p-3 space-y-2 border-t border-red-600/20">
+                      <button id="openBanPanelBtn" class="w-full admin-btn text-left"><i class="fas fa-user-slash mr-2"></i>Banear Usuario</button>
+                      <button id="openMutePanelBtn" class="w-full admin-btn text-left"><i class="fas fa-volume-mute mr-2"></i>Mutear 1min</button>
                     </div>
                   </details>
                 </div>
-              )}
+              ` : ''}
 
               <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Channels</p>
-                {CHANNELS.map(channel => (
-                  <button
-                    key={channel.id}
-                    onClick={() => {
-                      setCurrentChannel(channel);
-                      setShowSidebar(false);
-                    }}
-                    className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all ${currentChannel.id === channel.id ? 'bg-red-600/10 text-red-600 border-l-2 border-red-600 shadow-lg shadow-red-600/5' : 'text-gray-500 hover:text-white'}`}
-                  >
-                    # {channel.name}
+                <p class="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Channels</p>
+                ${CHANNELS.map(c => `
+                  <button class="channel-switch-btn w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all ${state.currentChannel.id === c.id ? 'bg-red-600/10 text-red-600 border-l-2 border-red-600 shadow-lg shadow-red-600/5' : 'text-gray-500 hover:text-white'}" data-channel-id="${c.id}">
+                    ${c.id === 'private' ? '<i class="fas fa-user-secret mr-2"></i>' : '# '}${c.name}
                   </button>
-                ))}
+                `).join('')}
               </div>
 
               <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Online — {onlineUsers.length}</p>
-                <div className="space-y-3">
-                  {onlineUsers.map((onlineUser, idx) => (
-                    <div key={onlineUser.uid || idx} className="flex items-center gap-3 px-2">
-                      <span className="online-indicator"></span>
-                      <span className={`text-[11px] truncate font-bold uppercase flex-1 ${roleClass(onlineUser.role)}`}>
-                        {onlineUser.role === 'ryachu' && '👑 '}
-                        {onlineUser.role === 'itsuki' && '💎 '}
-                        {onlineUser.username}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <p class="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Online — ${state.onlineUsers.length}</p>
+                <div class="space-y-3">${renderOnlineUsersHtml() || '<div class="text-[11px] text-gray-500 px-2">Sin usuarios en línea.</div>'}</div>
+              </div>
+
+              <div id="privateDirectoryBox" style="${state.currentChannel.id === 'private' && !isGuest() ? '' : 'display:none;'}">
+                <p class="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Private Wallets</p>
+                <div class="space-y-2">${renderPrivateDirectoryHtml()}</div>
               </div>
             </div>
 
-            <button onClick={logout} className="mt-6 w-full py-3 text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black tracking-widest hover:bg-red-600/5 transition-all">
-              <i className="fas fa-power-off mr-2"></i>
-              Disconnect
+            <button id="disconnectBtn" class="mt-6 w-full py-3 text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black tracking-widest hover:bg-red-600/5 transition-all">
+              <i class="fas fa-power-off mr-2"></i>Disconnect
             </button>
           </aside>
 
-          <main className="flex-1 panel-3d flex flex-col overflow-hidden border border-white/5 h-full relative">
-            {pinnedMessage && (
-              <div className="bg-red-600/10 border-b border-red-600/30 py-2 px-6 flex items-center gap-4 flex-shrink-0">
-                <i className="fas fa-thumbtack text-red-600 text-[10px] animate-pulse"></i>
-                <marquee className="text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase flex-1">{pinnedMessage}</marquee>
-                {isAdmin && (
-                  <button onClick={adminActions.removePin} className="text-[8px] text-red-400 hover:text-red-600">
-                    <i className="fas fa-times"></i>
-                  </button>
-                )}
+          <main class="flex-1 panel-3d flex flex-col overflow-hidden border border-white/5 h-full relative">
+            ${state.pinned ? `
+              <div class="bg-red-600/10 border-b border-red-600/30 py-2 px-6 flex items-center gap-4 flex-shrink-0">
+                <i class="fas fa-thumbtack text-red-600 text-[10px] animate-pulse"></i>
+                <marquee class="text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase flex-1">${escapeHtml(state.pinned)}</marquee>
+                ${isAdmin() ? `<button id="removePinHeaderBtn" class="text-[8px] text-red-400 hover:text-red-600"><i class="fas fa-times"></i></button>` : ''}
               </div>
-            )}
+            ` : ''}
 
-            <header className="h-16 flex items-center justify-between px-4 md:px-8 bg-white/5 border-b border-white/5 flex-shrink-0 gap-4">
-              <div className="flex items-center gap-4 min-w-0">
-                <button onClick={() => setShowSidebar(true)} className="lg:hidden text-red-600">
-                  <i className="fas fa-bars"></i>
-                </button>
-                <h2 className="text-sm font-black tracking-[0.2em] text-red-600 uppercase italic truncate">
-                  / {currentChannel.name}
-                </h2>
+            <header class="h-16 flex items-center justify-between px-8 bg-white/5 border-b border-white/5 flex-shrink-0">
+              <div class="flex items-center gap-4">
+                <button id="openSidebarBtn" class="lg:hidden text-red-600 mobile-menu"><i class="fas fa-bars"></i></button>
+                <h2 class="text-sm font-black tracking-[0.2em] text-red-600 uppercase italic">${state.currentChannel.id === 'private' ? `/ PRIVATE${state.selectedPrivateUser ? ' // ' + escapeHtml(state.selectedPrivateUser.username || shortWallet(state.selectedPrivateUser.address)) : ''}` : `/ ${state.currentChannel.name}`}</h2>
               </div>
-              <div className="flex items-center gap-2 md:gap-3">
-                <button onClick={launchGalaxy} className="hidden sm:flex items-center gap-2 px-4 h-10 rounded-xl border border-red-600/20 text-red-500 hover:bg-red-600/5 transition-all text-[10px] font-black tracking-[0.18em] uppercase">
-                  <i className="fas fa-gamepad"></i>
-                  Galaxy
-                </button>
-                <button onClick={toggleTheme} className="w-10 h-10 rounded-xl border border-red-600/20 flex items-center justify-center hover:bg-red-600/5 transition-all">
-                  {darkMode ? <i className="fas fa-sun text-yellow-500"></i> : <i className="fas fa-moon text-blue-500"></i>}
+              <div class="flex items-center gap-3">
+                <span class="text-[10px] font-black uppercase tracking-widest ${roleClass(state.user.role)}">${roleBadge(state.user.role)}${escapeHtml(state.user.username)}</span>
+                <button id="themeToggleBtn" class="w-10 h-10 rounded-xl border border-red-600/20 flex items-center justify-center hover:bg-red-600/5 transition-all">
+                  ${state.theme === 'dark' ? '<i class="fas fa-sun text-yellow-500"></i>' : '<i class="fas fa-moon text-blue-500"></i>'}
                 </button>
               </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-5 custom-scroll">
-              <div className="galaxy-hero">
-                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="max-w-2xl">
-                    <span className="hero-tag">
-                      <i className="fas fa-gamepad"></i>
-                      New Section
-                    </span>
-                    <h3 className="mt-3 text-xl md:text-2xl font-black tracking-tight text-white" style={{ fontFamily: 'Orbitron, monospace' }}>
-                      MUZZ<span className="text-red-500">GALAXY</span> now lives inside MuzzSnap
-                    </h3>
-                    <p className="mt-2 text-sm text-gray-300 leading-relaxed">
-                      Enter the arcade sector with your current session. Your guest name or connected wallet can follow you into the game and future leaderboard flow.
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="status-pill">Shared session</span>
-                      <span className="status-pill">Wallet aware</span>
-                      <span className="status-pill">Arcade section</span>
-                    </div>
+            <div id="messagesPane" class="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-5 custom-scroll">${renderMessagesHtml()}</div>
+
+            <div class="p-4 md:p-6 ${state.theme === 'dark' ? 'bg-black/40' : 'bg-gray-50'} border-t border-white/5 flex-shrink-0 safe-bottom">
+              ${state.pinMode ? `
+                <div class="mb-3 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-500 text-xs font-bold flex items-center gap-2">
+                  <i class="fas fa-thumbtack animate-pulse"></i>MODO FIJAR MENSAJE ACTIVADO - Escribe y envía
+                  <button id="cancelPinModeBtn" class="ml-auto text-yellow-500 hover:text-yellow-300"><i class="fas fa-times"></i></button>
+                </div>
+              ` : ''}
+
+              ${state.showBanPanel ? `
+                <div class="mb-3 panel-3d border border-red-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
+                  <div class="flex justify-between items-center mb-3">
+                    <p class="text-xs font-bold text-red-500 uppercase">Seleccionar usuario para banear</p>
+                    <button id="closeBanPanelBtn" class="text-gray-500 hover:text-red-500"><i class="fas fa-times"></i></button>
                   </div>
-                  <div className="relative z-10 flex flex-col sm:flex-row gap-3 lg:min-w-[300px]">
-                    <button onClick={launchGalaxy} className="hero-action">
-                      <i className="fas fa-rocket mr-2"></i>
-                      Enter Galaxy
+                  ${state.onlineUsers.filter(u => !['ryachu','itsuki'].includes(u.role)).map(u => `
+                    <button class="ban-user-btn w-full text-left px-3 py-2 text-xs hover:bg-red-600/10 rounded mb-1 flex items-center gap-2" data-target-uid="${u.uid}">
+                      <i class="fas fa-user-slash text-red-500"></i><span class="font-bold">${escapeHtml(u.username)}</span>
                     </button>
-                    <button onClick={() => alert(`Game route: ${GAME_ROUTE}`)} className="sub-action">
-                      <i className="fas fa-link mr-2"></i>
-                      Check Route
+                  `).join('') || '<div class="text-xs text-gray-500">No hay usuarios disponibles para banear.</div>'}
+                </div>
+              ` : ''}
+
+              ${state.showMutePanel ? `
+                <div class="mb-3 panel-3d border border-yellow-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
+                  <div class="flex justify-between items-center mb-3">
+                    <p class="text-xs font-bold text-yellow-500 uppercase">Seleccionar usuario para mutear</p>
+                    <button id="closeMutePanelBtn" class="text-gray-500 hover:text-yellow-500"><i class="fas fa-times"></i></button>
+                  </div>
+                  ${state.onlineUsers.filter(u => !['ryachu','itsuki'].includes(u.role)).map(u => `
+                    <button class="mute-user-btn w-full text-left px-3 py-2 text-xs hover:bg-yellow-600/10 rounded mb-1 flex items-center gap-2" data-target-uid="${u.uid}">
+                      <i class="fas fa-volume-mute text-yellow-500"></i><span class="font-bold">${escapeHtml(u.username)}</span>
                     </button>
+                  `).join('') || '<div class="text-xs text-gray-500">No hay usuarios disponibles para mutear.</div>'}
+                </div>
+              ` : ''}
+
+              ${state.showEmoji ? `
+                <div class="mb-4 panel-3d border border-red-600/20 overflow-hidden shadow-2xl h-auto flex-shrink-0">
+                  <div class="flex bg-black/10 border-b border-white/5 overflow-x-auto custom-scroll">
+                    ${renderEmojiGridHtml()}
+                  </div>
+                  <div class="emoji-window custom-scroll">
+                    ${EMOJI[state.emojiTab].map(e => `<span class="emoji-btn" data-emoji="${e}">${e}</span>`).join('')}
                   </div>
                 </div>
+              ` : ''}
+
+              <div class="mb-2 ${state.currentChannel.id === 'private' ? '' : 'hidden'}">
+                ${isGuest() ? `<div class="text-xs text-red-500 font-bold">PRIVATE requiere sesión con wallet.</div>` : state.selectedPrivateUser ? `<div class="text-xs text-gray-500">Conversación cifrada con <span class="text-red-600 font-black">${escapeHtml(state.selectedPrivateUser.username || shortWallet(state.selectedPrivateUser.address))}</span></div>` : `<div class="text-xs text-gray-500">Selecciona una wallet para iniciar un DM cifrado.</div>`}
               </div>
 
-              {messages.map((msg, index) => {
-                const muted = mutedMap[msg.userId] && mutedMap[msg.userId] > Date.now();
-                const date = new Date(msg.timestamp);
-                const previous = index > 0 ? messages[index - 1] : null;
-                const previousDate = previous ? new Date(previous.timestamp) : null;
-                const showDayDivider = !previousDate || date.toDateString() !== previousDate.toDateString();
-
-                return (
-                  <React.Fragment key={msg.id}>
-                    {showDayDivider && (
-                      <div className="flex items-center gap-4 my-4">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-red-600/30 to-transparent"></div>
-                        <span className="text-[9px] font-black tracking-[0.3em] text-red-600/70 px-4 py-1.5 bg-red-600/5 rounded-full border border-red-600/20">
-                          {formatDayLabel(date)}
-                        </span>
-                        <div className="flex-1 h-px bg-gradient-to-r from-red-600/30 via-transparent to-transparent"></div>
-                      </div>
-                    )}
-
-                    <div className={`flex flex-col ${msg.userId === user.uid ? 'items-end' : 'items-start'}`}>
-                      <span className={`text-[10px] font-black mb-1.5 uppercase px-2 ${roleClass(msg.role)}`}>
-                        {msg.role === 'ryachu' && '👑 '}
-                        {msg.role === 'itsuki' && '💎 '}
-                        {msg.username} {muted && '🔇'}
-                      </span>
-                      <div className={`bubble-3d shadow-xl ${msg.userId === user.uid ? 'me' : 'other'} ${muted ? 'muted' : ''}`}>
-                        {msg.content}
-                      </div>
-                    </div>
-                  </React.Fragment>
-                );
-              })}
-              <div ref={bottomRef}></div>
-            </div>
-
-            <div className={`p-4 md:p-6 ${darkMode ? 'bg-black/40' : 'bg-gray-50'} border-t border-white/5 flex-shrink-0`}>
-              {pinMode && (
-                <div className="mb-3 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-500 text-xs font-bold flex items-center gap-2">
-                  <i className="fas fa-thumbtack animate-pulse"></i>
-                  MODO FIJAR MENSAJE ACTIVADO - Escribe y envía
-                  <button onClick={() => setPinMode(false)} className="ml-auto text-yellow-500 hover:text-yellow-300">
-                    <i className="fas fa-times"></i>
-                  </button>
-                </div>
-              )}
-
-              {showBanPanel && (
-                <div className="mb-3 panel-3d border border-red-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
-                  <div className="flex justify-between items-center mb-3">
-                    <p className="text-xs font-bold text-red-500 uppercase">Seleccionar usuario para banear</p>
-                    <button onClick={() => setShowBanPanel(false)} className="text-gray-500 hover:text-red-500"><i className="fas fa-times"></i></button>
-                  </div>
-                  {onlineUsers.filter(item => item.role !== 'ryachu' && item.role !== 'itsuki').map(item => (
-                    <button key={item.uid} onClick={() => adminActions.banUser(item.uid, item.username)} className="w-full text-left px-3 py-2 text-xs hover:bg-red-600/10 rounded mb-1 flex items-center gap-2">
-                      <i className="fas fa-user-slash text-red-500"></i>
-                      <span className="font-bold">{item.username}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {showMutePanel && (
-                <div className="mb-3 panel-3d border border-yellow-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
-                  <div className="flex justify-between items-center mb-3">
-                    <p className="text-xs font-bold text-yellow-500 uppercase">Seleccionar usuario para mutear</p>
-                    <button onClick={() => setShowMutePanel(false)} className="text-gray-500 hover:text-yellow-500"><i className="fas fa-times"></i></button>
-                  </div>
-                  {onlineUsers.filter(item => item.role !== 'ryachu' && item.role !== 'itsuki').map(item => (
-                    <button key={item.uid} onClick={() => adminActions.muteUser(item.uid, item.username)} className="w-full text-left px-3 py-2 text-xs hover:bg-yellow-600/10 rounded mb-1 flex items-center gap-2">
-                      <i className="fas fa-volume-mute text-yellow-500"></i>
-                      <span className="font-bold">{item.username}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {showEmoji && (
-                <div className="mb-4 panel-3d border border-red-600/20 overflow-hidden shadow-2xl h-auto flex-shrink-0">
-                  <div className="flex bg-black/10 border-b border-white/5 overflow-x-auto custom-scroll">
-                    {Object.keys(EMOJIS).map(category => (
-                      <button key={category} onClick={() => setEmojiCategory(category)} className={`px-4 py-2 text-[9px] font-black uppercase tracking-tighter ${emojiCategory === category ? 'text-red-600 bg-red-600/5' : 'text-gray-500'}`}>
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="emoji-window custom-scroll">
-                    {EMOJIS[emojiCategory].map(emoji => (
-                      <span key={emoji} onClick={() => setMessageInput(prev => prev + emoji)} className="emoji-btn">{emoji}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2.5 pl-5 focus-within:border-red-600/50 transition-all shadow-inner">
-                <button onClick={() => setShowEmoji(v => !v)} className="text-gray-500 hover:text-red-600 transition-colors mr-3">
-                  <i className="far fa-laugh-beam text-xl"></i>
-                </button>
-                <input
-                  value={messageInput}
-                  onChange={e => setMessageInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && sendMessage()}
-                  placeholder={pinMode ? 'Escribe el mensaje a fijar...' : isMuted ? 'Estás silenciado...' : 'Transmit message...'}
-                  disabled={isMuted}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input"
-                />
-                <button onClick={sendMessage} className={`w-12 h-12 ${pinMode ? 'bg-yellow-600' : 'bg-red-600'} rounded-xl flex items-center justify-center hover:bg-red-500 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)]`}>
-                  <i className={`fas ${pinMode ? 'fa-thumbtack' : 'fa-paper-plane'} text-white`}></i>
+              <div class="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2.5 pl-5 focus-within:border-red-600/50 transition-all shadow-inner">
+                <button id="emojiToggleBtn" class="text-gray-500 hover:text-red-600 transition-colors mr-3"><i class="far fa-laugh-beam text-xl"></i></button>
+                ${state.currentChannel.id === 'private' && !isGuest() ? `
+                  <label class="mr-3 text-gray-500 hover:text-red-500 cursor-pointer">
+                    <i class="fas fa-camera text-lg"></i>
+                    <input id="privateImageInput" type="file" accept="image/*" class="hidden" />
+                  </label>
+                ` : ''}
+                <input id="messageInput" value="${escapeHtml(state.draftText)}" placeholder="${state.pinMode ? 'Escribe el mensaje a fijar...' : ownMuted() ? 'Estás silenciado...' : state.currentChannel.id === 'private' && !state.selectedPrivateUser ? 'Selecciona una wallet...' : 'Transmit message...'}" ${ownMuted() || (state.currentChannel.id === 'private' && (!state.selectedPrivateUser || isGuest())) ? 'disabled' : ''} class="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input" />
+                <button id="sendBtn" class="w-12 h-12 ${state.pinMode ? 'bg-yellow-600' : 'bg-red-600'} rounded-xl flex items-center justify-center hover:bg-red-500 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)]">
+                  <i class="fas ${state.pinMode ? 'fa-thumbtack' : 'fa-paper-plane'} text-white"></i>
                 </button>
               </div>
             </div>
           </main>
 
-          {showSidebar && (
-            <div onClick={() => setShowSidebar(false)} className="fixed inset-0 bg-black/90 z-40 lg:hidden backdrop-blur-md"></div>
-          )}
+          <div id="mobileOverlay" class="fixed inset-0 bg-black/90 z-40 lg:hidden backdrop-blur-md hidden"></div>
         </div>
+      `;
+
+      bindUiEvents();
+      queueMicrotask(() => {
+        const pane = document.getElementById('messagesPane');
+        if (pane) pane.scrollTop = pane.scrollHeight;
+      });
+    }
+
+    function toggleSidebar(open){
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      if (!sidebar || !overlay) return;
+      if (open) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function bindUiEvents(){
+      document.getElementById('openSidebarBtn')?.addEventListener('click', () => toggleSidebar(true));
+      document.getElementById('mobileOverlay')?.addEventListener('click', () => toggleSidebar(false));
+      document.getElementById('disconnectBtn')?.addEventListener('click', handleDisconnect);
+      document.getElementById('themeToggleBtn')?.addEventListener('click', () => setTheme(state.theme === 'dark' ? 'light' : 'dark'));
+      document.getElementById('emojiToggleBtn')?.addEventListener('click', () => { state.showEmoji = !state.showEmoji; render(); });
+
+      document.querySelectorAll('.channel-switch-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.channelId;
+          if (id === 'private' && isGuest()) {
+            guestModal.style.display = 'flex';
+            return;
+          }
+          state.currentChannel = CHANNELS.find(c => c.id === id) || CHANNELS[0];
+          state.pinMode = false;
+          state.showBanPanel = false;
+          state.showMutePanel = false;
+          state.showEmoji = false;
+          state.draftText = '';
+          render();
+          subscribeCurrentView();
+          toggleSidebar(false);
+        });
+      });
+
+      document.querySelectorAll('[data-private-wallet]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const wallet = btn.dataset.privateWallet;
+          state.selectedPrivateUser = state.privateDirectory[wallet] || null;
+          render();
+          subscribeCurrentView();
+          toggleSidebar(false);
+        });
+      });
+
+      document.querySelectorAll('[data-emoji-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.emojiTab = btn.dataset.emojiTab;
+          render();
+        });
+      });
+
+      document.querySelectorAll('[data-emoji]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const input = document.getElementById('messageInput');
+          if (!input) return;
+          state.draftText = `${state.draftText}${btn.dataset.emoji}`;
+          render();
+          queueMicrotask(() => document.getElementById('messageInput')?.focus());
+        });
+      });
+
+      document.getElementById('messageInput')?.addEventListener('input', (e) => { state.draftText = e.target.value; });
+      document.getElementById('messageInput')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleSend();
+      });
+      document.getElementById('sendBtn')?.addEventListener('click', handleSend);
+      document.getElementById('privateImageInput')?.addEventListener('change', handlePrivateImage);
+
+      if (isAdmin()) {
+        document.getElementById('enablePinModeBtn')?.addEventListener('click', () => { state.pinMode = true; render(); });
+        document.getElementById('cancelPinModeBtn')?.addEventListener('click', () => { state.pinMode = false; render(); });
+        document.getElementById('clearChatBtn')?.addEventListener('click', async () => {
+          if (state.currentChannel.id === 'private') return alert('Solo aplica a canales públicos.');
+          if (!confirm(`¿Borrar todo el historial del canal ${state.currentChannel.name}?`)) return;
+          try {
+            await clearPublicChannel({ channelId: state.currentChannel.id });
+          } catch (e) { alert(e.message || 'No se pudo limpiar el chat.'); }
+        });
+        document.getElementById('removePinBtn')?.addEventListener('click', clearPin);
+        document.getElementById('removePinHeaderBtn')?.addEventListener('click', clearPin);
+        document.getElementById('openBanPanelBtn')?.addEventListener('click', () => { state.showBanPanel = true; state.showMutePanel = false; render(); });
+        document.getElementById('openMutePanelBtn')?.addEventListener('click', () => { state.showMutePanel = true; state.showBanPanel = false; render(); });
+        document.getElementById('closeBanPanelBtn')?.addEventListener('click', () => { state.showBanPanel = false; render(); });
+        document.getElementById('closeMutePanelBtn')?.addEventListener('click', () => { state.showMutePanel = false; render(); });
+        document.getElementById('togglePrivateBtn')?.addEventListener('click', () => {
+          state.currentChannel = CHANNELS.find(c => c.id === 'private');
+          render();
+          subscribeCurrentView();
+        });
+
+        document.querySelectorAll('.ban-user-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const targetUid = btn.dataset.targetUid;
+            const target = state.onlineUsers.find(u => u.uid === targetUid);
+            if (!target) return;
+            if (!confirm(`¿Banear permanentemente a ${target.username}?`)) return;
+            try {
+              await moderateUser({ action: 'ban', targetUid });
+              state.showBanPanel = false;
+              render();
+            } catch (e) { alert(e.message || 'No se pudo banear al usuario.'); }
+          });
+        });
+
+        document.querySelectorAll('.mute-user-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const targetUid = btn.dataset.targetUid;
+            const target = state.onlineUsers.find(u => u.uid === targetUid);
+            if (!target) return;
+            try {
+              await moderateUser({ action: 'mute_1m', targetUid });
+              alert(`${target.username} ha sido silenciado por 1 minuto`);
+              state.showMutePanel = false;
+              render();
+            } catch (e) { alert(e.message || 'No se pudo mutear al usuario.'); }
+          });
+        });
+      }
+    }
+
+    async function clearPin(){
+      try {
+        await clearPinnedMessage({});
+      } catch (e) {
+        alert(e.message || 'No se pudo quitar el pin.');
+      }
+    }
+
+    async function handleSend(imageData = null){
+      const input = document.getElementById('messageInput');
+      const raw = imageData || state.draftText || '';
+      if (!raw) return;
+
+      if (state.pinMode) {
+        try {
+          await pinPublicMessage({ text: raw });
+          state.pinMode = false;
+          state.draftText = '';
+          render();
+        } catch (e) { alert(e.message || 'No se pudo fijar el mensaje.'); }
+        return;
+      }
+
+      if (ownMuted()) {
+        alert('Estás silenciado temporalmente');
+        return;
+      }
+
+      try {
+        if (state.currentChannel.id === 'private') {
+          if (isGuest()) {
+            guestModal.style.display = 'flex';
+            return;
+          }
+          if (!state.selectedPrivateUser) {
+            alert('Selecciona una wallet para abrir un DM.');
+            return;
+          }
+          const encrypted = await encryptForPeer(raw, state.selectedPrivateUser.publicJwk);
+          await sendPrivateMessage({
+            to: state.selectedPrivateUser.address,
+            type: imageData ? 'img' : 'txt',
+            cipher: encrypted.cipher,
+            iv: encrypted.iv
+          });
+        } else {
+          await postPublicMessage({ channelId: state.currentChannel.id, text: raw });
+        }
+        state.draftText = '';
+        render();
+      } catch (e) {
+        console.error(e);
+        alert(e.message || 'No se pudo enviar el mensaje.');
+      }
+    }
+
+    async function handlePrivateImage(e){
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const dataUrl = await resizeImage(file);
+      await handleSend(dataUrl);
+      e.target.value = '';
+    }
+
+    function resizeImage(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const scale = Math.min(1200 / img.width, 1200 / img.height, 1);
+            canvas.width = Math.max(1, Math.round(img.width * scale));
+            canvas.height = Math.max(1, Math.round(img.height * scale));
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.72));
+          };
+          img.onerror = reject;
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function cleanupViewListener(){
+      const { messagesRef, messagesCb } = state.listenerRefs;
+      if (messagesRef && messagesCb) off(messagesRef, 'value', messagesCb);
+      state.listenerRefs.messagesRef = null;
+      state.listenerRefs.messagesCb = null;
+      state.messages = [];
+    }
+
+    async function subscribeCurrentView(){
+      cleanupViewListener();
+      if (!state.user) return;
+
+      if (state.currentChannel.id === 'private') {
+        if (!state.selectedPrivateUser || isGuest()) {
+          state.messages = [];
+          render();
+          return;
+        }
+        const tid = threadId(state.user.uid, state.selectedPrivateUser.address);
+        const dmRef = query(ref(db, `dmMessages/${tid}`), limitToLast(50));
+        const cb = async (snap) => {
+          const val = snap.val() || {};
+          const rows = Object.entries(val).map(([id, data]) => ({ id, ...data })).sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0));
+          const decrypted = await Promise.all(rows.map(async (row) => {
+            try {
+              const content = await decryptFromPeer(row.cipher, row.iv, state.selectedPrivateUser.publicJwk);
+              return { ...row, content };
+            } catch {
+              return { ...row, content: '[Contenido cifrado no disponible]' };
+            }
+          }));
+          state.messages = decrypted;
+          render();
+        };
+        state.listenerRefs.messagesRef = dmRef;
+        state.listenerRefs.messagesCb = cb;
+        onValue(dmRef, cb);
+        render();
+        return;
+      }
+
+      const msgRef = query(ref(db, `messages/${state.currentChannel.id}`), limitToLast(50));
+      const cb = (snap) => {
+        const val = snap.val() || {};
+        state.messages = Object.entries(val).map(([id, data]) => ({ id, ...data })).sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0));
+        render();
+      };
+      state.listenerRefs.messagesRef = msgRef;
+      state.listenerRefs.messagesCb = cb;
+      onValue(msgRef, cb);
+      render();
+    }
+
+    function attachGlobalListeners(){
+      const statusRef = ref(db, 'status');
+      const statusCb = (snap) => {
+        const val = snap.val() || {};
+        state.onlineUsers = Object.values(val);
+        render();
+      };
+      onValue(statusRef, statusCb);
+      state.listenerRefs.statusRef = statusRef;
+      state.listenerRefs.statusCb = statusCb;
+
+      const pinnedRef = ref(db, 'settings/pinned');
+      const pinnedCb = (snap) => {
+        state.pinned = snap.val() || '';
+        render();
+      };
+      onValue(pinnedRef, pinnedCb);
+      state.listenerRefs.pinnedRef = pinnedRef;
+      state.listenerRefs.pinnedCb = pinnedCb;
+
+      const mutedPath = isAdmin() ? 'muted' : `muted/${state.user.uid}`;
+      const mutedRef = ref(db, mutedPath);
+      const mutedCb = (snap) => {
+        const val = snap.val() || {};
+        state.mutedMap = isAdmin() ? val : { [state.user.uid]: Number(val || 0) };
+        render();
+      };
+      onValue(mutedRef, mutedCb);
+      state.listenerRefs.mutedRef = mutedRef;
+      state.listenerRefs.mutedCb = mutedCb;
+
+      if (state.user.isWallet) {
+        const privateUsersRef = ref(db, 'privateUsers');
+        const privateUsersCb = (snap) => {
+          state.privateDirectory = snap.val() || {};
+          if (state.selectedPrivateUser?.address && !state.privateDirectory[state.selectedPrivateUser.address]) {
+            state.selectedPrivateUser = null;
+          } else if (state.selectedPrivateUser?.address) {
+            state.selectedPrivateUser = state.privateDirectory[state.selectedPrivateUser.address];
+          }
+          render();
+        };
+        onValue(privateUsersRef, privateUsersCb);
+        state.listenerRefs.privateUsersRef = privateUsersRef;
+        state.listenerRefs.privateUsersCb = privateUsersCb;
+      }
+    }
+
+    async function setupPresence(){
+      const statusPayload = {
+        username: state.user.username,
+        role: state.user.role,
+        uid: state.user.uid
+      };
+      const statusRef = ref(db, `status/${state.user.uid}`);
+      await set(statusRef, statusPayload);
+      onDisconnect(statusRef).remove();
+
+      if (state.user.isWallet) {
+        await ensureLocalKeys();
+        const privateRef = ref(db, `privateUsers/${state.user.uid}`);
+        await set(privateRef, {
+          address: state.user.uid,
+          username: state.user.username,
+          role: state.user.role,
+          online: true,
+          lastSeen: Date.now(),
+          publicJwk: state.e2ee.publicJwk
+        });
+        onDisconnect(privateRef).update({
+          online: false,
+          lastSeen: Date.now()
+        });
+      }
+    }
+
+    async function ensureLocalKeys(){
+      const keyName = `muzz_e2ee_${state.user.uid}`;
+      const saved = localStorage.getItem(keyName);
+      let jwks;
+      if (saved) {
+        jwks = JSON.parse(saved);
+      } else {
+        const pair = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']);
+        const publicJwk = await crypto.subtle.exportKey('jwk', pair.publicKey);
+        const privateJwk = await crypto.subtle.exportKey('jwk', pair.privateKey);
+        jwks = { publicJwk, privateJwk };
+        localStorage.setItem(keyName, JSON.stringify(jwks));
+      }
+      state.e2ee.publicJwk = jwks.publicJwk;
+      state.e2ee.privateKey = await crypto.subtle.importKey('jwk', jwks.privateJwk, { name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']);
+    }
+
+    async function importPeerPublicKey(publicJwk){
+      return crypto.subtle.importKey('jwk', publicJwk, { name: 'ECDH', namedCurve: 'P-256' }, true, []);
+    }
+
+    function bytesToB64(bytes){
+      let bin = '';
+      bytes.forEach(b => bin += String.fromCharCode(b));
+      return btoa(bin);
+    }
+
+    function b64ToBytes(b64){
+      const bin = atob(b64);
+      return Uint8Array.from(bin, c => c.charCodeAt(0));
+    }
+
+    async function deriveAesKey(peerPublicJwk){
+      const peerPublicKey = await importPeerPublicKey(peerPublicJwk);
+      return crypto.subtle.deriveKey(
+        { name: 'ECDH', public: peerPublicKey },
+        state.e2ee.privateKey,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    async function encryptForPeer(text, peerPublicJwk){
+      const key = await deriveAesKey(peerPublicJwk);
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const encoded = new TextEncoder().encode(text);
+      const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
+      return { cipher: bytesToB64(new Uint8Array(cipher)), iv: bytesToB64(iv) };
+    }
+
+    async function decryptFromPeer(cipherB64, ivB64, peerPublicJwk){
+      const key = await deriveAesKey(peerPublicJwk);
+      const plain = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: b64ToBytes(ivB64) },
+        key,
+        b64ToBytes(cipherB64)
+      );
+      return new TextDecoder().decode(plain);
+    }
+
+    async function handleDisconnect(){
+      try {
+        if (state.user?.isWallet) {
+          const privateRef = ref(db, `privateUsers/${state.user.uid}`);
+          await update(privateRef, { online: false, lastSeen: Date.now() });
+        }
+        await remove(ref(db, `status/${state.user.uid}`));
+      } catch {}
+      sessionStorage.removeItem('muzz_wallet_address');
+      sessionStorage.removeItem('muzz_username');
+      sessionStorage.removeItem('muzz_role');
+      await signOut(auth);
+      window.location.href = 'login.html';
+    }
+
+    closeGuestPrivateModal.addEventListener('click', () => {
+      guestModal.style.display = 'none';
+    });
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+      const token = await firebaseUser.getIdTokenResult(true);
+      const claims = token.claims || {};
+      state.user = {
+        uid: firebaseUser.uid,
+        username: claims.username || sessionStorage.getItem('muzz_username') || (firebaseUser.uid.startsWith('guest_') ? 'Guest' : `Node_${firebaseUser.uid.slice(-4)}`),
+        role: claims.role || sessionStorage.getItem('muzz_role') || 'user',
+        isWallet: claims.is_wallet === true,
+        wallet: claims.wallet || null
+      };
+      sessionStorage.setItem('muzz_username', state.user.username);
+      sessionStorage.setItem('muzz_role', state.user.role);
+      if (state.user.isWallet) sessionStorage.setItem('muzz_wallet_address', state.user.uid);
+
+      setTheme(state.theme);
+      render();
+      await setupPresence();
+      attachGlobalListeners();
+      subscribeCurrentView();
+    });
   </script>
 </body>
 </html>
