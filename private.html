@@ -25,7 +25,7 @@
     *{box-sizing:border-box}
     html,body{margin:0;height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#252b33 0%, #1b2027 100%);color:var(--text)}
     body{overflow:hidden;font-size:14px}
-    .app{height:100%;display:grid;grid-template-columns:320px 1fr}
+    .app{height:100dvh;display:grid;grid-template-columns:320px 1fr}
     .sidebar,.chat{min-height:0}
     .sidebar{background:rgba(10,13,17,.82);backdrop-filter:blur(10px);border-right:1px solid rgba(255,42,42,.14);padding:18px;display:flex;flex-direction:column;gap:16px}
     .brand{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid rgba(255,42,42,.18);border-radius:22px;background:linear-gradient(180deg,rgba(255,42,42,.06),rgba(255,42,42,.02))}
@@ -49,12 +49,12 @@
     .btn.red{background:linear-gradient(145deg,var(--red),var(--red-2));color:white;box-shadow:0 0 18px rgba(255,42,42,.18)}
     .btn.ghost{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--text)}
     .btn:hover{transform:translateY(-1px)}
-    .chat{display:flex;flex-direction:column;min-width:0;background:linear-gradient(180deg,rgba(16,20,25,.8),rgba(8,10,14,.9))}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+    .chat{display:flex;flex-direction:column;min-width:0;min-height:0;height:100%;overflow:hidden;background:linear-gradient(180deg,rgba(16,20,25,.8),rgba(8,10,14,.9))}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02);flex:0 0 auto}
     .topbar-left{display:flex;align-items:center;gap:12px;min-width:0}
     .topbar h2{margin:0;font-size:14px;letter-spacing:.16em;color:#ff6565;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .pill{padding:7px 11px;border-radius:999px;background:rgba(255,42,42,.08);border:1px solid rgba(255,42,42,.18);font-size:11px;color:#ff9a9a;font-weight:700}
-    .messages{flex:1;overflow:auto;padding:22px 22px calc(22px + var(--safe-bottom));display:flex;flex-direction:column;gap:14px}
+    .messages{flex:1;min-height:0;overflow:auto;padding:22px 22px calc(22px + var(--safe-bottom));display:flex;flex-direction:column;gap:14px}
     .day{align-self:center;padding:7px 12px;border-radius:999px;background:rgba(255,42,42,.08);border:1px solid rgba(255,42,42,.15);font-size:10px;letter-spacing:.22em;color:#ff8080;font-weight:800}
     .msg-wrap{display:flex;gap:10px;align-items:flex-end;max-width:82%}
     .msg-wrap.me{align-self:flex-end;flex-direction:row-reverse}
@@ -62,25 +62,27 @@
     .msg-wrap.me .bubble{background:linear-gradient(145deg,var(--red),var(--red-2));border-color:transparent}
     .meta{font-size:10px;color:var(--muted);margin:2px 6px}
     .msg-user{font-weight:800;color:var(--blue);font-size:11px;margin:0 0 6px}
-    .composer{padding:16px 18px;border-top:1px solid var(--line);background:rgba(255,255,255,.02)}
+    .composer{padding:16px 18px calc(16px + var(--safe-bottom));border-top:1px solid var(--line);background:rgba(255,255,255,.02);flex:0 0 auto}
     .composer-box{display:flex;gap:12px;align-items:flex-end;background:#0b1015;border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:10px 10px 10px 16px}
-    textarea{flex:1;resize:none;background:transparent;border:none;outline:none;color:var(--text);font:inherit;font-size:14px;line-height:1.4;min-height:24px;max-height:140px;padding:6px 0}
+    textarea{flex:1;resize:none;background:transparent;border:none;outline:none;color:var(--text);font:inherit;font-size:14px;line-height:1.4;min-height:24px;max-height:140px;padding:6px 0;-webkit-appearance:none;appearance:none}
     textarea::placeholder{color:#6f7c8e}
     .send{width:50px;height:50px;border-radius:16px;border:none;background:linear-gradient(145deg,var(--red),var(--red-2));color:#fff;font-size:18px;cursor:pointer;flex:0 0 auto}
     .empty{display:grid;place-items:center;height:100%;padding:24px;text-align:center;color:var(--muted)}
-    .mobile-top{display:none}
+    .mobile-top{display:none;flex:0 0 auto}
     @media (max-width: 920px){
       .app{
         grid-template-columns:1fr;
-        height:auto;
+        height:100dvh;
         min-height:100dvh;
-        padding:calc(10px + var(--safe-top)) calc(10px + var(--safe-right)) calc(10px + var(--safe-bottom)) calc(10px + var(--safe-left));
+        padding:0;
       }
       .sidebar{display:none}
-      .mobile-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.25)}
-      .topbar{padding:14px}
-      .messages{padding:14px 14px calc(14px + var(--safe-bottom))}
-      .composer{padding:12px 12px calc(12px + var(--safe-bottom))}
+      .chat{height:100dvh;min-height:0;border:none}
+      .mobile-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(10px + var(--safe-top)) calc(12px + var(--safe-right)) 10px calc(12px + var(--safe-left));border-bottom:1px solid var(--line);background:rgba(0,0,0,.25)}
+      .topbar{padding:14px 14px 12px}
+      .messages{padding:14px;flex:1;min-height:0;overflow:auto}
+      .composer{position:sticky;bottom:0;left:0;right:0;z-index:4;padding:12px calc(12px + var(--safe-right)) calc(12px + var(--safe-bottom)) calc(12px + var(--safe-left));background:linear-gradient(180deg,rgba(17,22,28,.92),rgba(11,16,21,.98));backdrop-filter:blur(8px)}
+      .composer-box{border-radius:20px}
       .msg-wrap{max-width:92%}
     }
   </style>
@@ -110,14 +112,14 @@
       </div>
 
       <div class="side-actions">
-        <button class="btn ghost" onclick="window.location.href='index.html'">← Back to Chat</button>
+        <button class="btn ghost" onclick="window.location.href='chat.html'">← Back to Chat</button>
         <button class="btn red" onclick="clearPrivateDemo()">Clear demo inbox</button>
       </div>
     </aside>
 
     <section class="chat">
       <div class="mobile-top">
-        <button class="btn ghost" style="padding:10px 12px;border-radius:14px" onclick="window.location.href='index.html'">← Back</button>
+        <button class="btn ghost" style="padding:10px 12px;border-radius:14px" onclick="window.location.href='chat.html'">← Back</button>
         <div style="font-weight:900;letter-spacing:.08em">MUZZ<span style="color:var(--red)">SNAP</span></div>
       </div>
 
@@ -232,7 +234,7 @@
         row.onclick = () => {
           activeId = chat.id;
           autoResizeInput();
-    render();
+          render();
         };
         list.appendChild(row);
       });
@@ -292,7 +294,7 @@
       saveStore();
       input.value = '';
       autoResizeInput();
-    render();
+      render();
     }
 
     function render(){
@@ -309,11 +311,12 @@
         store = loadStore();
         activeId = Object.keys(store)[0];
         autoResizeInput();
-    render();
+        render();
       }
     }
 
     const privateInput = document.getElementById('messageInput');
+
     function autoResizeInput(){
       privateInput.style.height = '26px';
       privateInput.style.height = Math.min(privateInput.scrollHeight, 140) + 'px';
@@ -326,6 +329,12 @@
         e.preventDefault();
         sendMessage();
       }
+    });
+
+    window.addEventListener('resize', () => {
+      autoResizeInput();
+      const box = document.getElementById('messages');
+      box.scrollTop = box.scrollHeight;
     });
 
     autoResizeInput();
