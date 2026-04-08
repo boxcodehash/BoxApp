@@ -39,19 +39,14 @@
     .custom-scroll::-webkit-scrollbar{width:4px}
     .custom-scroll::-webkit-scrollbar-thumb{background:var(--muzz-red);border-radius:10px}
     .online-indicator{width:8px;height:8px;background:#39ff14;border-radius:50%;box-shadow:0 0 8px #39ff14}
-    
-    /* Admin button styles - only visible to admins */
     .admin-btn{font-size:10px;padding:8px 12px;border-radius:8px;background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.3);color:#ff0000;font-weight:bold;transition:all 0.3s;cursor:pointer}
     .admin-btn:hover{background:#ff0000;color:white}
-    
-    /* Touch improvements */
     .touch-manipulation{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
     input,button,select,textarea{font-size:16px}
     .custom-scroll{-webkit-overflow-scrolling:touch}
-    
-    @supports (-webkit-touch-callout:none){
-      .h-screen{height:-webkit-fill-available}
-    }
+    @supports (-webkit-touch-callout:none){.h-screen{height:-webkit-fill-available}}
+    .pinned-message{animation:slideDown 0.3s ease-out}
+    @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
   </style>
 </head>
 <body class="dark-theme">
@@ -73,16 +68,12 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ==========================================
-    // CONFIGURACIÓN DE ADMIN - EXCLUSIVO 3 WALLETS
-    // ==========================================
     const ADMIN_WALLETS = {
       ryachu: atob('MHgyMDgxNTdiNWVjMzk2NzU5ZTg3NTQwNTgxMDhlY2Y1M2UzMjM5MmZm').toLowerCase(),
       itsuki: atob('MHhmYWI1ODM1Y2ExNGZiM2Y5Zjk3OGM1ZTRkNzMzNzM0ZTYzOTRlMDNm').toLowerCase(),
       esteban: '0x875c5a7794b601f273da58e3c1d10671d16130ec'.toLowerCase()
     };
 
-    // Mapa inverso para lookup rápido
     const ADMIN_MAP = {
       [ADMIN_WALLETS.ryachu]: { name: 'Ryachu', role: 'ryachu' },
       [ADMIN_WALLETS.itsuki]: { name: 'Itsuki', role: 'itsuki' },
@@ -125,9 +116,6 @@
 
     const pinPathForChannel = (channelId) => `settings/pinned/${channelId}`;
 
-    // ==========================================
-    // FUNCIÓN DE VERIFICACIÓN DE ADMIN - ESTRICTA
-    // ==========================================
     const normalizeWallet = (addr) => {
       if (!addr || typeof addr !== 'string') return '';
       let normalized = addr.trim().toLowerCase();
@@ -139,7 +127,6 @@
     const checkIsAdmin = (walletAddress) => {
       const normalized = normalizeWallet(walletAddress);
       if (!normalized) return { isAdmin: false, adminInfo: null, normalizedWallet: '' };
-      
       const adminInfo = ADMIN_MAP[normalized];
       return {
         isAdmin: !!adminInfo,
@@ -153,7 +140,7 @@
       const [messages, setMessages] = useState([]);
       const [onlineUsers, setOnlineUsers] = useState([]);
       const [mutedMap, setMutedMap] = useState({});
-      const [pinnedMessage, setPinnedMessage] = useState("");
+      const [pinnedMessage, setPinnedMessage] = useState(null);
       const [messageText, setMessageText] = useState("");
       const [darkMode, setDarkMode] = useState(true);
       const [showEmoji, setShowEmoji] = useState(false);
@@ -166,9 +153,6 @@
       const [notice, setNotice] = useState({show:false,title:"",desc:"",tone:"red"});
       const bottomRef = useRef(null);
 
-      // ==========================================
-      // VERIFICACIÓN DE ADMIN - ÚNICA FUENTE DE VERDAD
-      // ==========================================
       const isAdmin = me?.isAdmin === true;
       const mutedUntilForMe = me?.identityKey ? mutedMap[me.identityKey] : null;
       const iAmMuted = !!(mutedUntilForMe && mutedUntilForMe > Date.now());
@@ -200,9 +184,6 @@
         return '';
       };
 
-      // ==========================================
-      // AUTENTICACIÓN CON VERIFICACIÓN ESTRICTA
-      // ==========================================
       useEffect(() => {
         const sessionWallet = sessionStorage.getItem('muzz_wallet_address');
         if (!sessionWallet) {
@@ -217,25 +198,21 @@
         let registryRef = null;
 
         firebase.auth().signInAnonymously().then(({ user }) => {
-          // Verificación estricta de admin
           const adminCheck = checkIsAdmin(sessionWallet);
           const isKnownAdmin = adminCheck.isAdmin;
           
           let username, role, isAdmin;
           
           if (isKnownAdmin && adminCheck.adminInfo) {
-            // Es uno de los 3 admins oficiales
             username = adminCheck.adminInfo.name;
             role = adminCheck.adminInfo.role;
             isAdmin = true;
             console.log(`[ADMIN LOGIN] ${username} verified`);
           } else if (sessionWallet.startsWith('guest_')) {
-            // Guest - nunca admin
             username = sessionWallet.replace('guest_', 'Guest_');
             role = 'guest';
             isAdmin = false;
           } else if (sessionWallet) {
-            // Wallet normal - nunca admin
             username = `User_${sessionWallet.slice(-6)}`;
             role = 'user';
             isAdmin = false;
@@ -254,7 +231,7 @@
             isWallet: !sessionWallet.startsWith('guest_') && !!sessionWallet,
             wallet: adminCheck.normalizedWallet || sessionWallet.toLowerCase(),
             identityKey,
-            isAdmin, // SOLO true para las 3 wallets
+            isAdmin,
             loginTime: Date.now()
           };
           
@@ -326,7 +303,22 @@
       useEffect(() => {
         if (!me) return;
         const pinRef = db.ref(pinPathForChannel(activeChannel.id));
-        pinRef.on('value', (snap) => setPinnedMessage(snap.val() || ""));
+        pinRef.on('value', (snap) => {
+          const val = snap.val();
+          if (val && typeof val === 'object' && val.content) {
+            setPinnedMessage(val);
+          } else if (val && typeof val === 'string') {
+            setPinnedMessage({
+              content: val,
+              username: 'Admin',
+              role: 'admin',
+              timestamp: Date.now(),
+              isLegacy: true
+            });
+          } else {
+            setPinnedMessage(null);
+          }
+        });
         return () => pinRef.off();
       }, [me, activeChannel]);
 
@@ -344,20 +336,15 @@
         bottomRef.current?.scrollIntoView({ behavior:'smooth' });
       }, [messages]);
 
-      // ==========================================
-      // ACCESO PRIVATE - BYPASS PARA ADMINS
-      // ==========================================
       const goToPrivate = async () => {
         if (!me) return;
 
-        // ADMINS: Bypass automático
         if (me.isAdmin && ADMIN_ROLES.includes(me.role)) {
           console.log('[ADMIN] Private access granted');
           window.location.href = 'private.html';
           return;
         }
 
-        // Usuarios normales: verificación de tokens
         if (!me.isWallet) {
           showNotice('WALLET REQUIRED', 'MUZZ PRIVATE requires wallet', 'yellow');
           return;
@@ -400,9 +387,6 @@
         }
       };
 
-      // ==========================================
-      // ENVÍO DE MENSAJES
-      // ==========================================
       const sendMessage = async () => {
         if (!messageText.trim() || !me) return;
         if (iAmMuted) {
@@ -413,13 +397,26 @@
         try {
           if (pinMode) {
             if (!isAdmin) {
-              console.warn('[SECURITY] Unauthorized pin blocked');
+              console.warn('[SECURITY] Unauthorized pin attempt');
               return;
             }
-            await db.ref(pinPathForChannel(activeChannel.id)).set(messageText);
+            
+            const pinData = {
+              content: messageText.trim(),
+              username: me.username,
+              role: me.role,
+              timestamp: Date.now(),
+              channel: activeChannel.id
+            };
+            
+            await db.ref(pinPathForChannel(activeChannel.id)).set(pinData);
+            
             setPinMode(false);
             setMessageText('');
-            alert('Pinned message updated.');
+            
+            showNotice('MENSAJE FIJADO', 'El mensaje aparece en la parte superior', 'blue');
+            
+            console.log('[ADMIN] Message pinned:', pinData);
             return;
           }
 
@@ -435,15 +432,13 @@
 
           setMessageText('');
           setShowEmoji(false);
+          
         } catch (err) {
           console.error('Send failed:', err);
-          alert(`Failed: ${err.message}`);
+          alert(`Error: ${err.message || 'No se pudo enviar'}`);
         }
       };
 
-      // ==========================================
-      // ACCIONES DE ADMIN - PROTEGIDAS
-      // ==========================================
       const adminActions = {
         enablePinMode: () => {
           if (!isAdmin) {
@@ -452,6 +447,7 @@
           }
           setPinMode(true);
           setMessageText('');
+          console.log('[ADMIN] Pin mode enabled');
         },
         
         clearChat: async () => {
@@ -469,11 +465,19 @@
         },
         
         removePin: async () => {
-          if (!isAdmin) return;
+          if (!isAdmin) {
+            console.warn('[SECURITY] Blocked unpin attempt');
+            return;
+          }
+          if (!confirm('¿Desfijar el mensaje actual?')) return;
+          
           try {
             await db.ref(pinPathForChannel(activeChannel.id)).remove();
+            setPinnedMessage(null);
+            console.log('[ADMIN] Pin removed');
           } catch (err) {
             console.error('Remove pin failed:', err);
+            alert('Error al desfijar');
           }
         },
         
@@ -502,7 +506,6 @@
             alert('Invalid user');
             return;
           }
-          // No banear admins
           if (target.isAdmin || ADMIN_ROLES.includes(target.role)) {
             alert('Cannot ban admin');
             return;
@@ -562,12 +565,8 @@
       return (
         <div className="flex h-screen p-2 md:p-4 lg:p-6 gap-4 md:gap-6 max-w-[1600px] mx-auto overflow-hidden">
           
-          {/* ==========================================
-              SIDEBAR - CON PANEL ADMIN EXCLUSIVO
-              ========================================== */}
           <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-80 lg:w-64 transition-all duration-300 transform panel-3d p-4 md:p-6 flex flex-col ${mobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} shadow-2xl lg:shadow-none overflow-hidden`}>
             
-            {/* Header */}
             <div className="mb-4 md:mb-6 flex items-center gap-3 shrink-0">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
                 <i className="fas fa-ghost text-white text-xs md:text-sm"></i>
@@ -580,10 +579,6 @@
 
             <div className="flex-1 overflow-y-auto custom-scroll space-y-4 md:space-y-6 pr-1 md:pr-2">
               
-              {/* ==========================================
-                  PANEL DE ADMIN - SOLO PARA RYACHU/ITSUKI/ESTEBAN
-                  COMPLETAMENTE INVISIBLE PARA OTROS
-                  ========================================== */}
               {isAdmin && (
                 <div className="bg-red-900/20 border border-red-600/40 rounded-xl p-3 md:p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -622,7 +617,6 @@
                 </div>
               )}
 
-              {/* Info normal para usuarios no-admin */}
               {!isAdmin && me?.isWallet && (
                 <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-3">
                   <p className="text-[10px] text-gray-500 font-bold tracking-wider uppercase mb-2">Tu Nodo</p>
@@ -632,7 +626,6 @@
                 </div>
               )}
 
-              {/* Channels */}
               <div>
                 <p className="text-[9px] md:text-[10px] text-gray-500 font-bold tracking-[0.2em] mb-2 md:mb-4 uppercase">Channels</p>
                 {CHANNELS.map((channel) => (
@@ -646,7 +639,6 @@
                 ))}
               </div>
 
-              {/* Muzz Private */}
               <div>
                 <p className="text-[9px] md:text-[10px] text-gray-500 font-bold tracking-[0.2em] mb-2 md:mb-4 uppercase">Muzz</p>
                 <button onClick={goToPrivate} className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-bold mb-1 transition-all text-gray-500 hover:text-white hover:bg-red-600/5 border border-white/5 flex items-center">
@@ -658,7 +650,6 @@
                 </p>
               </div>
 
-              {/* Online Users */}
               <div>
                 <p className="text-[9px] md:text-[10px] text-gray-500 font-bold tracking-[0.2em] mb-2 md:mb-4 uppercase">Online — {onlineUsers.length}</p>
                 <div className="space-y-2 md:space-y-3">
@@ -680,25 +671,44 @@
             </button>
           </aside>
 
-          {/* ==========================================
-              MAIN CHAT AREA
-              ========================================== */}
           <main className="flex-1 panel-3d flex flex-col overflow-hidden border border-white/5 h-full relative">
             
-            {/* Pinned Message */}
+            {/* MENSAJE FIJADO - Estilo Telegram */}
             {pinnedMessage && (
-              <div className="bg-red-600/10 border-b border-red-600/30 py-2 px-4 md:px-6 flex items-center gap-3 flex-shrink-0">
-                <i className="fas fa-thumbtack text-red-600 text-[10px] animate-pulse"></i>
-                <marquee className="text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase flex-1">{pinnedMessage}</marquee>
-                {isAdmin && (
-                  <button onClick={adminActions.removePin} className="text-[8px] text-red-400 hover:text-red-600 p-1">
-                    <i className="fas fa-times"></i>
-                  </button>
-                )}
+              <div className="pinned-message bg-red-900/20 border-b border-red-600/40 flex-shrink-0">
+                <div className="px-4 py-3 flex items-start gap-3">
+                  <div className="shrink-0 mt-1">
+                    <i className="fas fa-thumbtack text-red-500 text-sm transform -rotate-45"></i>
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-xs font-bold uppercase ${roleClass(pinnedMessage.role, 'text-red-400')}`}>
+                        {roleBadge(pinnedMessage.role)}{pinnedMessage.username || 'Admin'}
+                      </span>
+                      <span className="text-[10px] text-gray-500">
+                        {pinnedMessage.timestamp ? new Date(pinnedMessage.timestamp).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'}) : ''}
+                      </span>
+                    </div>
+                    
+                    <p className="text-sm text-white/90 leading-relaxed break-words line-clamp-2">
+                      {pinnedMessage.content}
+                    </p>
+                  </div>
+                  
+                  {isAdmin && (
+                    <button 
+                      onClick={adminActions.removePin}
+                      className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-600/20 text-red-400 hover:text-red-300 transition"
+                    >
+                      <i className="fas fa-times text-xs"></i>
+                    </button>
+                  )}
+                </div>
+                <div className="h-0.5 bg-gradient-to-r from-red-600/50 via-red-500/30 to-transparent"></div>
               </div>
             )}
 
-            {/* Header */}
             <header className="h-14 md:h-16 flex items-center justify-between px-4 md:px-8 bg-white/5 border-b border-white/5 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <button 
@@ -722,7 +732,6 @@
               </button>
             </header>
 
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-4 md:gap-5 custom-scroll">
               {messages.map((msg, index) => {
                 const muted = !!(msg.identityKey && mutedMap[msg.identityKey] && mutedMap[msg.identityKey] > Date.now());
@@ -764,10 +773,8 @@
               <div ref={bottomRef}></div>
             </div>
 
-            {/* Input Area */}
             <div className={`p-3 md:p-6 ${darkMode ? 'bg-black/40' : 'bg-gray-50'} border-t border-white/5 flex-shrink-0`}>
               
-              {/* Notices */}
               {notice.show && (
                 <div className={`mb-3 px-4 py-3 rounded-xl border text-xs ${notice.tone === 'blue' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : notice.tone === 'yellow' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-red-600/10 border-red-600/30 text-red-300'}`}>
                   <div className="flex items-start gap-3">
@@ -781,16 +788,26 @@
                 </div>
               )}
 
-              {/* Pin Mode Indicator */}
               {pinMode && (
-                <div className="mb-3 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-500 text-xs font-bold flex items-center gap-2">
-                  <i className="fas fa-thumbtack animate-pulse"></i>
-                  MODO FIJAR ACTIVADO
-                  <button onClick={() => setPinMode(false)} className="ml-auto text-yellow-500 hover:text-yellow-300"><i className="fas fa-times"></i></button>
+                <div className="mb-3 px-4 py-3 bg-yellow-500/20 border border-yellow-500/50 rounded-xl text-yellow-400">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <i className="fas fa-thumbtack text-lg animate-bounce"></i>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider">Modo Fijar Activado</p>
+                        <p className="text-[10px] text-yellow-300/80">Escribe y toca 📌 para fijar</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => {setPinMode(false); setMessageText('');}} 
+                      className="text-yellow-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-yellow-500/20 transition"
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
                 </div>
               )}
 
-              {/* Ban Panel - Mobile Optimized */}
               {banPanel && (
                 <div className="fixed inset-x-2 bottom-20 md:absolute md:inset-auto md:mb-3 z-50 panel-3d border border-red-600/30 p-3 md:p-4 max-h-48 overflow-y-auto custom-scroll shadow-2xl rounded-xl">
                   <div className="flex justify-between items-center mb-3 sticky top-0 bg-inherit pb-2 border-b border-red-600/20">
@@ -819,7 +836,6 @@
                 </div>
               )}
 
-              {/* Mute Panel - Mobile Optimized */}
               {mutePanel && (
                 <div className="fixed inset-x-2 bottom-20 md:absolute md:inset-auto md:mb-3 z-50 panel-3d border border-yellow-600/30 p-3 md:p-4 max-h-48 overflow-y-auto custom-scroll shadow-2xl rounded-xl">
                   <div className="flex justify-between items-center mb-3 sticky top-0 bg-inherit pb-2 border-b border-yellow-600/20">
@@ -848,7 +864,6 @@
                 </div>
               )}
 
-              {/* Emoji Picker */}
               {showEmoji && (
                 <div className="mb-4 panel-3d border border-red-600/20 overflow-hidden shadow-2xl h-auto flex-shrink-0">
                   <div className="flex bg-black/10 border-b border-white/5 overflow-x-auto custom-scroll">
@@ -866,7 +881,6 @@
                 </div>
               )}
 
-              {/* Input */}
               <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2.5 pl-4 focus-within:border-red-600/50 transition-all shadow-inner">
                 <button onClick={() => setShowEmoji((prev) => !prev)} className="text-gray-500 hover:text-red-600 transition-colors mr-3">
                   <i className="far fa-laugh-beam text-xl"></i>
@@ -875,7 +889,7 @@
                 <input
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                   placeholder={iAmMuted ? 'Estás silenciado...' : pinMode ? 'Mensaje a fijar...' : 'Transmit message...'}
                   disabled={iAmMuted}
                   className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input outline-none"
@@ -883,16 +897,21 @@
 
                 <button 
                   onClick={sendMessage} 
-                  disabled={iAmMuted}
-                  className={`w-11 h-11 md:w-12 md:h-12 ${pinMode ? 'bg-yellow-600' : 'bg-red-600'} ${iAmMuted ? 'opacity-50' : 'hover:bg-red-500'} rounded-xl flex items-center justify-center active:scale-95 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)] shrink-0`}
+                  disabled={iAmMuted || !messageText.trim()}
+                  className={`w-11 h-11 md:w-12 md:h-12 ml-2 ${
+                    pinMode ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-red-600 hover:bg-red-500'
+                  } ${
+                    (iAmMuted || !messageText.trim()) ? 'opacity-50 cursor-not-allowed' : ''
+                  } rounded-xl flex items-center justify-center active:scale-95 transition-all shadow-lg shrink-0 touch-manipulation`}
                 >
-                  <i className={`fas ${pinMode ? 'fa-thumbtack' : 'fa-paper-plane'} text-white`}></i>
+                  <i className={`fas ${
+                    pinMode ? 'fa-thumbtack' : 'fa-paper-plane'
+                  } text-white ${pinMode && messageText.trim() ? 'animate-bounce' : ''}`}></i>
                 </button>
               </div>
             </div>
           </main>
 
-          {/* Mobile Menu Overlay */}
           {mobileMenu && <div onClick={() => setMobileMenu(false)} className="fixed inset-0 bg-black/90 z-40 lg:hidden backdrop-blur-md"></div>}
         </div>
       );
