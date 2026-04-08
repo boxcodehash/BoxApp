@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MuzzSnap - Terminal Edition</title>
-  
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
@@ -17,16 +17,50 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap');
-    :root{--muzz-red:#ff0000;--ryachu-gold:#ffcc00;--itsuki-blue:#00d4ff}html,body{height:100%;overflow:hidden;margin:0;padding:0}body.dark-theme{background:#050505;color:white}body.light-theme{background:#f0f2f5;color:#1a1a1a}.panel-3d{border-radius:24px;transition:all 0.3s ease;display:flex;flex-direction:column;height:100%}.dark-theme .panel-3d{background:#0c0c0c;border:1px solid rgba(255,0,0,0.15);box-shadow:0 10px 30px rgba(0,0,0,0.8)}.light-theme .panel-3d{background:#ffffff;border:1px solid #e0e0e0;box-shadow:0 10px 30px rgba(0,0,0,0.05)}.bubble-3d{padding:12px 16px;border-radius:20px;font-size:14px;max-width:85%;line-height:1.4;position:relative}.bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white;align-self:flex-end;border-bottom-right-radius:4px}.dark-theme .bubble-3d.other{background:#1a1a1a;border:1px solid rgba(255,255,255,0.05)}.light-theme .bubble-3d.other{background:#ffffff;border:1px solid #e0e0e0;color:black}.bubble-3d.muted{opacity:0.5}.ryachu-name{color:var(--ryachu-gold);font-weight:800}.itsuki-name{color:var(--itsuki-blue);font-weight:800}.esteban-name{color:#ff6b6b;font-weight:800}.hacker-input{font-family:'Fira Code',monospace}.dark-theme .hacker-input{color:#39ff14!important}.emoji-window{max-height:180px;overflow-y:auto;display:grid;grid-template-columns:repeat(7,1fr);gap:10px;padding:15px}.emoji-btn{font-size:1.5rem;cursor:pointer;transition:transform 0.2s;display:flex;justify-content:center}.custom-scroll::-webkit-scrollbar{width:4px}.custom-scroll::-webkit-scrollbar-thumb{background:var(--muzz-red);border-radius:10px}.online-indicator{width:8px;height:8px;background:#39ff14;border-radius:50%;box-shadow:0 0 8px #39ff14}.admin-btn{font-size:10px;padding:8px 12px;border-radius:8px;background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.3);color:#ff0000;font-weight:bold;transition:all 0.3s;cursor:pointer}.admin-btn:hover{background:#ff0000;color:white}
+    :root{--muzz-red:#ff0000;--ryachu-gold:#ffcc00;--itsuki-blue:#00d4ff}
+    html,body{height:100%;overflow:hidden;margin:0;padding:0}
+    body.dark-theme{background:#050505;color:white}
+    body.light-theme{background:#f0f2f5;color:#1a1a1a}
+    .panel-3d{border-radius:24px;transition:all 0.3s ease;display:flex;flex-direction:column;height:100%}
+    .dark-theme .panel-3d{background:#0c0c0c;border:1px solid rgba(255,0,0,0.15);box-shadow:0 10px 30px rgba(0,0,0,0.8)}
+    .light-theme .panel-3d{background:#ffffff;border:1px solid #e0e0e0;box-shadow:0 10px 30px rgba(0,0,0,0.05)}
+    .bubble-3d{padding:12px 16px;border-radius:20px;font-size:14px;max-width:85%;line-height:1.4;position:relative}
+    .bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white;align-self:flex-end;border-bottom-right-radius:4px}
+    .dark-theme .bubble-3d.other{background:#1a1a1a;border:1px solid rgba(255,255,255,0.05)}
+    .light-theme .bubble-3d.other{background:#ffffff;border:1px solid #e0e0e0;color:black}
+    .bubble-3d.muted{opacity:0.5}
+    .ryachu-name{color:var(--ryachu-gold);font-weight:800}
+    .itsuki-name{color:var(--itsuki-blue);font-weight:800}
+    .esteban-name{color:#ff6b6b;font-weight:800}
+    .hacker-input{font-family:'Fira Code',monospace}
+    .dark-theme .hacker-input{color:#39ff14!important}
+    .emoji-window{max-height:180px;overflow-y:auto;display:grid;grid-template-columns:repeat(7,1fr);gap:10px;padding:15px}
+    .emoji-btn{font-size:1.5rem;cursor:pointer;transition:transform 0.2s;display:flex;justify-content:center}
+    .custom-scroll::-webkit-scrollbar{width:4px}
+    .custom-scroll::-webkit-scrollbar-thumb{background:var(--muzz-red);border-radius:10px}
+    .online-indicator{width:8px;height:8px;background:#39ff14;border-radius:50%;box-shadow:0 0 8px #39ff14}
+    
+    /* Admin button styles - only visible to admins */
+    .admin-btn{font-size:10px;padding:8px 12px;border-radius:8px;background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.3);color:#ff0000;font-weight:bold;transition:all 0.3s;cursor:pointer}
+    .admin-btn:hover{background:#ff0000;color:white}
+    
+    /* Touch improvements */
+    .touch-manipulation{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    input,button,select,textarea{font-size:16px}
+    .custom-scroll{-webkit-overflow-scrolling:touch}
+    
+    @supports (-webkit-touch-callout:none){
+      .h-screen{height:-webkit-fill-available}
+    }
   </style>
 </head>
 <body class="dark-theme">
   <div id="root" class="h-full"></div>
 
   <script type="text/babel">
-    const { useState:_0xa1, useEffect:_0xa2, useRef:_0xa3 } = React;
+    const { useState, useEffect, useRef } = React;
 
-    const _0xfb = {
+    const firebaseConfig = {
       apiKey: atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
       authDomain: atob('cHVsc2FyaS5maXJlYmFzZWFwcC5jb20='),
       databaseURL: atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
@@ -36,395 +70,830 @@
       appId: atob('MTo4MjQzMDYzMjEyMzM6d2ViOjJjOWJmYTAyMTcwYTE3ZDU2MGI1NzA=')
     };
 
-    if (!firebase.apps.length) firebase.initializeApp(_0xfb);
-    const _0xdb = firebase.database();
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    const _0xad = {
-      R: atob('MHgyMDgxNTdiNWVjMzk2NzU5ZTg3NTQwNTgxMDhlY2Y1M2UzMjM5MmZm').toLowerCase(),
-      I: atob('MHhmYWI1ODM1Y2ExNGZiM2Y5Zjk3OGM1ZTRkNzMzNzM0ZTYzOTRlMDNm').toLowerCase(),
-      E: '0x875c5a7794b601f273da58e3c1d10671d16130ec'.toLowerCase()
+    // ==========================================
+    // CONFIGURACIÓN DE ADMIN - EXCLUSIVO 3 WALLETS
+    // ==========================================
+    const ADMIN_WALLETS = {
+      ryachu: atob('MHgyMDgxNTdiNWVjMzk2NzU5ZTg3NTQwNTgxMDhlY2Y1M2UzMjM5MmZm').toLowerCase(),
+      itsuki: atob('MHhmYWI1ODM1Y2ExNGZiM2Y5Zjk3OGM1ZTRkNzMzNzM0ZTYzOTRlMDNm').toLowerCase(),
+      esteban: '0x875c5a7794b601f273da58e3c1d10671d16130ec'.toLowerCase()
     };
 
-    const _0xprivateGate = {
+    // Mapa inverso para lookup rápido
+    const ADMIN_MAP = {
+      [ADMIN_WALLETS.ryachu]: { name: 'Ryachu', role: 'ryachu' },
+      [ADMIN_WALLETS.itsuki]: { name: 'Itsuki', role: 'itsuki' },
+      [ADMIN_WALLETS.esteban]: { name: 'Esteban', role: 'esteban' }
+    };
+
+    const ADMIN_ROLES = ['ryachu', 'itsuki', 'esteban'];
+
+    const PRIVATE_GATE = {
       tokenAddress: '0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0',
       minRequired: 2000000
     };
-
-    const _0xerc20Abi = [
+    const ERC20_ABI = [
       'function balanceOf(address) view returns (uint256)',
       'function decimals() view returns (uint8)'
     ];
 
-    const _0xadminRoles = ['ryachu', 'itsuki', 'esteban'];
+    const EMOJIS = {
+      FACES:["😊","😂","😉","😍","😘","😛","😅","😢","😭","😠","😈","👽","🤖","🤡","💀","👻","💩"],
+      HANDS:["👍","👎","👌","✌️","👏","👋","🙏","💪","☝️","🖖"],
+      OBJECTS:["❤️","⭐","🔥","📚","💻","📱","📷","🔑","🔒","💡","💰","💎"],
+      NATURE:["☀️","☁️","🌈","🌳","🌸","🌵","🐱","🐶","🦁","🦄","🐉","🐍"],
+      FOOD:["🍕","🍔","🌮","🍣","🍰","🍦","☕","🍺","🍷","🍸"],
+      ACTIVITIES:["⚽","🏀","🎾","🎵","🎸","🎮","♟️","🎨","🎬"]
+    };
 
-    const _0xem = {"FACES":["😊","😂","😉","😍","😘","😛","😅","😢","😭","😠","😈","👽","🤖","🤡","💀","👻","💩"],"HANDS":["👍","👎","👌","✌️","👏","👋","🙏","💪","☝️","🖖"],"OBJECTS":["❤️","⭐","🔥","📚","💻","📱","📷","🔑","🔒","💡","💰","💎"],"NATURE":["☀️","☁️","🌈","🌳","🌸","🌵","🐱","🐶","🦁","🦄","🐉","🐍"],"FOOD":["🍕","🍔","🌮","🍣","🍰","🍦","☕","🍺","🍷","🍸"],"ACTIVITIES":["⚽","🏀","🎾","🎵","🎸","🎮","♟️","🎨","🎬"]};
-    const _0xch = [{id:"general",name:"GENERAL"},{id:"spanish",name:"ESPAÑOL"},{id:"dao",name:"DAO"}];
+    const CHANNELS = [
+      { id:"general", name:"GENERAL" },
+      { id:"spanish", name:"ESPAÑOL" },
+      { id:"dao", name:"DAO" }
+    ];
+
+    const safeKey = (value) => String(value || '').replace(/[.#$/\[\]]/g, '_');
+    const makeIdentityKey = (raw) => {
+      const value = String(raw || '').trim().toLowerCase();
+      if (!value) return 'guest_unknown';
+      if (value.startsWith('guest_')) return `guest_${safeKey(value.slice(6) || 'unknown')}`;
+      return `wallet_${safeKey(value)}`;
+    };
+
+    const pinPathForChannel = (channelId) => `settings/pinned/${channelId}`;
+
+    // ==========================================
+    // FUNCIÓN DE VERIFICACIÓN DE ADMIN - ESTRICTA
+    // ==========================================
+    const normalizeWallet = (addr) => {
+      if (!addr || typeof addr !== 'string') return '';
+      let normalized = addr.trim().toLowerCase();
+      if (!normalized.startsWith('0x')) normalized = '0x' + normalized;
+      if (!/^0x[a-f0-9]{40}$/.test(normalized)) return '';
+      return normalized;
+    };
+
+    const checkIsAdmin = (walletAddress) => {
+      const normalized = normalizeWallet(walletAddress);
+      if (!normalized) return { isAdmin: false, adminInfo: null, normalizedWallet: '' };
+      
+      const adminInfo = ADMIN_MAP[normalized];
+      return {
+        isAdmin: !!adminInfo,
+        adminInfo: adminInfo || null,
+        normalizedWallet: normalized
+      };
+    };
 
     function App(){
-      const [_0xb1,_0xb2]=_0xa1(null);
-      const [_0xb3,_0xb4]=_0xa1([]);
-      const [_0xb5,_0xb6]=_0xa1([]);
-      const [_0xb7,_0xb8]=_0xa1({});
-      const [_0xb9,_0xc0]=_0xa1("");
-      const [_0xc1,_0xc2]=_0xa1("");
-      const [_0xc3,_0xc4]=_0xa1(true);
-      const [_0xc5,_0xc6]=_0xa1(false);
-      const [_0xc7,_0xc8]=_0xa1("FACES");
-      const [_0xc9,_0xd0]=_0xa1(_0xch[0]);
-      const [_0xd1,_0xd2]=_0xa1(false);
-      const [_0xd5,_0xd6]=_0xa1(false);
-      const [_0xd7,_0xd8]=_0xa1(false);
-      const [_0xd9,_0xe0]=_0xa1(false);
-      const [privateNotice,setPrivateNotice]=_0xa1({show:false,title:"",desc:"",tone:"red"});
-      const _0xe1=_0xa3(null);
+      const [me, setMe] = useState(null);
+      const [messages, setMessages] = useState([]);
+      const [onlineUsers, setOnlineUsers] = useState([]);
+      const [mutedMap, setMutedMap] = useState({});
+      const [pinnedMessage, setPinnedMessage] = useState("");
+      const [messageText, setMessageText] = useState("");
+      const [darkMode, setDarkMode] = useState(true);
+      const [showEmoji, setShowEmoji] = useState(false);
+      const [emojiTab, setEmojiTab] = useState("FACES");
+      const [activeChannel, setActiveChannel] = useState(CHANNELS[0]);
+      const [mobileMenu, setMobileMenu] = useState(false);
+      const [pinMode, setPinMode] = useState(false);
+      const [banPanel, setBanPanel] = useState(false);
+      const [mutePanel, setMutePanel] = useState(false);
+      const [notice, setNotice] = useState({show:false,title:"",desc:"",tone:"red"});
+      const bottomRef = useRef(null);
 
-      const _0xe2=()=>{_0xc4(!_0xc3);document.body.className=_0xc3?'light-theme':'dark-theme';};
+      // ==========================================
+      // VERIFICACIÓN DE ADMIN - ÚNICA FUENTE DE VERDAD
+      // ==========================================
+      const isAdmin = me?.isAdmin === true;
+      const mutedUntilForMe = me?.identityKey ? mutedMap[me.identityKey] : null;
+      const iAmMuted = !!(mutedUntilForMe && mutedUntilForMe > Date.now());
 
-      const showPrivateNotice=(title,desc,tone='red')=>{
-        setPrivateNotice({show:true,title,desc,tone});
+      const toggleTheme = () => {
+        setDarkMode((prev) => {
+          const next = !prev;
+          document.body.className = next ? 'dark-theme' : 'light-theme';
+          return next;
+        });
       };
 
-      const closePrivateNotice=()=>{
-        setPrivateNotice({show:false,title:"",desc:"",tone:"red"});
-      };
+      const showNotice = (title, desc, tone='red') => setNotice({show:true,title,desc,tone});
+      const closeNotice = () => setNotice({show:false,title:"",desc:"",tone:"red"});
 
-      const getRoleClass=(role,fallback='text-gray-400')=>{
-        if(role==='ryachu') return 'ryachu-name';
-        if(role==='itsuki') return 'itsuki-name';
-        if(role==='esteban') return 'esteban-name';
+      const roleClass = (role, fallback='text-gray-400') => {
+        if (role === 'ryachu') return 'ryachu-name';
+        if (role === 'itsuki') return 'itsuki-name';
+        if (role === 'esteban') return 'esteban-name';
+        if (role === 'admin') return 'text-red-400';
         return fallback;
       };
 
-      const getRoleBadge=(role)=>{
-        if(role==='ryachu') return '👑 ';
-        if(role==='itsuki') return '💎 ';
-        if(role==='esteban') return '🛡️ ';
+      const roleBadge = (role) => {
+        if (role === 'ryachu') return '👑 ';
+        if (role === 'itsuki') return '💎 ';
+        if (role === 'esteban') return '🛡️ ';
+        if (role === 'admin') return '⭐ ';
         return '';
       };
 
-      _0xa2(()=>{
-        const _0xe3=sessionStorage.getItem('muzz_wallet_address');
-        if(!_0xe3){window.location.href='login.html';return;}
+      // ==========================================
+      // AUTENTICACIÓN CON VERIFICACIÓN ESTRICTA
+      // ==========================================
+      useEffect(() => {
+        const sessionWallet = sessionStorage.getItem('muzz_wallet_address');
+        if (!sessionWallet) {
+          window.location.href = 'login.html';
+          return;
+        }
 
-        firebase.auth().signInAnonymously().then((_0xe4)=>{
-          const _0xe5=_0xe4.user.uid;
-          const _0xe6=!_0xe3.startsWith('guest_');
-          let _0xe7="",_0xe8="user";
+        let statusRef = null;
+        let statusListRef = null;
+        let bannedRef = null;
+        let mutedRef = null;
+        let registryRef = null;
 
-          if(_0xe6){
-            const _0xe9=_0xe3.toLowerCase();
-            if(_0xe9===_0xad.R){
-              _0xe7="Ryachu";
-              _0xe8="ryachu";
-            }else if(_0xe9===_0xad.I){
-              _0xe7="Itsuki";
-              _0xe8="itsuki";
-            }else if(_0xe9===_0xad.E){
-              _0xe7="Esteban";
-              _0xe8="esteban";
-            }else{
-              _0xe7=`Node_${_0xe3.slice(-4)}`;
-              _0xe8="user";
-            }
-          }else{
-            _0xe7=_0xe3.replace('guest_','');
-            _0xe8="guest";
+        firebase.auth().signInAnonymously().then(({ user }) => {
+          // Verificación estricta de admin
+          const adminCheck = checkIsAdmin(sessionWallet);
+          const isKnownAdmin = adminCheck.isAdmin;
+          
+          let username, role, isAdmin;
+          
+          if (isKnownAdmin && adminCheck.adminInfo) {
+            // Es uno de los 3 admins oficiales
+            username = adminCheck.adminInfo.name;
+            role = adminCheck.adminInfo.role;
+            isAdmin = true;
+            console.log(`[ADMIN LOGIN] ${username} verified`);
+          } else if (sessionWallet.startsWith('guest_')) {
+            // Guest - nunca admin
+            username = sessionWallet.replace('guest_', 'Guest_');
+            role = 'guest';
+            isAdmin = false;
+          } else if (sessionWallet) {
+            // Wallet normal - nunca admin
+            username = `User_${sessionWallet.slice(-6)}`;
+            role = 'user';
+            isAdmin = false;
+          } else {
+            username = 'Anonymous';
+            role = 'anonymous';
+            isAdmin = false;
           }
 
-          _0xb2({username:_0xe7,uid:_0xe5,role:_0xe8,isWallet:_0xe6});
-          _0xdb.ref(`status/${_0xe5}`).onDisconnect().remove();
-          _0xdb.ref(`status/${_0xe5}`).set({username:_0xe7,role:_0xe8,uid:_0xe5});
-          _0xdb.ref('status').on('value',_0xf0=>_0xb6(_0xf0.val()?Object.values(_0xf0.val()):[]));
-          _0xdb.ref('settings/pinned').on('value',_0xf1=>_0xc0(_0xf1.val()||""));
-          _0xdb.ref('muted').on('value',_0xf2=>_0xb8(_0xf2.val()||{}));
-        });
-      },[]);
+          const identityKey = makeIdentityKey(sessionWallet);
+          
+          const currentUser = {
+            uid: user.uid,
+            username,
+            role,
+            isWallet: !sessionWallet.startsWith('guest_') && !!sessionWallet,
+            wallet: adminCheck.normalizedWallet || sessionWallet.toLowerCase(),
+            identityKey,
+            isAdmin, // SOLO true para las 3 wallets
+            loginTime: Date.now()
+          };
+          
+          setMe(currentUser);
 
-      _0xa2(()=>{
-        if(!_0xb1)return;
-        const _0xf3=_0xdb.ref('messages/'+_0xc9.id).limitToLast(50);
-        _0xf3.on('value',_0xf4=>{
-          const _0xf5=_0xf4.val();
-          _0xb4(_0xf5?Object.keys(_0xf5).map(_0xf6=>({id:_0xf6,..._0xf5[_0xf6]})):[]);
-        });
-        return()=>_0xf3.off();
-      },[_0xc9,_0xb1]);
+          statusRef = db.ref(`status/${user.uid}`);
+          statusRef.onDisconnect().remove();
+          statusRef.set({
+            uid: user.uid,
+            username,
+            role,
+            wallet: currentUser.wallet || null,
+            identityKey,
+            isAdmin,
+            lastSeen: Date.now(),
+            adminVerified: isKnownAdmin
+          });
 
-      _0xa2(()=>{_0xe1.current?.scrollIntoView({behavior:'smooth'});},[_0xb3]);
+          statusListRef = db.ref('status');
+          statusListRef.on('value', (snap) => {
+            setOnlineUsers(snap.val() ? Object.values(snap.val()) : []);
+          });
 
-      const goToPrivate=async()=>{
-        if(!_0xb1) return;
+          mutedRef = db.ref('muted');
+          mutedRef.on('value', (snap) => setMutedMap(snap.val() || {}));
 
-        if(_0xadminRoles.includes(_0xb1.role)){
-          window.location.href='private.html';
-          return;
-        }
+          bannedRef = db.ref(`banned/${identityKey}`);
+          bannedRef.on('value', (snap) => {
+            if (snap.val()) {
+              alert('Your account has been banned from public chat.');
+              sessionStorage.clear();
+              window.location.href = 'login.html';
+            }
+          });
 
-        if(!_0xb1.isWallet){
-          showPrivateNotice(
-            'WALLET REQUIRED',
-            'MUZZ PRIVATE is only available for users logged in with a crypto wallet.',
-            'yellow'
-          );
-          return;
-        }
-
-        const walletAddress=(sessionStorage.getItem('muzz_wallet_address')||'').toLowerCase();
-
-        if(!walletAddress||walletAddress.startsWith('guest_')){
-          showPrivateNotice(
-            'WALLET REQUIRED',
-            'You must sign in with a crypto wallet to access MUZZ PRIVATE.',
-            'yellow'
-          );
-          return;
-        }
-
-        if(typeof window.ethereum==='undefined'||typeof ethers==='undefined'){
-          showPrivateNotice(
-            'WEB3 REQUIRED',
-            'No Web3 wallet was detected. Please open the site with MetaMask or another wallet-enabled browser.',
-            'yellow'
-          );
-          return;
-        }
-
-        try{
-          showPrivateNotice(
-            'VERIFYING ACCESS',
-            'Checking your MUZZ token balance for private access...',
-            'blue'
-          );
-
-          const currentChain=await window.ethereum.request({method:'eth_chainId'});
-          if(currentChain!=='0x1'){
-            try{
-              await window.ethereum.request({
-                method:'wallet_switchEthereumChain',
-                params:[{chainId:'0x1'}]
+          if (currentUser.isWallet && currentUser.wallet) {
+            registryRef = db.ref(`walletRegistry/${currentUser.wallet}`);
+            registryRef.once('value').then((snap) => {
+              const prev = snap.val() || {};
+              registryRef.update({
+                wallet: currentUser.wallet,
+                username,
+                role,
+                isAdmin,
+                isWallet: true,
+                firstSeen: prev.firstSeen || firebase.database.ServerValue.TIMESTAMP,
+                lastLogin: firebase.database.ServerValue.TIMESTAMP,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP,
+                active: true
               });
-            }catch(_switchErr){
-              showPrivateNotice(
-                'WRONG NETWORK',
-                'Please switch to Ethereum Mainnet to validate your MUZZ balance.',
-                'yellow'
-              );
-              return;
-            }
+            });
+            registryRef.child('active').onDisconnect().set(false);
+            registryRef.child('lastSeen').onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
           }
+        }).catch((err) => {
+          console.error('Anonymous sign-in failed:', err);
+          window.location.href = 'login.html';
+        });
 
-          const provider=new ethers.providers.Web3Provider(window.ethereum);
-          const token=new ethers.Contract(_0xprivateGate.tokenAddress,_0xerc20Abi,provider);
-          const [rawBalance,decimals]=await Promise.all([
+        return () => {
+          try { if (statusRef) statusRef.off(); } catch {}
+          try { if (statusListRef) statusListRef.off(); } catch {}
+          try { if (bannedRef) bannedRef.off(); } catch {}
+          try { if (mutedRef) mutedRef.off(); } catch {}
+          try { if (registryRef) registryRef.off(); } catch {}
+        };
+      }, []);
+
+      useEffect(() => {
+        if (!me) return;
+        const pinRef = db.ref(pinPathForChannel(activeChannel.id));
+        pinRef.on('value', (snap) => setPinnedMessage(snap.val() || ""));
+        return () => pinRef.off();
+      }, [me, activeChannel]);
+
+      useEffect(() => {
+        if (!me) return;
+        const ref = db.ref(`messages/${activeChannel.id}`).limitToLast(50);
+        ref.on('value', (snap) => {
+          const data = snap.val();
+          setMessages(data ? Object.keys(data).map((id) => ({ id, ...data[id] })) : []);
+        });
+        return () => ref.off();
+      }, [me, activeChannel]);
+
+      useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior:'smooth' });
+      }, [messages]);
+
+      // ==========================================
+      // ACCESO PRIVATE - BYPASS PARA ADMINS
+      // ==========================================
+      const goToPrivate = async () => {
+        if (!me) return;
+
+        // ADMINS: Bypass automático
+        if (me.isAdmin && ADMIN_ROLES.includes(me.role)) {
+          console.log('[ADMIN] Private access granted');
+          window.location.href = 'private.html';
+          return;
+        }
+
+        // Usuarios normales: verificación de tokens
+        if (!me.isWallet) {
+          showNotice('WALLET REQUIRED', 'MUZZ PRIVATE requires wallet', 'yellow');
+          return;
+        }
+
+        const walletAddress = sessionStorage.getItem('muzz_wallet_address')?.toLowerCase();
+        if (!walletAddress || walletAddress.startsWith('guest_')) {
+          showNotice('WALLET REQUIRED', 'Sign in with crypto wallet', 'yellow');
+          return;
+        }
+
+        if (typeof window.ethereum === 'undefined' || typeof ethers === 'undefined') {
+          showNotice('WEB3 REQUIRED', 'MetaMask needed', 'yellow');
+          return;
+        }
+
+        try {
+          showNotice('VERIFYING', 'Checking MUZZ balance...', 'blue');
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const token = new ethers.Contract(PRIVATE_GATE.tokenAddress, ERC20_ABI, provider);
+          const [rawBalance, decimals] = await Promise.all([
             token.balanceOf(walletAddress),
             token.decimals()
           ]);
 
-          const formattedBalance=parseFloat(ethers.utils.formatUnits(rawBalance,decimals));
-
-          if(formattedBalance>=_0xprivateGate.minRequired){
-            window.location.href='private.html';
+          const formattedBalance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
+          if (formattedBalance >= PRIVATE_GATE.minRequired) {
+            window.location.href = 'private.html';
             return;
           }
 
-          showPrivateNotice(
-            'INSUFFICIENT MUZZ BALANCE',
-            `Access to MUZZ PRIVATE requires at least 2,000,000 MUZZ tokens. Your current balance is ${formattedBalance.toLocaleString(undefined,{maximumFractionDigits:2})} MUZZ.`,
+          showNotice(
+            'INSUFFICIENT BALANCE',
+            `Need 2M MUZZ. You have ${formattedBalance.toLocaleString()} MUZZ.`,
             'red'
           );
-        }catch(err){
-          console.error('Private access check failed:',err);
-          showPrivateNotice(
-            'VERIFICATION ERROR',
-            'Your MUZZ balance could not be verified. Please reopen your wallet and try again.',
-            'red'
-          );
+        } catch (err) {
+          console.error('Verification failed:', err);
+          showNotice('ERROR', 'Could not verify balance', 'red');
         }
       };
 
-      const _0xf8=_0xb1&&_0xadminRoles.includes(_0xb1.role);
+      // ==========================================
+      // ENVÍO DE MENSAJES
+      // ==========================================
+      const sendMessage = async () => {
+        if (!messageText.trim() || !me) return;
+        if (iAmMuted) {
+          alert('Estás silenciado temporalmente');
+          return;
+        }
 
-      const _0xf7=()=>{
-        if(!_0xc1.trim())return;
-        if(_0xb7[_0xb1.uid]&&_0xb7[_0xb1.uid]>Date.now()){alert('Estás silenciado temporalmente');return;}
-        if(_0xd5&&_0xf8){_0xdb.ref('settings/pinned').set(_0xc1);_0xd6(false);_0xc2('');return;}
-        _0xdb.ref('messages/'+_0xc9.id).push({content:_0xc1,username:_0xb1.username,role:_0xb1.role,userId:_0xb1.uid,timestamp:Date.now()});
-        _0xc2('');
-        _0xc6(false);
+        try {
+          if (pinMode) {
+            if (!isAdmin) {
+              console.warn('[SECURITY] Unauthorized pin blocked');
+              return;
+            }
+            await db.ref(pinPathForChannel(activeChannel.id)).set(messageText);
+            setPinMode(false);
+            setMessageText('');
+            alert('Pinned message updated.');
+            return;
+          }
+
+          await db.ref(`messages/${activeChannel.id}`).push({
+            content: messageText,
+            username: me.username,
+            role: me.role,
+            userId: me.uid,
+            identityKey: me.identityKey,
+            wallet: me.wallet || null,
+            timestamp: Date.now()
+          });
+
+          setMessageText('');
+          setShowEmoji(false);
+        } catch (err) {
+          console.error('Send failed:', err);
+          alert(`Failed: ${err.message}`);
+        }
       };
 
-      const _0xf9={
-        clearChat:()=>{if(confirm('¿Borrar todo el historial del chat?')){_0xdb.ref('messages/'+_0xc9.id).remove();}},
-        enablePinMode:()=>{_0xd6(true);_0xc2('');},
-        removePin:()=>_0xdb.ref('settings/pinned').remove(),
-        openBanPanel:()=>_0xd8(true),
-        openMutePanel:()=>_0xe0(true),
-        banUser:(_0xg0,_0xg1)=>{if(confirm(`¿Banear permanentemente a ${_0xg1}?`)){_0xdb.ref(`banned/${_0xg0}`).set(true);_0xdb.ref(`status/${_0xg0}`).remove();}_0xd8(false);},
-        muteUser:(_0xg2,_0xg3)=>{const _0xg4=Date.now()+60000;_0xdb.ref(`muted/${_0xg2}`).set(_0xg4);setTimeout(()=>_0xdb.ref(`muted/${_0xg2}`).remove(),60000);alert(`${_0xg3} ha sido silenciado por 1 minuto`);_0xe0(false);}
+      // ==========================================
+      // ACCIONES DE ADMIN - PROTEGIDAS
+      // ==========================================
+      const adminActions = {
+        enablePinMode: () => {
+          if (!isAdmin) {
+            console.warn('[SECURITY] Blocked pin attempt');
+            return;
+          }
+          setPinMode(true);
+          setMessageText('');
+        },
+        
+        clearChat: async () => {
+          if (!isAdmin) {
+            console.warn('[SECURITY] Blocked clear attempt');
+            return;
+          }
+          if (!confirm(`¿${me.username}, borrar TODO #${activeChannel.name}?`)) return;
+          try {
+            await db.ref(`messages/${activeChannel.id}`).set(null);
+            console.log('[ADMIN] Chat cleared');
+          } catch (err) {
+            alert('Error clearing chat');
+          }
+        },
+        
+        removePin: async () => {
+          if (!isAdmin) return;
+          try {
+            await db.ref(pinPathForChannel(activeChannel.id)).remove();
+          } catch (err) {
+            console.error('Remove pin failed:', err);
+          }
+        },
+        
+        openBanPanel: () => {
+          if (!isAdmin) {
+            console.warn('[SECURITY] Blocked ban panel access');
+            return;
+          }
+          setBanPanel(true);
+        },
+        
+        openMutePanel: () => {
+          if (!isAdmin) {
+            console.warn('[SECURITY] Blocked mute panel access');
+            return;
+          }
+          setMutePanel(true);
+        },
+        
+        banUser: async (target) => {
+          if (!isAdmin) {
+            alert('Unauthorized');
+            return;
+          }
+          if (!target?.identityKey) {
+            alert('Invalid user');
+            return;
+          }
+          // No banear admins
+          if (target.isAdmin || ADMIN_ROLES.includes(target.role)) {
+            alert('Cannot ban admin');
+            return;
+          }
+          
+          if (!confirm(`Ban ${target.username} permanently?`)) {
+            setBanPanel(false);
+            return;
+          }
+          
+          try {
+            await db.ref(`banned/${target.identityKey}`).set({
+              username: target.username,
+              role: target.role || 'user',
+              uid: target.uid || null,
+              wallet: target.wallet || null,
+              bannedAt: Date.now(),
+              bannedBy: me.username,
+              bannedByWallet: me.wallet
+            });
+            if (target.uid) await db.ref(`status/${target.uid}`).remove();
+            alert(`${target.username} banned.`);
+          } catch (err) {
+            alert('Ban failed');
+          }
+          setBanPanel(false);
+        },
+        
+        muteUser: async (target) => {
+          if (!isAdmin) {
+            alert('Unauthorized');
+            return;
+          }
+          if (!target?.identityKey) {
+            alert('Invalid user');
+            return;
+          }
+          if (target.isAdmin || ADMIN_ROLES.includes(target.role)) {
+            alert('Cannot mute admin');
+            return;
+          }
+          
+          try {
+            await db.ref(`muted/${target.identityKey}`).set(Date.now() + 60000);
+            alert(`${target.username} muted 1min.`);
+          } catch (err) {
+            alert('Mute failed');
+          }
+          setMutePanel(false);
+        }
       };
 
-      if(!_0xb1)return <div className="h-full flex items-center justify-center text-red-600 font-orbitron animate-pulse">CONNECTING...</div>;
+      if (!me) {
+        return <div className="h-full flex items-center justify-center text-red-600 font-orbitron animate-pulse">CONNECTING...</div>;
+      }
 
-      return(
+      return (
         <div className="flex h-screen p-2 md:p-4 lg:p-6 gap-4 md:gap-6 max-w-[1600px] mx-auto overflow-hidden">
-          <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-72 lg:w-64 transition-all duration-300 transform panel-3d p-6 flex flex-col ${_0xd1?'translate-x-0':'-translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none'}`}>
-            <div className="mb-8 flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30"><i className="fas fa-ghost text-white text-sm"></i></div>
-              <h1 className="font-orbitron font-black text-xl italic tracking-tighter">MUZZ<span className="text-red-600">SNAP</span></h1>
+          
+          {/* ==========================================
+              SIDEBAR - CON PANEL ADMIN EXCLUSIVO
+              ========================================== */}
+          <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-80 lg:w-64 transition-all duration-300 transform panel-3d p-4 md:p-6 flex flex-col ${mobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} shadow-2xl lg:shadow-none overflow-hidden`}>
+            
+            {/* Header */}
+            <div className="mb-4 md:mb-6 flex items-center gap-3 shrink-0">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
+                <i className="fas fa-ghost text-white text-xs md:text-sm"></i>
+              </div>
+              <h1 className="font-orbitron font-black text-lg md:text-xl italic tracking-tighter">MUZZ<span className="text-red-600">SNAP</span></h1>
+              <button onClick={() => setMobileMenu(false)} className="lg:hidden ml-auto text-gray-500 hover:text-white w-8 h-8 flex items-center justify-center">
+                <i className="fas fa-times"></i>
+              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scroll space-y-8 pr-2">
-              {_0xf8&&(
-                <div>
-                  <p className="text-[9px] text-red-600 font-bold tracking-[0.3em] mb-4 uppercase">Admin Console</p>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <button onClick={_0xf9.enablePinMode} className="admin-btn"><i className="fas fa-thumbtack mr-1"></i>FIJAR</button>
-                    <button onClick={_0xf9.clearChat} className="admin-btn"><i className="fas fa-trash mr-1"></i>LIMPIAR</button>
-                  </div>
-                  <details className="bg-red-600/5 border border-red-600/20 rounded-lg">
-                    <summary className="cursor-pointer px-3 py-2 text-[9px] font-bold text-red-500 uppercase tracking-wider">Moderación ▼</summary>
-                    <div className="p-3 space-y-2 border-t border-red-600/20">
-                      <button onClick={()=>_0xf9.openBanPanel()} className="w-full admin-btn text-left"><i className="fas fa-user-slash mr-2"></i>Banear Usuario</button>
-                      <button onClick={()=>_0xf9.openMutePanel()} className="w-full admin-btn text-left"><i className="fas fa-volume-mute mr-2"></i>Mutear 1min</button>
+            <div className="flex-1 overflow-y-auto custom-scroll space-y-4 md:space-y-6 pr-1 md:pr-2">
+              
+              {/* ==========================================
+                  PANEL DE ADMIN - SOLO PARA RYACHU/ITSUKI/ESTEBAN
+                  COMPLETAMENTE INVISIBLE PARA OTROS
+                  ========================================== */}
+              {isAdmin && (
+                <div className="bg-red-900/20 border border-red-600/40 rounded-xl p-3 md:p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <i className="fas fa-shield-alt text-red-500 animate-pulse"></i>
+                      <p className="text-[10px] text-red-500 font-bold tracking-[0.2em] uppercase">Admin Terminal</p>
                     </div>
-                  </details>
+                    <span className="text-[8px] text-red-400 font-mono">{me?.role?.toUpperCase()}</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={adminActions.enablePinMode} className="bg-red-600/20 hover:bg-red-600/40 border border-red-600/50 text-red-400 text-[9px] md:text-[10px] font-bold py-2.5 md:py-3 px-2 rounded-lg transition-all active:scale-95 touch-manipulation flex items-center justify-center gap-1">
+                      <i className="fas fa-thumbtack"></i>FIJAR
+                    </button>
+                    <button onClick={adminActions.clearChat} className="bg-red-600/20 hover:bg-red-600/40 border border-red-600/50 text-red-400 text-[9px] md:text-[10px] font-bold py-2.5 md:py-3 px-2 rounded-lg transition-all active:scale-95 touch-manipulation flex items-center justify-center gap-1">
+                      <i className="fas fa-trash"></i>LIMPIAR
+                    </button>
+                    <button onClick={adminActions.openBanPanel} className="bg-red-600/20 hover:bg-red-600/40 border border-red-600/50 text-red-400 text-[9px] md:text-[10px] font-bold py-2.5 md:py-3 px-2 rounded-lg transition-all active:scale-95 touch-manipulation flex items-center justify-center gap-1">
+                      <i className="fas fa-user-slash"></i>BANEAR
+                    </button>
+                    <button onClick={adminActions.openMutePanel} className="bg-red-600/20 hover:bg-red-600/40 border border-red-600/50 text-red-400 text-[9px] md:text-[10px] font-bold py-2.5 md:py-3 px-2 rounded-lg transition-all active:scale-95 touch-manipulation flex items-center justify-center gap-1">
+                      <i className="fas fa-volume-mute"></i>MUTEAR
+                    </button>
+                  </div>
+
+                  <div className="mt-3 pt-2 border-t border-red-600/20 text-[8px] text-red-400/60 font-mono">
+                    <div className="flex justify-between">
+                      <span>WALLET:</span>
+                      <span>{me?.wallet?.slice(0, 6)}...{me?.wallet?.slice(-4)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>VERIFIED:</span>
+                      <span className="text-green-400">✓ ADMIN</span>
+                    </div>
+                  </div>
                 </div>
               )}
 
+              {/* Info normal para usuarios no-admin */}
+              {!isAdmin && me?.isWallet && (
+                <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-3">
+                  <p className="text-[10px] text-gray-500 font-bold tracking-wider uppercase mb-2">Tu Nodo</p>
+                  <div className="text-xs text-gray-400 font-mono truncate">
+                    {me?.wallet?.slice(0, 8)}...{me?.wallet?.slice(-6)}
+                  </div>
+                </div>
+              )}
+
+              {/* Channels */}
               <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Channels</p>
-                {_0xch.map(_0xg5=>(
-                  <button key={_0xg5.id} onClick={()=>{_0xd0(_0xg5);_0xd2(false);}} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all ${_0xc9.id===_0xg5.id?'bg-red-600/10 text-red-600 border-l-2 border-red-600 shadow-lg shadow-red-600/5':'text-gray-500 hover:text-white'}`}>
-                    # {_0xg5.name}
+                <p className="text-[9px] md:text-[10px] text-gray-500 font-bold tracking-[0.2em] mb-2 md:mb-4 uppercase">Channels</p>
+                {CHANNELS.map((channel) => (
+                  <button
+                    key={channel.id}
+                    onClick={() => { setActiveChannel(channel); setMobileMenu(false); }}
+                    className={`w-full text-left px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-bold mb-1 transition-all ${activeChannel.id === channel.id ? 'bg-red-600/10 text-red-600 border-l-2 border-red-600 shadow-lg shadow-red-600/5' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                  >
+                    # {channel.name}
                   </button>
                 ))}
               </div>
 
+              {/* Muzz Private */}
               <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Muzz</p>
-                <button onClick={goToPrivate} className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all text-gray-500 hover:text-white hover:bg-red-600/5 border border-white/5">
-                  <i className={`fas ${_0xb1?.isWallet?'fa-user-secret':'fa-lock'} mr-2`}></i>
+                <p className="text-[9px] md:text-[10px] text-gray-500 font-bold tracking-[0.2em] mb-2 md:mb-4 uppercase">Muzz</p>
+                <button onClick={goToPrivate} className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-bold mb-1 transition-all text-gray-500 hover:text-white hover:bg-red-600/5 border border-white/5 flex items-center">
+                  <i className={`fas ${me?.isWallet ? 'fa-user-secret' : 'fa-lock'} mr-2`}></i>
                   PRIVATE
                 </button>
-                <p className="text-[9px] text-gray-600 px-1 uppercase tracking-wider">Wallet + 2M MUZZLE · Admin bypass</p>
+                <p className="text-[8px] md:text-[9px] text-gray-600 px-1 uppercase tracking-wider mt-1">
+                  {isAdmin ? 'Admin bypass active' : 'Wallet + 2M MUZZ required'}
+                </p>
               </div>
 
+              {/* Online Users */}
               <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Online — {_0xb5.length}</p>
-                <div className="space-y-3">
-                  {_0xb5.map((_0xg6,_0xg7)=>(
-                    <div key={_0xg7} className="flex items-center gap-3 px-2">
-                      <span className="online-indicator"></span>
-                      <span className={`text-[11px] truncate font-bold uppercase flex-1 ${getRoleClass(_0xg6.role,'text-gray-400')}`}>{getRoleBadge(_0xg6.role)}{_0xg6.username}</span>
+                <p className="text-[9px] md:text-[10px] text-gray-500 font-bold tracking-[0.2em] mb-2 md:mb-4 uppercase">Online — {onlineUsers.length}</p>
+                <div className="space-y-2 md:space-y-3">
+                  {onlineUsers.map((user, idx) => (
+                    <div key={`${user.uid || user.identityKey || idx}`} className="flex items-center gap-2 md:gap-3 px-2">
+                      <span className={`w-2 h-2 rounded-full ${user.isAdmin ? 'bg-red-500 shadow-[0_0_8px_rgba(255,0,0,0.5)]' : 'bg-green-500 shadow-[0_0_8px_rgba(57,255,20,0.5)]'}`}></span>
+                      <span className={`text-[10px] md:text-[11px] truncate font-bold uppercase flex-1 ${roleClass(user.role,'text-gray-400')}`}>
+                        {roleBadge(user.role)}{user.username}
+                      </span>
+                      {user.isAdmin && <span className="text-[8px] text-red-500">[A]</span>}
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <button onClick={()=>{sessionStorage.clear();window.location.href='login.html';}} className="mt-6 w-full py-3 text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black tracking-widest hover:bg-red-600/5 transition-all"><i className="fas fa-power-off mr-2"></i>Disconnect</button>
+            <button onClick={() => { sessionStorage.clear(); window.location.href = 'login.html'; }} className="mt-4 md:mt-6 w-full py-2.5 md:py-3 text-[9px] md:text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black tracking-widest hover:bg-red-600/5 transition-all shrink-0">
+              <i className="fas fa-power-off mr-2"></i>Disconnect
+            </button>
           </aside>
 
+          {/* ==========================================
+              MAIN CHAT AREA
+              ========================================== */}
           <main className="flex-1 panel-3d flex flex-col overflow-hidden border border-white/5 h-full relative">
-            {_0xb9&&(
-              <div className="bg-red-600/10 border-b border-red-600/30 py-2 px-6 flex items-center gap-4 flex-shrink-0">
+            
+            {/* Pinned Message */}
+            {pinnedMessage && (
+              <div className="bg-red-600/10 border-b border-red-600/30 py-2 px-4 md:px-6 flex items-center gap-3 flex-shrink-0">
                 <i className="fas fa-thumbtack text-red-600 text-[10px] animate-pulse"></i>
-                <marquee className="text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase flex-1">{_0xb9}</marquee>
-                {_0xf8&&(<button onClick={_0xf9.removePin} className="text-[8px] text-red-400 hover:text-red-600"><i className="fas fa-times"></i></button>)}
+                <marquee className="text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase flex-1">{pinnedMessage}</marquee>
+                {isAdmin && (
+                  <button onClick={adminActions.removePin} className="text-[8px] text-red-400 hover:text-red-600 p-1">
+                    <i className="fas fa-times"></i>
+                  </button>
+                )}
               </div>
             )}
 
-            <header className="h-16 flex items-center justify-between px-8 bg-white/5 border-b border-white/5 flex-shrink-0">
-              <div className="flex items-center gap-4">
-                <button onClick={()=>_0xd2(true)} className="lg:hidden text-red-600"><i className="fas fa-bars"></i></button>
-                <h2 className="text-sm font-black tracking-[0.2em] text-red-600 uppercase italic">/ {_0xc9.name}</h2>
+            {/* Header */}
+            <header className="h-14 md:h-16 flex items-center justify-between px-4 md:px-8 bg-white/5 border-b border-white/5 flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setMobileMenu(true)} 
+                  className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition"
+                >
+                  <i className={`fas ${isAdmin ? 'fa-shield-alt text-red-500' : 'fa-bars text-gray-400'}`}></i>
+                </button>
+                <div>
+                  <h2 className="text-xs md:text-sm font-black tracking-[0.15em] text-red-600 uppercase italic">/ {activeChannel.name}</h2>
+                  {isAdmin && (
+                    <div className="flex items-center gap-1 text-[8px] text-red-500 font-bold uppercase tracking-wider">
+                      <i className="fas fa-crown"></i>
+                      {me?.role?.toUpperCase()} ACCESS
+                    </div>
+                  )}
+                </div>
               </div>
-              <button onClick={_0xe2} className="w-10 h-10 rounded-xl border border-red-600/20 flex items-center justify-center hover:bg-red-600/5 transition-all">{_0xc3?<i className="fas fa-sun text-yellow-500"></i>:<i className="fas fa-moon text-blue-500"></i>}</button>
+              <button onClick={toggleTheme} className="w-9 h-9 md:w-10 md:h-10 rounded-xl border border-red-600/20 flex items-center justify-center hover:bg-red-600/5 transition-all">
+                {darkMode ? <i className="fas fa-sun text-yellow-500"></i> : <i className="fas fa-moon text-blue-500"></i>}
+              </button>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-5 custom-scroll">
-              {_0xb3.map((_0xg8,_0xg9)=>{
-                const _0xh0=_0xb7[_0xg8.userId]&&_0xb7[_0xg8.userId]>Date.now();
-                const _0xh1=new Date(_0xg8.timestamp);
-                const _0xh2=_0xg9>0?_0xb3[_0xg9-1]:null;
-                const _0xh3=_0xh2?new Date(_0xh2.timestamp):null;
-                const _0xh4=!_0xh3||_0xh1.toDateString()!==_0xh3.toDateString();
-                const _0xh5=(_0xh6)=>{
-                  const _0xh7=new Date();
-                  const _0xh8=new Date(_0xh7);
-                  _0xh8.setDate(_0xh8.getDate()-1);
-                  if(_0xh6.toDateString()===_0xh7.toDateString()) return 'HOY';
-                  if(_0xh6.toDateString()===_0xh8.toDateString()) return 'AYER';
-                  return _0xh6.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-4 md:gap-5 custom-scroll">
+              {messages.map((msg, index) => {
+                const muted = !!(msg.identityKey && mutedMap[msg.identityKey] && mutedMap[msg.identityKey] > Date.now());
+                const date = new Date(msg.timestamp);
+                const prev = index > 0 ? messages[index - 1] : null;
+                const prevDate = prev ? new Date(prev.timestamp) : null;
+                const showDay = !prevDate || date.toDateString() !== prevDate.toDateString();
+
+                const formatDay = (d) => {
+                  const now = new Date();
+                  const yesterday = new Date(now);
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  if (d.toDateString() === now.toDateString()) return 'HOY';
+                  if (d.toDateString() === yesterday.toDateString()) return 'AYER';
+                  return d.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
                 };
-                return(
-                  <React.Fragment key={_0xg8.id}>
-                    {_0xh4&&(
+
+                return (
+                  <React.Fragment key={msg.id}>
+                    {showDay && (
                       <div className="flex items-center gap-4 my-4">
                         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-red-600/30 to-transparent"></div>
-                        <span className="text-[9px] font-black tracking-[0.3em] text-red-600/70 px-4 py-1.5 bg-red-600/5 rounded-full border border-red-600/20">{_0xh5(_0xh1)}</span>
+                        <span className="text-[9px] font-black tracking-[0.3em] text-red-600/70 px-4 py-1.5 bg-red-600/5 rounded-full border border-red-600/20">{formatDay(date)}</span>
                         <div className="flex-1 h-px bg-gradient-to-r from-red-600/30 via-transparent to-transparent"></div>
                       </div>
                     )}
-                    <div className={`flex flex-col ${_0xg8.userId===_0xb1.uid?'items-end':'items-start'}`}>
-                      <span className={`text-[10px] font-black mb-1.5 uppercase px-2 ${getRoleClass(_0xg8.role,'text-gray-500')}`}>{getRoleBadge(_0xg8.role)}{_0xg8.username} {_0xh0&&'🔇'}</span>
-                      <div className={`bubble-3d shadow-xl ${_0xg8.userId===_0xb1.uid?'me':'other'} ${_0xh0?'muted':''}`}>{_0xg8.content}</div>
+
+                    <div className={`flex flex-col ${msg.userId === me.uid ? 'items-end' : 'items-start'}`}>
+                      <span className={`text-[10px] font-black mb-1.5 uppercase px-2 ${roleClass(msg.role,'text-gray-500')}`}>
+                        {roleBadge(msg.role)}{msg.username} {muted && '🔇'}
+                      </span>
+                      <div className={`bubble-3d shadow-xl ${msg.userId === me.uid ? 'me' : 'other'} ${muted ? 'muted' : ''}`}>
+                        {msg.content}
+                      </div>
                     </div>
                   </React.Fragment>
                 );
               })}
-              <div ref={_0xe1}></div>
+              <div ref={bottomRef}></div>
             </div>
 
-            <div className={`p-4 md:p-6 ${_0xc3?'bg-black/40':'bg-gray-50'} border-t border-white/5 flex-shrink-0`}>
-              {privateNotice.show&&(
-                <div className={`mb-3 px-4 py-3 rounded-xl border text-xs ${privateNotice.tone==='blue'?'bg-cyan-500/10 border-cyan-500/30 text-cyan-300':privateNotice.tone==='yellow'?'bg-yellow-500/10 border-yellow-500/30 text-yellow-300':'bg-red-600/10 border-red-600/30 text-red-300'}`}>
+            {/* Input Area */}
+            <div className={`p-3 md:p-6 ${darkMode ? 'bg-black/40' : 'bg-gray-50'} border-t border-white/5 flex-shrink-0`}>
+              
+              {/* Notices */}
+              {notice.show && (
+                <div className={`mb-3 px-4 py-3 rounded-xl border text-xs ${notice.tone === 'blue' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : notice.tone === 'yellow' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-red-600/10 border-red-600/30 text-red-300'}`}>
                   <div className="flex items-start gap-3">
-                    <i className={`fas ${privateNotice.tone==='blue'?'fa-shield-alt':privateNotice.tone==='yellow'?'fa-lock':'fa-ban'} mt-0.5`}></i>
+                    <i className={`fas ${notice.tone === 'blue' ? 'fa-shield-alt' : notice.tone === 'yellow' ? 'fa-lock' : 'fa-ban'} mt-0.5`}></i>
                     <div className="flex-1">
-                      <p className="font-black uppercase tracking-wider mb-1">{privateNotice.title}</p>
-                      <p className="leading-relaxed">{privateNotice.desc}</p>
+                      <p className="font-black uppercase tracking-wider mb-1">{notice.title}</p>
+                      <p className="leading-relaxed">{notice.desc}</p>
                     </div>
-                    <button onClick={closePrivateNotice} className="opacity-70 hover:opacity-100"><i className="fas fa-times"></i></button>
+                    <button onClick={closeNotice} className="opacity-70 hover:opacity-100"><i className="fas fa-times"></i></button>
                   </div>
                 </div>
               )}
 
-              {_0xd5&&(
-                <div className="mb-3 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-500 text-xs font-bold flex items-center gap-2"><i className="fas fa-thumbtack animate-pulse"></i>MODO FIJAR MENSAJE ACTIVADO - Escribe y envía<button onClick={()=>_0xd6(false)} className="ml-auto text-yellow-500 hover:text-yellow-300"><i className="fas fa-times"></i></button></div>
-              )}
-
-              {_0xd7&&(
-                <div className="mb-3 panel-3d border border-red-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
-                  <div className="flex justify-between items-center mb-3"><p className="text-xs font-bold text-red-500 uppercase">Seleccionar usuario para banear</p><button onClick={()=>_0xd8(false)} className="text-gray-500 hover:text-red-500"><i className="fas fa-times"></i></button></div>
-                  {_0xb5.filter(_0xh9=>!_0xadminRoles.includes(_0xh9.role)).map(_0xi0=>(
-                    <button key={_0xi0.uid} onClick={()=>_0xf9.banUser(_0xi0.uid,_0xi0.username)} className="w-full text-left px-3 py-2 text-xs hover:bg-red-600/10 rounded mb-1 flex items-center gap-2"><i className="fas fa-user-slash text-red-500"></i><span className="font-bold">{_0xi0.username}</span></button>
-                  ))}
+              {/* Pin Mode Indicator */}
+              {pinMode && (
+                <div className="mb-3 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-500 text-xs font-bold flex items-center gap-2">
+                  <i className="fas fa-thumbtack animate-pulse"></i>
+                  MODO FIJAR ACTIVADO
+                  <button onClick={() => setPinMode(false)} className="ml-auto text-yellow-500 hover:text-yellow-300"><i className="fas fa-times"></i></button>
                 </div>
               )}
 
-              {_0xd9&&(
-                <div className="mb-3 panel-3d border border-yellow-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
-                  <div className="flex justify-between items-center mb-3"><p className="text-xs font-bold text-yellow-500 uppercase">Seleccionar usuario para mutear</p><button onClick={()=>_0xe0(false)} className="text-gray-500 hover:text-yellow-500"><i className="fas fa-times"></i></button></div>
-                  {_0xb5.filter(_0xi1=>!_0xadminRoles.includes(_0xi1.role)).map(_0xi2=>(
-                    <button key={_0xi2.uid} onClick={()=>_0xf9.muteUser(_0xi2.uid,_0xi2.username)} className="w-full text-left px-3 py-2 text-xs hover:bg-yellow-600/10 rounded mb-1 flex items-center gap-2"><i className="fas fa-volume-mute text-yellow-500"></i><span className="font-bold">{_0xi2.username}</span></button>
-                  ))}
+              {/* Ban Panel - Mobile Optimized */}
+              {banPanel && (
+                <div className="fixed inset-x-2 bottom-20 md:absolute md:inset-auto md:mb-3 z-50 panel-3d border border-red-600/30 p-3 md:p-4 max-h-48 overflow-y-auto custom-scroll shadow-2xl rounded-xl">
+                  <div className="flex justify-between items-center mb-3 sticky top-0 bg-inherit pb-2 border-b border-red-600/20">
+                    <p className="text-xs font-bold text-red-500 uppercase flex items-center gap-2">
+                      <i className="fas fa-user-slash"></i>Banear Usuario
+                    </p>
+                    <button onClick={() => setBanPanel(false)} className="text-gray-500 hover:text-red-500 w-8 h-8 flex items-center justify-center">
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
+                  {onlineUsers.filter((u) => !u.isAdmin).length === 0 ? (
+                    <p className="text-xs text-gray-500 text-center py-4">No hay usuarios para banear</p>
+                  ) : (
+                    onlineUsers.filter((u) => !u.isAdmin).map((user) => (
+                      <button 
+                        key={user.uid} 
+                        onClick={() => adminActions.banUser(user)} 
+                        className="w-full text-left px-3 py-3 text-xs hover:bg-red-600/10 rounded-lg mb-1 flex items-center gap-3 active:scale-95 transition-transform touch-manipulation"
+                      >
+                        <i className="fas fa-user-slash text-red-500"></i>
+                        <span className="font-bold flex-1">{user.username}</span>
+                        <span className="text-[8px] text-gray-500">{user.role}</span>
+                      </button>
+                    ))
+                  )}
                 </div>
               )}
 
-              {_0xc5&&(
-                <div className="mb-4 panel-3d border border-red-600/20 overflow-hidden shadow-2xl h-auto flex-shrink-0"><div className="flex bg-black/10 border-b border-white/5 overflow-x-auto custom-scroll">{Object.keys(_0xem).map(_0xi3=>(<button key={_0xi3} onClick={()=>_0xc8(_0xi3)} className={`px-4 py-2 text-[9px] font-black uppercase tracking-tighter ${_0xc7===_0xi3?'text-red-600 bg-red-600/5':'text-gray-500'}`}>{_0xi3}</button>))}</div><div className="emoji-window custom-scroll">{_0xem[_0xc7].map(_0xi4=>(<span key={_0xi4} onClick={()=>_0xc2(_0xc1+_0xi4)} className="emoji-btn">{_0xi4}</span>))}</div></div>
+              {/* Mute Panel - Mobile Optimized */}
+              {mutePanel && (
+                <div className="fixed inset-x-2 bottom-20 md:absolute md:inset-auto md:mb-3 z-50 panel-3d border border-yellow-600/30 p-3 md:p-4 max-h-48 overflow-y-auto custom-scroll shadow-2xl rounded-xl">
+                  <div className="flex justify-between items-center mb-3 sticky top-0 bg-inherit pb-2 border-b border-yellow-600/20">
+                    <p className="text-xs font-bold text-yellow-500 uppercase flex items-center gap-2">
+                      <i className="fas fa-volume-mute"></i>Mutear (1min)
+                    </p>
+                    <button onClick={() => setMutePanel(false)} className="text-gray-500 hover:text-yellow-500 w-8 h-8 flex items-center justify-center">
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
+                  {onlineUsers.filter((u) => !u.isAdmin).length === 0 ? (
+                    <p className="text-xs text-gray-500 text-center py-4">No hay usuarios para mutear</p>
+                  ) : (
+                    onlineUsers.filter((u) => !u.isAdmin).map((user) => (
+                      <button 
+                        key={user.uid} 
+                        onClick={() => adminActions.muteUser(user)} 
+                        className="w-full text-left px-3 py-3 text-xs hover:bg-yellow-600/10 rounded-lg mb-1 flex items-center gap-3 active:scale-95 transition-transform touch-manipulation"
+                      >
+                        <i className="fas fa-volume-mute text-yellow-500"></i>
+                        <span className="font-bold flex-1">{user.username}</span>
+                        <span className="text-[8px] text-gray-500">{user.role}</span>
+                      </button>
+                    ))
+                  )}
+                </div>
               )}
 
-              <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2.5 pl-5 focus-within:border-red-600/50 transition-all shadow-inner">
-                <button onClick={()=>_0xc6(!_0xc5)} className="text-gray-500 hover:text-red-600 transition-colors mr-3"><i className="far fa-laugh-beam text-xl"></i></button>
-                <input value={_0xc1} onChange={_0xi5=>_0xc2(_0xi5.target.value)} onKeyDown={_0xi6=>_0xi6.key==='Enter'&&_0xf7()} placeholder={_0xd5?'Escribe el mensaje a fijar...':_0xb7[_0xb1.uid]&&_0xb7[_0xb1.uid]>Date.now()?'Estás silenciado...':'Transmit message...'} disabled={_0xb7[_0xb1.uid]&&_0xb7[_0xb1.uid]>Date.now()} className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input"/>
-                <button onClick={_0xf7} className={`w-12 h-12 ${_0xd5?'bg-yellow-600':'bg-red-600'} rounded-xl flex items-center justify-center hover:bg-red-500 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)]`}><i className={`fas ${_0xd5?'fa-thumbtack':'fa-paper-plane'} text-white`}></i></button>
+              {/* Emoji Picker */}
+              {showEmoji && (
+                <div className="mb-4 panel-3d border border-red-600/20 overflow-hidden shadow-2xl h-auto flex-shrink-0">
+                  <div className="flex bg-black/10 border-b border-white/5 overflow-x-auto custom-scroll">
+                    {Object.keys(EMOJIS).map((tab) => (
+                      <button key={tab} onClick={() => setEmojiTab(tab)} className={`px-4 py-2 text-[9px] font-black uppercase tracking-tighter ${emojiTab === tab ? 'text-red-600 bg-red-600/5' : 'text-gray-500'}`}>
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="emoji-window custom-scroll">
+                    {EMOJIS[emojiTab].map((emoji) => (
+                      <span key={emoji} onClick={() => setMessageText((prev) => prev + emoji)} className="emoji-btn">{emoji}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Input */}
+              <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2.5 pl-4 focus-within:border-red-600/50 transition-all shadow-inner">
+                <button onClick={() => setShowEmoji((prev) => !prev)} className="text-gray-500 hover:text-red-600 transition-colors mr-3">
+                  <i className="far fa-laugh-beam text-xl"></i>
+                </button>
+
+                <input
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                  placeholder={iAmMuted ? 'Estás silenciado...' : pinMode ? 'Mensaje a fijar...' : 'Transmit message...'}
+                  disabled={iAmMuted}
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input outline-none"
+                />
+
+                <button 
+                  onClick={sendMessage} 
+                  disabled={iAmMuted}
+                  className={`w-11 h-11 md:w-12 md:h-12 ${pinMode ? 'bg-yellow-600' : 'bg-red-600'} ${iAmMuted ? 'opacity-50' : 'hover:bg-red-500'} rounded-xl flex items-center justify-center active:scale-95 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)] shrink-0`}
+                >
+                  <i className={`fas ${pinMode ? 'fa-thumbtack' : 'fa-paper-plane'} text-white`}></i>
+                </button>
               </div>
             </div>
           </main>
 
-          {_0xd1&&<div onClick={()=>_0xd2(false)} className="fixed inset-0 bg-black/90 z-40 lg:hidden backdrop-blur-md"></div>}
+          {/* Mobile Menu Overlay */}
+          {mobileMenu && <div onClick={() => setMobileMenu(false)} className="fixed inset-0 bg-black/90 z-40 lg:hidden backdrop-blur-md"></div>}
         </div>
       );
     }
