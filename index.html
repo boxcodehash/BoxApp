@@ -1,837 +1,778 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MuzzSnap | Gateway</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuzzSnap</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Rajdhani:wght@400;600;700&display=swap');
-
 :root{
-  --red:#ff1f1f;
-  --bg:#050505;
-  --panel:#10131a;
-  --line:rgba(255,255,255,.1);
-  --muted:#9ca3af;
-  --green:#4ade80;
+  --bg:#000;
+  --border:#2f3336;
+  --text:#e7e9ea;
+  --muted:#71767b;
+  --red:#f4212e;
+  --red-soft:rgba(244,33,46,.12);
+  --blue:#1d9bf0;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
 
 body{
+  background:#000;
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   min-height:100vh;
-  background:
-    radial-gradient(circle at top left,rgba(255,0,0,.18),transparent 30%),
-    radial-gradient(circle at bottom right,rgba(255,0,0,.12),transparent 30%),
-    #050505;
-  color:white;
-  font-family:Rajdhani,Arial,sans-serif;
 }
 
 a{text-decoration:none;color:inherit}
 
-.page{
-  width:min(1400px,calc(100% - 28px));
-  margin:auto;
+.app{
+  max-width:1265px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:275px minmax(0,600px) 350px;
+  min-height:100vh;
 }
 
-.header{
-  min-height:85px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
+/* LEFT MENU */
+.left{
+  border-right:1px solid var(--border);
+  padding:12px 14px;
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  background:#000;
 }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
+.left::-webkit-scrollbar{width:0}
 
 .logo{
-  width:54px;
-  height:54px;
-  border-radius:18px;
+  width:52px;
+  height:52px;
+  border-radius:50%;
   display:grid;
   place-items:center;
-  background:linear-gradient(145deg,#ff2b2b,#750000);
-  box-shadow:0 0 32px rgba(255,0,0,.35);
+  font-size:26px;
+  color:var(--red);
+  margin-bottom:14px;
 }
 
-.brand h1{
-  font-family:Orbitron;
-  font-size:1.4rem;
-}
-
-.brand span{color:var(--red)}
+.logo:hover{background:var(--red-soft)}
 
 .nav{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
+  display:grid;
+  gap:4px;
 }
 
 .nav a{
-  padding:10px 15px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:rgba(255,255,255,.04);
-  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:20px;
+  width:max-content;
+  max-width:100%;
+  padding:12px 16px;
+  border-radius:999px;
+  font-size:20px;
+  font-weight:500;
+  transition:.18s;
 }
 
-.layout{
-  display:grid;
-  grid-template-columns:330px 1fr 330px;
-  gap:22px;
-  align-items:start;
-  padding:20px 0 40px;
+.nav a:hover,
+.nav a.active{
+  background:#181818;
 }
 
-.card{
-  background:linear-gradient(145deg,rgba(20,24,34,.95),rgba(6,7,10,.97));
-  border:1px solid var(--line);
-  border-radius:26px;
-  box-shadow:0 24px 70px rgba(0,0,0,.45);
+.nav i{
+  width:26px;
+  text-align:center;
 }
 
-.login-card{
-  padding:26px;
-  position:sticky;
-  top:18px;
+.post-main{
+  margin-top:20px;
+  width:90%;
+  height:52px;
+  border:none;
+  border-radius:999px;
+  color:#fff;
+  background:var(--red);
+  font-size:17px;
+  font-weight:800;
+  cursor:pointer;
 }
 
-.wallet-icon{
-  width:125px;
-  height:125px;
-  border-radius:32px;
-  margin:0 auto 22px;
+.profile-mini{
+  margin-top:24px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  border-radius:999px;
+}
+
+.profile-mini:hover{background:#181818}
+
+.avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
   display:grid;
   place-items:center;
-  background:linear-gradient(145deg,#ff2b2b,#630000);
-  box-shadow:0 0 50px rgba(255,0,0,.35);
-  font-size:42px;
+  background:linear-gradient(145deg,#f4212e,#6e0000);
+  font-weight:800;
+  color:#fff;
+  flex-shrink:0;
 }
 
-.title{
-  font-family:Orbitron;
-  font-weight:900;
-  text-align:center;
-  margin-bottom:8px;
+.name{font-weight:800;font-size:15px}
+.handle{color:var(--muted);font-size:14px}
+
+/* CENTER */
+.center{
+  border-right:1px solid var(--border);
+  min-height:100vh;
 }
 
-.sub{
-  color:var(--muted);
-  text-align:center;
-  line-height:1.5;
-  margin-bottom:18px;
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  height:53px;
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  border-bottom:1px solid var(--border);
+  background:rgba(0,0,0,.82);
+  backdrop-filter:blur(12px);
 }
 
-.status{
-  min-height:60px;
-  padding:14px;
-  border-radius:18px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.04);
-  color:#ddd;
-  font-size:.9rem;
-  margin-bottom:14px;
-  line-height:1.4;
-}
-
-button,input{
-  width:100%;
-  border:none;
-  border-radius:16px;
-  padding:14px;
-  font-family:inherit;
+.topbar h1{
+  font-size:20px;
   font-weight:800;
 }
 
-button{
-  cursor:pointer;
-  color:#fff;
-  background:linear-gradient(145deg,#ff3030,#8d0000);
-  box-shadow:0 14px 32px rgba(255,0,0,.25);
-  margin-top:10px;
-  transition:.2s;
+.feed-post{
+  padding:16px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  gap:12px;
+  transition:.15s;
 }
 
-button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 0 35px rgba(255,0,0,.45);
-}
+.feed-post:hover{background:#030303}
 
-button:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-}
-
-.enter{
-  display:none;
-  background:linear-gradient(145deg,#22c55e,#0f6b32);
-}
-
-input{
-  background:rgba(255,255,255,.05);
-  color:#39ff14;
-  border:1px solid rgba(255,0,0,.25);
-  margin-top:18px;
-  text-align:center;
-}
-
-.hero{
-  padding:34px;
-  margin-bottom:22px;
-}
-
-.badge{
-  display:inline-block;
-  padding:9px 14px;
-  border-radius:999px;
-  background:rgba(255,0,0,.13);
-  border:1px solid rgba(255,0,0,.3);
-  color:#ffb4b4;
-  font-weight:900;
-  margin-bottom:18px;
-}
-
-.hero h2{
-  font-family:Orbitron;
-  font-size:clamp(2.4rem,6vw,5rem);
-  line-height:.95;
-  margin-bottom:18px;
-}
-
-.hero h2 span{
-  color:var(--red);
-  text-shadow:0 0 25px rgba(255,0,0,.5);
-}
-
-.hero p{
-  color:#cbd5e1;
-  font-size:1.15rem;
-  line-height:1.7;
-}
-
-.posts{
-  display:grid;
-  gap:16px;
-}
-
-.post{
-  padding:22px;
-  border-radius:24px;
-  border:1px solid var(--line);
-  background:linear-gradient(145deg,rgba(24,28,38,.95),rgba(10,11,15,.98));
-  transition:.2s;
-}
-
-.post:hover{
-  transform:translateY(-5px);
-  box-shadow:0 20px 50px rgba(255,0,0,.14);
-}
+.post-body{min-width:0;flex:1}
 
 .post-head{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-bottom:4px;
+}
+
+.post-head strong{font-size:15px}
+
+.verified{
+  color:var(--blue);
+  font-size:14px;
+}
+
+.post-text{
+  color:var(--text);
+  font-size:15.5px;
+  line-height:1.45;
   margin-bottom:12px;
 }
 
-.avatar{
-  width:46px;
-  height:46px;
-  border-radius:16px;
-  display:grid;
-  place-items:center;
-  background:#202634;
-  font-weight:900;
-}
-
-.post strong{
-  display:block;
-}
-
-.handle{
-  color:var(--muted);
-  font-size:.9rem;
-}
-
-.post p{
-  color:#cbd5e1;
-  line-height:1.6;
-}
-
 .pills{
-  margin-top:14px;
   display:flex;
   gap:8px;
   flex-wrap:wrap;
 }
 
 .pill{
-  padding:7px 11px;
+  font-size:13px;
+  color:var(--muted);
+  border:1px solid var(--border);
   border-radius:999px;
-  background:rgba(255,255,255,.06);
-  color:#b8c0cc;
-  font-size:.82rem;
+  padding:6px 10px;
 }
 
-.side{
-  padding:24px;
+.post-actions{
+  margin-top:14px;
+  display:flex;
+  justify-content:space-between;
+  max-width:425px;
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* RIGHT */
+.right{
+  padding:12px 0 0 20px;
   position:sticky;
-  top:18px;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
 }
 
-.side h3{
-  font-family:Orbitron;
-  margin-bottom:16px;
-}
+.right::-webkit-scrollbar{width:0}
 
-.social{
-  display:grid;
-  gap:12px;
-}
-
-.social a{
+.search{
+  height:44px;
+  border-radius:999px;
+  background:#202327;
   display:flex;
   align-items:center;
   gap:12px;
-  padding:14px;
-  border-radius:18px;
-  background:rgba(255,255,255,.04);
-  border:1px solid var(--line);
+  padding:0 16px;
+  color:var(--muted);
+  margin-bottom:16px;
+}
+
+.login-panel-x{
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:16px;
+  background:#000;
+  text-align:center;
+}
+
+.wallet-logo-box{
+  width:108px;
+  height:108px;
+  margin:0 auto 16px;
+  position:relative;
+  cursor:pointer;
+}
+
+.wallet-logo-box img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:24px;
+  border:1px solid var(--border);
+  box-shadow:0 0 34px rgba(244,33,46,.25);
+}
+
+.login-panel-x h2{
+  font-size:22px;
+  font-weight:900;
+  margin-bottom:6px;
+}
+
+.login-panel-x h2 span{color:var(--red)}
+
+.login-panel-x p{
+  color:var(--muted);
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  line-height:1.5;
+  margin-bottom:14px;
+}
+
+.login-panel-x input{
+  width:100%;
+  height:44px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#000;
+  color:#39ff14;
+  text-align:center;
+  padding:0 14px;
+  font-size:13px;
+  margin-bottom:10px;
+  outline:none;
+}
+
+.guest-btn{
+  width:100%;
+  height:42px;
+  border-radius:999px;
+  border:none;
+  background:#eff3f4;
+  color:#0f1419;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.error-box{
+  margin-top:12px;
+  padding:10px;
+  border-radius:14px;
+  background:rgba(244,33,46,.12);
+  border:1px solid rgba(244,33,46,.35);
+  color:#ff7b85;
+}
+
+.error-box small{
+  display:block;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+.hidden{display:none}
+
+.hidden-loader{
+  display:none;
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  border-radius:24px;
+  align-items:center;
+  justify-content:center;
+}
+
+.loading-spinner{
+  width:36px;
+  height:36px;
+  border:3px solid transparent;
+  border-top-color:var(--red);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.side-card{
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  margin-bottom:16px;
+}
+
+.side-title{
+  padding:14px 16px;
+  font-size:20px;
   font-weight:800;
-  transition:.2s;
 }
 
-.social a:hover{
-  transform:translateX(5px);
-  background:rgba(255,0,0,.1);
-  border-color:rgba(255,0,0,.45);
+.side-link{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  border-top:1px solid var(--border);
+  transition:.15s;
+  font-weight:700;
 }
 
-.social i{
-  color:var(--red);
+.side-link:hover{background:#080808}
+
+.side-link i{
   width:24px;
+  color:var(--red);
   text-align:center;
 }
 
 .contract{
-  margin-top:18px;
-  padding:14px;
-  border-radius:18px;
-  background:rgba(255,255,255,.04);
-  border:1px solid var(--line);
+  padding:14px 16px;
+  border-top:1px solid var(--border);
   color:var(--muted);
-  font-size:.78rem;
+  font-size:13px;
   word-break:break-all;
+  line-height:1.45;
 }
 
 .footer{
-  text-align:center;
-  color:#6b7280;
-  padding:25px 0 45px;
+  color:var(--muted);
+  font-size:13px;
+  padding:8px 4px 30px;
 }
 
-@media(max-width:1100px){
-  .layout{grid-template-columns:1fr}
-  .login-card,.side{position:relative;top:0}
-}
-
-@media(max-width:720px){
-  .header{flex-direction:column;align-items:flex-start;padding:18px 0}
-  .nav{width:100%;display:grid;grid-template-columns:1fr 1fr}
-}
-  @media(max-width:720px){
-
-  body{
-    background:
-      radial-gradient(circle at 50% 0%,rgba(255,0,0,.28),transparent 34%),
-      radial-gradient(circle at 80% 18%,rgba(255,255,255,.06),transparent 22%),
-      linear-gradient(180deg,#020202,#090000 55%,#050505);
+/* MOBILE */
+@media(max-width:900px){
+  .app{
+    display:block;
+    max-width:600px;
+    margin:0 auto;
+    border-left:1px solid var(--border);
+    border-right:1px solid var(--border);
   }
 
-  .page{
-    width:100%;
-    padding:0 14px;
-  }
-
-  .header{
-    position:sticky;
-    top:0;
+  .left{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    top:auto;
+    height:58px;
     z-index:50;
-    padding:14px 0;
-    backdrop-filter:blur(18px);
-    background:linear-gradient(180deg,rgba(5,5,5,.92),rgba(5,5,5,.62));
-    border-bottom:1px solid rgba(255,0,0,.18);
+    border-right:none;
+    border-top:1px solid var(--border);
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(12px);
+    padding:0;
+    overflow:hidden;
   }
 
-  .brand{
-    width:100%;
-    justify-content:center;
-  }
-
-  .logo{
-    width:64px;
-    height:64px;
-    border-radius:22px;
-    box-shadow:
-      0 0 35px rgba(255,0,0,.55),
-      inset 0 0 18px rgba(255,255,255,.12);
-  }
-
-  .brand h1{
-    font-size:1.65rem;
-    text-shadow:0 0 20px rgba(255,0,0,.45);
+  .logo,
+  .post-main,
+  .profile-mini{
+    display:none;
   }
 
   .nav{
-    width:100%;
-    grid-template-columns:repeat(4,1fr);
-    gap:8px;
-    margin-top:10px;
+    height:58px;
+    display:flex;
+    overflow-x:auto;
+    gap:0;
+    scrollbar-width:none;
   }
+
+  .nav::-webkit-scrollbar{display:none}
 
   .nav a{
-    font-size:.8rem;
-    padding:10px 6px;
-    border-radius:16px;
-    background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,0,0,.06));
-    box-shadow:inset 0 0 12px rgba(255,0,0,.08);
+    flex:0 0 72px;
+    width:72px;
+    justify-content:center;
+    padding:0;
+    border-radius:0;
+    font-size:0;
   }
 
-  .layout{
-    display:flex;
-    flex-direction:column;
-    gap:18px;
-    padding-top:10px;
+  .nav a span{display:none}
+
+  .nav i{
+    font-size:22px;
   }
 
-  .login-card{
-    order:1;
-    border-radius:32px;
-    padding:26px 20px;
-    background:
-      radial-gradient(circle at top,rgba(255,0,0,.18),transparent 36%),
-      linear-gradient(145deg,rgba(24,28,38,.96),rgba(5,5,7,.98));
-    box-shadow:
-      0 28px 70px rgba(0,0,0,.55),
-      0 0 45px rgba(255,0,0,.12);
+  .center{
+    border-right:none;
+    padding-bottom:64px;
   }
 
-  .wallet-icon{
-    width:150px;
-    height:150px;
-    border-radius:38px;
-    margin-top:6px;
-    font-size:52px;
-    box-shadow:
-      0 0 65px rgba(255,0,0,.58),
-      0 18px 48px rgba(0,0,0,.55),
-      inset 0 0 24px rgba(255,255,255,.14);
-    animation:pulseWallet 2.8s infinite ease-in-out;
+  .right{
+    position:relative;
+    height:auto;
+    padding:0 12px 78px;
   }
 
-  @keyframes pulseWallet{
-    0%,100%{transform:translateY(0) scale(1)}
-    50%{transform:translateY(-6px) scale(1.035)}
+  .search{display:none}
+
+  .login-panel-x{
+    display:none;
+  }
+}
+
+@media(max-width:520px){
+  .app{
+    border-left:none;
+    border-right:none;
   }
 
-  .title{
-    font-size:1.55rem;
-    margin-top:4px;
-  }
-
-  .sub{
-    font-size:1rem;
-  }
-
-  .status{
-    border-radius:22px;
-    min-height:74px;
-    font-size:.86rem;
-    background:rgba(0,0,0,.36);
-    box-shadow:inset 0 0 22px rgba(255,0,0,.06);
-  }
-
-  button,input{
-    min-height:56px;
-    border-radius:20px;
-    font-size:1rem;
-  }
-
-  button{
-    box-shadow:
-      0 14px 34px rgba(255,0,0,.26),
-      inset 0 0 14px rgba(255,255,255,.08);
-  }
-
-  button:active{
-    transform:scale(.96);
-    box-shadow:0 0 40px rgba(255,0,0,.58);
-  }
-
-  .enter{
-    animation:enterGlow 1.4s infinite alternate;
-  }
-
-  @keyframes enterGlow{
-    from{box-shadow:0 0 22px rgba(34,197,94,.25)}
-    to{box-shadow:0 0 42px rgba(34,197,94,.65)}
-  }
-
-  section{
-    order:2;
-  }
-
-  .hero{
-    padding:28px 22px;
-    border-radius:34px;
-    background:
-      radial-gradient(circle at top right,rgba(255,0,0,.2),transparent 38%),
-      linear-gradient(145deg,rgba(22,25,34,.98),rgba(7,7,10,.98));
-  }
-
-  .badge{
-    font-size:.82rem;
-    margin-bottom:18px;
-  }
-
-  .hero h2{
-    font-size:3.2rem;
-    text-align:left;
-  }
-
-  .hero p{
-    font-size:1.05rem;
-    line-height:1.65;
-  }
-
-  .posts{
-    gap:18px;
-  }
-
-  .post{
-    border-radius:30px;
-    padding:22px;
-    background:
-      linear-gradient(145deg,rgba(25,30,42,.98),rgba(7,8,12,.98));
-    box-shadow:
-      0 18px 45px rgba(0,0,0,.45),
-      inset 0 0 18px rgba(255,255,255,.025);
-  }
-
-  .post:active{
-    transform:scale(.98);
-    border-color:rgba(255,0,0,.5);
-    box-shadow:0 0 38px rgba(255,0,0,.22);
-  }
-
-  .avatar{
-    width:54px;
-    height:54px;
-    border-radius:20px;
-  }
-
-  .post strong{
-    font-size:1.1rem;
-  }
-
-  .post p{
-    font-size:1.02rem;
-  }
-
-  .pills{
-    gap:8px;
+  .post-head .handle{
+    width:100%;
   }
 
   .pill{
-    padding:8px 12px;
-    font-size:.82rem;
-    background:rgba(255,0,0,.08);
-    border:1px solid rgba(255,0,0,.16);
+    font-size:12px;
+    padding:5px 9px;
   }
-
-  .side{
-    order:3;
-    border-radius:32px;
-    padding:22px;
-  }
-
-  .side h3{
-    font-size:1.15rem;
-  }
-
-  .social a{
-    min-height:58px;
-    border-radius:20px;
-    font-size:1rem;
-  }
-
-  .social a:active{
-    transform:scale(.97);
-    background:rgba(255,0,0,.16);
-  }
-
-  .contract{
-    font-size:.74rem;
-    border-radius:20px;
-  }
-
-  .footer{
-    padding-bottom:34px;
-    font-size:.85rem;
-  }
+}
 </style>
 </head>
 
 <body>
-<div class="page">
+<div class="app">
 
-<header class="header">
-  <div class="brand">
-    <div class="logo"><i class="fas fa-bolt"></i></div>
-    <h1>MUZZ<span>SNAP</span></h1>
+<aside class="left">
+  <div class="logo">
+    <i class="fas fa-bolt"></i>
   </div>
 
   <nav class="nav">
-    <a href="social.html">MuzzSocial</a>
-    <a href="chat.html">Chat</a>
-    <a href="private.html">Private</a>
-    <a href="swap.html">Buy MUZZ</a>
+    <a href="index.html" class="active">
+      <i class="fas fa-house"></i>
+      <span>Home</span>
+    </a>
+
+    <a href="whitepaper.html">
+      <i class="fas fa-file-lines"></i>
+      <span>Whitepaper</span>
+    </a>
+
+    <a href="muzzsnap.html">
+      <i class="fas fa-bolt"></i>
+      <span>MuzzSnap</span>
+    </a>
+
+    <a href="social.html">
+      <i class="fas fa-rss"></i>
+      <span>Social</span>
+    </a>
+
+    <a href="muzzstudio.html">
+      <i class="fas fa-clapperboard"></i>
+      <span>MuzzStudio</span>
+    </a>
+
+    <a href="swap.html">
+      <i class="fas fa-cart-shopping"></i>
+      <span>Buy Muzz</span>
+    </a>
+
+    <a href="https://t.me/MuzzSnap" target="_blank">
+      <i class="fab fa-telegram"></i>
+      <span>Telegram</span>
+    </a>
+
+    <a href="https://x.com/MuzzleToken" target="_blank">
+      <i class="fab fa-x-twitter"></i>
+      <span>X.com</span>
+    </a>
+
+    <a href="mailto:muzzsnapofficial@gmail.com">
+      <i class="fas fa-envelope"></i>
+      <span>Contact</span>
+    </a>
   </nav>
-</header>
 
-<main class="layout">
+  <button class="post-main">Post</button>
 
-<aside class="login-card card">
-  <div class="wallet-icon"><i class="fas fa-wallet"></i></div>
-
-  <h2 class="title">Wallet Gateway</h2>
-  <p class="sub">Connect your wallet or enter as guest to access MuzzSnap.</p>
-
-  <div class="status" id="status">
-    Ready. Wallet users require signature. Guests can preview.
+  <div class="profile-mini">
+    <div class="avatar">MS</div>
+    <div>
+      <div class="name">MuzzSnap</div>
+      <div class="handle">@muzzsnap</div>
+    </div>
   </div>
-
-  <button id="walletBtn" onclick="connectWallet()">
-    <i class="fas fa-shield-halved"></i> Connect Wallet
-  </button>
-
-  <input id="guestName" placeholder="Guest nickname">
-
-  <button onclick="guestLogin()">
-    <i class="fas fa-user"></i> Enter as Guest
-  </button>
-
-  <button id="enterBtn" class="enter" onclick="enterApp()">
-    <i class="fas fa-arrow-right"></i> Enter MuzzSnap
-  </button>
 </aside>
 
-<section>
-  <div class="hero card">
-    <div class="badge">The New Home For Crypto Social Freedom</div>
-    <h2>MUZZ<span>SOCIAL</span></h2>
-    <p>
-      MuzzSnap is a token-gated crypto social experience built for privacy,
-      wallet identity, community access, private messaging, and social freedom.
-    </p>
+<main class="center">
+  <div class="topbar">
+    <h1>MuzzSnap</h1>
   </div>
 
-  <div class="posts">
-    <article class="post">
+  <article class="feed-post">
+    <div class="avatar">MS</div>
+    <div class="post-body">
       <div class="post-head">
-        <div class="avatar">MS</div>
-        <div>
-          <strong>MuzzSnap ✅</strong>
-          <div class="handle">@muzzsnap · pinned</div>
-        </div>
+        <strong>MuzzSnap</strong><i class="fas fa-check-circle verified"></i>
+        <span class="handle">@muzzsnap · pinned</span>
       </div>
-      <p>MuzzSnap combines wallet login, private chat, social feed, and crypto-native identity in one ecosystem.</p>
+      <div class="post-text">
+        MuzzSnap is a crypto-native social gateway built for private messaging, wallet identity, community access and a new home for Web3 users.
+      </div>
       <div class="pills">
         <span class="pill">Read only</span>
-        <span class="pill">Privacy</span>
-        <span class="pill">Web3</span>
+        <span class="pill">Wallet access</span>
+        <span class="pill">Private chat</span>
       </div>
-    </article>
+      <div class="post-actions">
+        <span>💬 24</span><span>🔁 108</span><span>♡ 420</span><span>📊 9.8K</span>
+      </div>
+    </div>
+  </article>
 
-    <article class="post">
+  <article class="feed-post">
+    <div class="avatar">MU</div>
+    <div class="post-body">
       <div class="post-head">
-        <div class="avatar">MU</div>
-        <div>
-          <strong>MuzzleToken ✅</strong>
-          <div class="handle">@muzzletoken · ecosystem</div>
-        </div>
+        <strong>MuzzleToken</strong><i class="fas fa-check-circle verified"></i>
+        <span class="handle">@muzzletoken · ecosystem</span>
       </div>
-      <p>MuzzleToken is the access and utility token for the MuzzSnap ecosystem on Ethereum.</p>
+      <div class="post-text">
+        MuzzleToken is the utility and access token connected to the MuzzSnap ecosystem on Ethereum.
+      </div>
       <div class="pills">
         <span class="pill">Ethereum</span>
-        <span class="pill">Token Access</span>
-        <span class="pill">Holders</span>
+        <span class="pill">Token access</span>
+        <span class="pill">Community</span>
       </div>
-    </article>
+      <div class="post-actions">
+        <span>💬 18</span><span>🔁 75</span><span>♡ 300</span><span>📊 6.4K</span>
+      </div>
+    </div>
+  </article>
 
-    <article class="post">
+  <article class="feed-post">
+    <div class="avatar">PX</div>
+    <div class="post-body">
       <div class="post-head">
-        <div class="avatar">PX</div>
-        <div>
-          <strong>Why MuzzSocial?</strong>
-          <div class="handle">@community · mission</div>
-        </div>
+        <strong>Why MuzzSocial?</strong>
+        <span class="handle">@community · mission</span>
       </div>
-      <p>People are searching for a better social home. MuzzSocial is designed for community, privacy, and crypto freedom.</p>
+      <div class="post-text">
+        People are searching for a better social home. MuzzSocial is designed for community, privacy and crypto freedom.
+      </div>
       <div class="pills">
         <span class="pill">Community first</span>
-        <span class="pill">Private</span>
+        <span class="pill">Privacy</span>
         <span class="pill">Freedom</span>
       </div>
-    </article>
-  </div>
-</section>
-
-<aside class="side card">
-  <h3>Official Links</h3>
-
-  <div class="social">
-    <a href="https://x.com/MuzzleToken" target="_blank"><i class="fab fa-x-twitter"></i> X / Twitter</a>
-    <a href="https://t.me/MuzzSnap" target="_blank"><i class="fab fa-telegram"></i> Telegram</a>
-    <a href="mailto:muzzsnapofficial@gmail.com"><i class="fas fa-envelope"></i> Email</a>
-    <a href="https://etherscan.io/token/0xef3daa5fda8ad7aabff4658f1f78061fd626b8f0" target="_blank"><i class="fas fa-chart-line"></i> Etherscan</a>
-    <a href="https://coinmarketcap.com/currencies/muzzletoken/" target="_blank"><i class="fas fa-coins"></i> CoinMarketCap</a>
-  </div>
-
-  <div class="contract">
-    Contract:<br>
-    0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0
-  </div>
-</aside>
-
+      <div class="post-actions">
+        <span>💬 33</span><span>🔁 144</span><span>♡ 580</span><span>📊 12K</span>
+      </div>
+    </div>
+  </article>
 </main>
 
-<footer class="footer">
-  MuzzSnap © 2026 · Built for the MuzzleToken ecosystem
-</footer>
+<aside class="right">
+  <div class="search">
+    <i class="fas fa-search"></i> Search MuzzSnap
+  </div>
+
+  <div class="login-panel-x">
+    <div id="btnConnect" class="wallet-logo-box" onclick="accessWithWallet()">
+      <div id="loadingUI" class="hidden-loader">
+        <div class="loading-spinner"></div>
+      </div>
+
+      <img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440" alt="MuzzSnap">
+    </div>
+
+    <h2>MUZZ<span>SNAP</span></h2>
+    <p id="statusText">Tap logo for wallet or use guest below</p>
+
+    <input type="text" id="usernameInput" placeholder="ENTER_NICKNAME...">
+
+    <button onclick="accessWithGuest()" class="guest-btn">
+      Initialize Guest Protocol
+    </button>
+
+    <div id="errorBox" class="error-box hidden">
+      <strong id="errorTitle"></strong>
+      <small id="errorDesc"></small>
+    </div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-title">Official Links</div>
+
+    <a class="side-link" href="https://x.com/MuzzleToken" target="_blank">
+      <i class="fab fa-x-twitter"></i> X / Twitter
+    </a>
+
+    <a class="side-link" href="https://t.me/MuzzSnap" target="_blank">
+      <i class="fab fa-telegram"></i> Telegram
+    </a>
+
+    <a class="side-link" href="mailto:muzzsnapofficial@gmail.com">
+      <i class="fas fa-envelope"></i> Email
+    </a>
+
+    <a class="side-link" href="https://etherscan.io/token/0xef3daa5fda8ad7aabff4658f1f78061fd626b8f0" target="_blank">
+      <i class="fas fa-chart-line"></i> Etherscan
+    </a>
+
+    <a class="side-link" href="https://coinmarketcap.com/currencies/muzzletoken/" target="_blank">
+      <i class="fas fa-coins"></i> CoinMarketCap
+    </a>
+
+    <div class="contract">
+      Contract:<br>
+      0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0
+    </div>
+  </div>
+
+  <div class="footer">
+    MuzzSnap © 2026 · Built for MuzzleToken
+  </div>
+</aside>
 
 </div>
 
 <script>
-const ADMIN_WALLETS=[
-  "0x208157b5ec396759e8754058108ecf53e32392ff",
-  "0xfab5835ca14fb3f9f978c5e4d733734e6394e03f",
-  "0x875c5a7794b601f273da58e3c1d10671d16130ec"
+const loadingUI = document.getElementById('loadingUI');
+const errorBox = document.getElementById('errorBox');
+
+const ADMIN_WALLETS = [
+  '0x208157b5ec396759e8754058108ecf53e32392ff',
+  '0xfab5835ca14fb3f9f978c5e4d733734e6394e03f',
+  '0x875c5a7794b601f273da58e3c1d10671d16130ec'
 ];
 
-function setStatus(msg){
-  document.getElementById("status").innerText=msg;
+function showError(title, desc){
+  errorBox.classList.remove('hidden');
+  document.getElementById('errorTitle').innerText = title;
+  document.getElementById('errorDesc').innerText = desc;
+  document.getElementById('statusText').innerText = title;
+  loadingUI.style.display = 'none';
 }
 
-function showEnter(){
-  document.getElementById("enterBtn").style.display="block";
+function normalizeAddress(address){
+  return String(address || '').trim().toLowerCase();
 }
 
-function clearSession(){
-  sessionStorage.clear();
+function saveUserSession(address){
+  const normalizedAddress = normalizeAddress(address);
+  const isAdmin = ADMIN_WALLETS.includes(normalizedAddress);
+
+  sessionStorage.setItem('muzz_wallet_address', normalizedAddress);
+  sessionStorage.setItem('muzz_user_role', isAdmin ? 'admin' : 'user');
+  sessionStorage.setItem('muzz_is_admin', isAdmin ? 'true' : 'false');
+  sessionStorage.setItem('muzz_login_method', 'wallet');
+  sessionStorage.setItem('muzz_is_guest', 'false');
 }
 
-function normalizeAddress(a){
-  return String(a||"").toLowerCase().trim();
-}
+async function accessWithWallet(){
+  errorBox.classList.add('hidden');
+  document.getElementById('statusText').innerText = 'Connecting wallet...';
 
-async function connectWallet(){
-  const btn=document.getElementById("walletBtn");
+  if(typeof window.ethereum !== 'undefined'){
+    try{
+      loadingUI.style.display = 'flex';
 
-  try{
-    clearSession();
+      const accounts = await window.ethereum.request({
+        method:'eth_requestAccounts'
+      });
 
-    if(!window.ethereum){
-      setStatus("MetaMask not detected. Open with MetaMask browser or install MetaMask.");
-      return;
+      if(!accounts || !accounts.length){
+        showError('AUTH_FAILED','No wallet account detected.');
+        return;
+      }
+
+      saveUserSession(accounts[0]);
+
+      document.getElementById('statusText').innerText = 'Wallet connected. Opening MuzzSnap...';
+
+      setTimeout(()=>{
+        window.location.href = 'chat.html';
+      },500);
+
+    }catch(err){
+      showError('AUTH_FAILED','Connection rejected.');
     }
+  }else{
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-    btn.disabled=true;
-    setStatus("Connecting wallet...");
-
-    const accounts=await window.ethereum.request({method:"eth_requestAccounts"});
-    if(!accounts || !accounts.length){
-      setStatus("No wallet account detected.");
-      return;
+    if(isMobile){
+      const dappUrl = window.location.href.split('//')[1];
+      window.location.href = `https://metamask.app.link/dapp/${dappUrl}`;
+    }else{
+      showError('NO_WALLET','Install MetaMask or use a Web3 browser.');
     }
-
-    const wallet=normalizeAddress(accounts[0]);
-
-    setStatus("Requesting signature...");
-
-    const message=
-`MuzzSnap Login
-
-Wallet: ${wallet}
-Time: ${new Date().toISOString()}
-
-Sign to access MuzzSnap.`;
-
-    const signature=await window.ethereum.request({
-      method:"personal_sign",
-      params:[message,wallet]
-    });
-
-    const isAdmin=ADMIN_WALLETS.includes(wallet);
-
-    sessionStorage.setItem("muzz_wallet_address",wallet);
-    sessionStorage.setItem("muzz_login_method","wallet");
-    sessionStorage.setItem("muzz_wallet_signature",signature);
-    sessionStorage.setItem("muzz_is_admin",isAdmin?"true":"false");
-    sessionStorage.setItem("muzz_user_role",isAdmin?"admin":"user");
-    sessionStorage.setItem("muzz_is_guest","false");
-
-    setStatus(isAdmin ? "Admin wallet verified. Access granted." : "Wallet verified. Access granted.");
-    showEnter();
-
-  }catch(err){
-    console.error(err);
-    setStatus("Wallet login failed or was rejected.");
-  }finally{
-    btn.disabled=false;
   }
 }
 
-function guestLogin(){
-  const name=document.getElementById("guestName").value.trim();
+function accessWithGuest(){
+  const user = document.getElementById('usernameInput').value.trim();
 
-  if(!name){
-    setStatus("Enter a guest nickname first.");
+  if(!user){
+    showError('REQUIRED','Enter a nickname.');
     return;
   }
 
-  clearSession();
+  sessionStorage.setItem('muzz_wallet_address', `guest_${user}`);
+  sessionStorage.setItem('muzz_user_role', 'guest');
+  sessionStorage.setItem('muzz_is_admin', 'false');
+  sessionStorage.setItem('muzz_login_method', 'guest');
+  sessionStorage.setItem('muzz_is_guest', 'true');
+  sessionStorage.setItem('muzz_username', user);
 
-  sessionStorage.setItem("muzz_wallet_address","guest_"+name);
-  sessionStorage.setItem("muzz_login_method","guest");
-  sessionStorage.setItem("muzz_username",name);
-  sessionStorage.setItem("muzz_user_role","guest");
-  sessionStorage.setItem("muzz_is_guest","true");
-  sessionStorage.setItem("muzz_is_admin","false");
+  document.getElementById('statusText').innerText = 'Guest access granted. Opening MuzzSnap...';
 
-  setStatus("Guest ready. Access granted.");
-  showEnter();
-}
-
-function enterApp(){
-  const user=sessionStorage.getItem("muzz_wallet_address");
-  const method=sessionStorage.getItem("muzz_login_method");
-
-  if(!user || !method){
-    setStatus("Login first.");
-    return;
-  }
-
-  window.location.href="chat.html";
+  setTimeout(()=>{
+    window.location.href = 'chat.html';
+  },500);
 }
 </script>
 
