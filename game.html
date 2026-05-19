@@ -1,463 +1,923 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>The Block</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>MuzzSnap | The Block</title>
+<meta name="theme-color" content="#111418">
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Orbitron:wght@400;900&family=Rajdhani:wght@600;700&display=swap');
-    :root { --muzz-red: #ff0000; --cyan: #00e5ff; }
-    html, body { height: 100%; overflow: hidden; margin: 0; background: #000; font-family: 'Rajdhani', sans-serif; color: white; }
-    .panel-3d { border-radius: 24px; background: #0c0c0c; border: 1px solid rgba(255,0,0,0.15); display: flex; flex-direction: column; height: 100%; position: relative; z-index: 10; }
-    
-    #particle-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
-    .boards-layout { display: flex; flex-direction: row; gap: 15px; justify-content: center; align-items: center; flex: 1; padding: 10px; z-index: 20; position: relative; }
-    @media (max-width: 600px) { .boards-layout { flex-direction: column; } .board { max-width: 280px !important; } }
-    
-    .board { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; width: 100%; max-width: 380px; padding: 8px; background: rgba(16, 11, 32, 0.6); backdrop-filter: blur(8px); border-radius: 12px; border: 1px solid rgba(0, 229, 255, 0.2); }
-    .tile { aspect-ratio: 1/1; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 1.2rem; position: relative; }
-    .tile.selected { transform: translateY(-4px) scale(1.15); box-shadow: 0 0 20px var(--cyan); z-index: 50; border: 1px solid var(--cyan); outline: 2px solid white; }
-    .tile.matched { transform: scale(1.8) rotate(15deg); opacity: 0; filter: blur(5px) brightness(3); transition: all 0.4s; }
-    .tile.bomb { 
-      background-image: url('https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440') !important; 
-      background-size: 90%; background-position: center; background-repeat: no-repeat; 
-      background-color: #fff !important; animation: pulse 0.6s infinite alternate; 
-    }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
-  </style>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Orbitron:wght@400;900&family=Rajdhani:wght@600;700&display=swap');
+
+:root{
+  --bg:#20262d;
+  --panel:#12171d;
+  --soft:#1a2028;
+  --soft-2:#232b35;
+  --line:rgba(255,255,255,.08);
+  --text:#eef2f7;
+  --muted:#93a0b3;
+  --red:#ff2b2b;
+  --red-2:#b10f0f;
+  --red-soft:rgba(255,43,43,.14);
+  --green:#4ade80;
+  --blue:#60a5fa;
+  --cyan:#00e5ff;
+  --shadow:0 18px 50px rgba(0,0,0,.35);
+  --radius:22px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-right:env(safe-area-inset-right,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --safe-left:env(safe-area-inset-left,0px);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(circle at top right,rgba(255,43,43,.10),transparent 24%),
+    radial-gradient(circle at bottom left,rgba(96,165,250,.07),transparent 20%),
+    var(--bg);
+  color:var(--text);
+  overflow:hidden;
+  font-size:14px;
+}
+button,input{font:inherit}
+a{text-decoration:none;color:inherit}
+
+.app{
+  display:grid;
+  grid-template-columns:280px minmax(0,720px) 340px;
+  gap:18px;
+  height:100vh;
+  max-width:1450px;
+  margin:0 auto;
+  padding:18px;
+}
+
+.card{
+  background:rgba(18,23,29,.92);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(10px);
+}
+
+.sidebar,.rightbar,.game-shell{
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+}
+.sidebar,.rightbar{padding:18px}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:6px 4px 18px;
+  margin-bottom:8px;
+}
+.brand-badge{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border-radius:16px;
+  background:linear-gradient(145deg,#ff3b3b,#9d1111);
+  box-shadow:0 0 24px rgba(255,43,43,.25);
+  font-size:20px;
+}
+.brand h1{
+  margin:0;
+  font-size:24px;
+  letter-spacing:-.04em;
+  font-weight:900;
+  font-style:italic;
+}
+.brand span{color:var(--red)}
+
+.nav{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin:6px 0 16px;
+}
+.nav-btn{
+  border:none;
+  background:transparent;
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:12px 13px;
+  border-radius:18px;
+  cursor:pointer;
+  transition:.2s ease;
+  text-align:left;
+  width:100%;
+}
+.nav-btn:hover,.nav-btn.active{
+  background:var(--red-soft);
+  color:#fff;
+}
+.nav-icon{
+  width:38px;
+  height:38px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.05);
+  font-size:15px;
+  flex-shrink:0;
+}
+
+.compose-main{
+  margin:10px 0 18px;
+  padding:14px 18px;
+  border:none;
+  border-radius:18px;
+  font-weight:800;
+  color:#fff;
+  background:linear-gradient(145deg,#ff3d3d,#b10f0f);
+  cursor:pointer;
+  box-shadow:0 12px 30px rgba(255,43,43,.22);
+}
+.profile-mini{
+  margin-top:auto;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  border-radius:18px;
+  background:var(--soft);
+  border:1px solid var(--line);
+}
+.avatar{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(145deg,#3a4552,#19202a);
+  border:1px solid rgba(255,255,255,.08);
+  font-weight:800;
+  flex-shrink:0;
+}
+.name{font-weight:800}
+.sub{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}
+
+.game-shell{overflow:hidden;position:relative}
+.game-top{
+  position:sticky;
+  top:0;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:16px 18px;
+  border-bottom:1px solid var(--line);
+  background:rgba(18,23,29,.84);
+  backdrop-filter:blur(14px);
+  border-top-left-radius:var(--radius);
+  border-top-right-radius:var(--radius);
+}
+.game-top h2{margin:0;font-size:18px;letter-spacing:-.03em}
+.ghost-btn{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  color:var(--text);
+  padding:10px 14px;
+  border-radius:14px;
+  cursor:pointer;
+}
+.game-stage{
+  position:relative;
+  min-height:0;
+  flex:1;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(0,229,255,.08),transparent 32%),
+    radial-gradient(circle at 12% 88%,rgba(255,43,43,.08),transparent 30%),
+    rgba(0,0,0,.12);
+}
+
+#particle-canvas{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+}
+
+.access-screen,.start-screen,.end-screen{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:28px;
+  background:rgba(18,23,29,.72);
+  backdrop-filter:blur(10px);
+}
+.lock-icon{
+  width:86px;
+  height:86px;
+  border-radius:28px;
+  display:grid;
+  place-items:center;
+  background:var(--red-soft);
+  border:1px solid rgba(255,43,43,.22);
+  color:var(--red);
+  font-size:34px;
+  margin-bottom:18px;
+}
+.game-title{
+  font-family:Orbitron,Rajdhani,sans-serif;
+  font-size:clamp(2.8rem,7vw,5rem);
+  font-weight:900;
+  letter-spacing:-.08em;
+  margin:0 0 20px;
+}
+.game-title span{color:var(--cyan);text-shadow:0 0 24px rgba(0,229,255,.35)}
+.play-btn{
+  border:none;
+  border-radius:18px;
+  background:linear-gradient(145deg,var(--cyan),#22d3ee);
+  color:#07111d;
+  font-weight:900;
+  font-family:Orbitron,Rajdhani,sans-serif;
+  padding:16px 36px;
+  box-shadow:0 16px 40px rgba(0,229,255,.22);
+  cursor:pointer;
+}
+.play-btn:hover{transform:translateY(-2px)}
+.game-ui{
+  position:relative;
+  z-index:10;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+.hud{
+  flex:0 0 auto;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  padding:14px 16px;
+  background:rgba(12,16,22,.68);
+  border-bottom:1px solid rgba(0,229,255,.16);
+  backdrop-filter:blur(10px);
+}
+.hud small{
+  display:block;
+  color:#a5f3fc;
+  text-transform:uppercase;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.18em;
+}
+.hud strong{
+  display:block;
+  font-family:Orbitron,Rajdhani,sans-serif;
+  font-size:30px;
+  margin-top:4px;
+}
+.boards-layout{
+  display:flex;
+  flex-direction:row;
+  gap:15px;
+  justify-content:center;
+  align-items:center;
+  flex:1;
+  padding:18px;
+  position:relative;
+  z-index:20;
+}
+.board{
+  display:grid;
+  grid-template-columns:repeat(9,1fr);
+  gap:4px;
+  width:100%;
+  max-width:360px;
+  padding:8px;
+  background:rgba(16,20,28,.72);
+  backdrop-filter:blur(8px);
+  border-radius:18px;
+  border:1px solid rgba(0,229,255,.18);
+  box-shadow:inset 0 0 28px rgba(0,229,255,.035);
+}
+.tile{
+  aspect-ratio:1/1;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:all .2s;
+  font-size:1.2rem;
+  position:relative;
+  background:rgba(0,229,255,.05);
+  user-select:none;
+}
+.tile.selected{
+  transform:translateY(-4px) scale(1.15);
+  box-shadow:0 0 20px var(--cyan);
+  z-index:50;
+  border:1px solid var(--cyan);
+  outline:2px solid white;
+}
+.tile.matched{
+  transform:scale(1.8) rotate(15deg);
+  opacity:0;
+  filter:blur(5px) brightness(3);
+  transition:all .4s;
+}
+.tile.bomb{
+  background-image:url('https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440')!important;
+  background-size:90%;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-color:#fff!important;
+  animation:pulse .6s infinite alternate;
+}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.1)}}
+
+.widget{
+  padding:16px;
+  border-radius:20px;
+  background:var(--soft);
+  border:1px solid var(--line);
+  margin-bottom:16px;
+}
+.section-title{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.24em;
+  color:var(--muted);
+  margin:0 0 14px;
+  font-weight:800;
+}
+.trend,.follow-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 0;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.trend:first-of-type,.follow-row:first-of-type{border-top:none;padding-top:0}
+.trend small,.follow-row small{display:block;color:var(--muted);margin-top:4px}
+.follow-btn{
+  border:none;
+  border-radius:999px;
+  padding:10px 14px;
+  font-weight:800;
+  cursor:pointer;
+  background:#fff;
+  color:#111;
+}
+.rule-list{
+  margin:0;
+  padding-left:18px;
+  color:var(--muted);
+  line-height:1.65;
+  font-size:14px;
+}
+.mobile-bottom{
+  display:none;
+  position:fixed;
+  left:calc(12px + var(--safe-left));
+  right:calc(12px + var(--safe-right));
+  bottom:calc(12px + var(--safe-bottom));
+  z-index:100;
+  background:rgba(18,23,29,.92);
+  border:1px solid var(--line);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  padding:10px;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+}
+.mobile-bottom button{
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  padding:10px 6px;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:11px;
+}
+.mobile-bottom button.active{background:var(--red-soft);color:#fff}
+
+@media(max-width:1180px){
+  .app{grid-template-columns:250px minmax(0,1fr) 300px}
+  .board{max-width:330px}
+}
+@media(max-width:980px){
+  body{overflow:auto}
+  .app{
+    height:auto;
+    min-height:100dvh;
+    grid-template-columns:1fr;
+    padding:calc(12px + var(--safe-top)) calc(12px + var(--safe-right)) calc(104px + var(--safe-bottom)) calc(12px + var(--safe-left));
+  }
+  .sidebar,.rightbar{display:none}
+  .game-shell{height:calc(100dvh - 116px);min-height:620px}
+  .mobile-bottom{display:grid}
+  .game-top{position:sticky}
+}
+@media(max-width:640px){
+  .boards-layout{flex-direction:column;padding:12px}
+  .board{max-width:min(96vw,330px)}
+  .hud strong{font-size:24px}
+}
+</style>
 </head>
+
 <body>
-  <div id="root" class="h-full"></div>
+<div id="root" class="h-full"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+<script type="text/babel">
+const { useState, useEffect } = React;
 
-    function App() {
-      const [mobileMenu, setMobileMenu] = useState(false);
-      const [isAuthorized, setIsAuthorized] = useState(false);
-      const [gameStarted, setGameStarted] = useState(false);
-      const [loading, setLoading] = useState(true);
-      const [error, setError] = useState("");
+function App(){
+  const [isAuthorized,setIsAuthorized]=useState(false);
+  const [gameStarted,setGameStarted]=useState(false);
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState("");
+  const [me,setMe]=useState({name:"Muzz User",handle:"@muzzuser",avatar:"MU"});
 
-      const ADMIN_WALLETS = [
-        '0x208157b5ec396759e8754058108ecf53e32392ff', // Itsuki
-        '0xfab5835ca14fb3f9f978c5e4d733734e6394e03f', // Esteban
-        '0x875c5a7794b601f273da58e3c1d10671d16130ec'  // Ryachu
-      ];
+  const ADMIN_WALLETS=[
+    '0x208157b5ec396759e8754058108ecf53e32392ff',
+    '0xfab5835ca14fb3f9f978c5e4d733734e6394e03f',
+    '0x875c5a7794b601f273da58e3c1d10671d16130ec'
+  ];
 
-      useEffect(() => {
-        const checkSession = async () => {
-          const wallet = sessionStorage.getItem('muzz_wallet_address');
-          const isAdmin = sessionStorage.getItem('muzz_is_admin') === 'true';
+  const TOKEN_ADDRESS='0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0';
+  const MIN_REQUIRED=2000000;
+  const ERC20_ABI=[
+    'function balanceOf(address) view returns (uint256)',
+    'function decimals() view returns (uint8)'
+  ];
 
-          if (!wallet) {
-            window.location.href = 'login.html';
-            return;
-          }
+  useEffect(()=>{
+    const checkSession=async()=>{
+      const walletRaw=sessionStorage.getItem('muzz_wallet_address');
+      const method=sessionStorage.getItem('muzz_login_method');
+      const username=sessionStorage.getItem('muzz_username');
+      const isAdminSession=sessionStorage.getItem('muzz_is_admin')==='true';
 
-          if (isAdmin || ADMIN_WALLETS.includes(wallet.toLowerCase())) {
-            setIsAuthorized(true);
+      if(!walletRaw || !method){
+        window.location.href='index.html';
+        return;
+      }
+
+      const isGuest=walletRaw.startsWith('guest_');
+      const displayName=username || (isGuest ? walletRaw.replace('guest_','') : 'Node_'+walletRaw.slice(-4));
+      setMe({
+        name:displayName || 'Muzz User',
+        handle:'@'+String(displayName || 'muzzuser').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,18),
+        avatar:String(displayName || 'MU').slice(0,2).toUpperCase()
+      });
+
+      if(isGuest){
+        setError('Game access requires a wallet with MuzzleToken. Guest mode can use chat only.');
+        setLoading(false);
+        return;
+      }
+
+      const wallet=walletRaw.toLowerCase();
+
+      if(isAdminSession || ADMIN_WALLETS.includes(wallet)){
+        setIsAuthorized(true);
+        setLoading(false);
+        return;
+      }
+
+      try{
+        if(!window.ethereum || typeof ethers==='undefined'){
+          setError('Web3 wallet not detected. Open with MetaMask or a wallet-enabled browser.');
+          setLoading(false);
+          return;
+        }
+
+        const chainId=await window.ethereum.request({method:'eth_chainId'});
+        if(chainId!=='0x1'){
+          try{
+            await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x1'}]});
+          }catch(e){
+            setError('Switch to Ethereum Mainnet to verify MuzzleToken balance.');
             setLoading(false);
             return;
           }
+        }
 
-          // Verificación de balance de Muzzle (Ejemplo de lógica)
-          try {
-            if (window.ethereum) {
-              const provider = new ethers.providers.Web3Provider(window.ethereum);
-              // Dirección del contrato de MuzzleToken y ABI mínimo
-              const contractAddr = "0x822f7B8869B26D1E2d4f58357732d847F467822D"; 
-              const abi = ["function balanceOf(address) view returns (uint256)"];
-              const contract = new ethers.Contract(contractAddr, abi, provider);
-              const balance = await contract.balanceOf(wallet);
-              const formatted = parseFloat(ethers.utils.formatUnits(balance, 18));
+        const provider=new ethers.providers.Web3Provider(window.ethereum);
+        const contract=new ethers.Contract(TOKEN_ADDRESS,ERC20_ABI,provider);
+        const [rawBalance,decimals]=await Promise.all([
+          contract.balanceOf(wallet),
+          contract.decimals()
+        ]);
+        const formatted=parseFloat(ethers.utils.formatUnits(rawBalance,decimals));
 
-              if (formatted >= 2000000) {
-                setIsAuthorized(true);
-              } else {
-                setError(`Se requiere 2M de $MUZZLE. Balance actual: ${formatted.toLocaleString()}`);
-              }
-            } else {
-              setError("Web3 no detectado.");
-            }
-          } catch (e) {
-            setError("Error al validar balance.");
-          }
-          setLoading(false);
-        };
-        checkSession();
-      }, []);
+        if(formatted>=MIN_REQUIRED){
+          setIsAuthorized(true);
+        }else{
+          setError(`Requires 2,000,000 MUZZ. Current balance: ${formatted.toLocaleString(undefined,{maximumFractionDigits:2})}`);
+        }
+      }catch(e){
+        console.error(e);
+        setError('Could not validate token balance. Reconnect wallet and try again.');
+      }
 
-      const initGame = () => {
-        setGameStarted(true);
-        setTimeout(() => window.launchGameEngine(), 100);
-      };
+      setLoading(false);
+    };
 
-      if (loading) return <div className="h-screen flex items-center justify-center bg-black font-orbitron text-red-600 animate-pulse">VALIDATING_SESSION...</div>;
+    checkSession();
+  },[]);
 
-      return (
-        <div className="flex h-screen p-2 md:p-4 lg:p-6 gap-4 md:gap-6 max-w-[1600px] mx-auto overflow-hidden">
-          
-          {/* MENU LATERAL */}
-          <aside className={`fixed lg:relative z-[100] inset-y-0 left-0 w-72 lg:w-64 transition-all duration-300 transform panel-3d p-6 flex flex-col ${mobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-            <div className="mb-8 flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg"><i className="fas fa-ghost text-white text-xl"></i></div>
-              <h1 className="font-orbitron font-black text-xl italic tracking-tighter text-white">MUZZ<span className="text-red-600">SNAP</span></h1>
+  const initGame=()=>{
+    setGameStarted(true);
+    setTimeout(()=>window.launchGameEngine(),100);
+  };
+
+  if(loading){
+    return (
+      <div className="h-screen flex items-center justify-center" style={{fontFamily:'Orbitron',color:'var(--red)'}}>
+        VALIDATING_SESSION...
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="app">
+        <aside className="sidebar card">
+          <div className="brand">
+            <div className="brand-badge">👻</div>
+            <h1>MUZZ<span>SNAP</span></h1>
+          </div>
+
+          <nav className="nav">
+            <button className="nav-btn" onClick={()=>location.href='index.html'}><span className="nav-icon">🏠</span><span>Home</span></button>
+            <button className="nav-btn" onClick={()=>location.href='whitepaper.html'}><span className="nav-icon">📄</span><span>Whitepaper</span></button>
+            <button className="nav-btn" onClick={()=>location.href='chat.html'}><span className="nav-icon">⚡</span><span>MuzzSnap</span></button>
+            <button className="nav-btn" onClick={()=>location.href='social.html'}><span className="nav-icon">🌐</span><span>Social</span></button>
+            <button className="nav-btn" onClick={()=>location.href='muzzstudio.html'}><span className="nav-icon">🎬</span><span>MuzzStudio</span></button>
+            <button className="nav-btn" onClick={()=>location.href='swap.html'}><span className="nav-icon">🛒</span><span>Buy Muzz</span></button>
+            <button className="nav-btn" onClick={()=>window.open('https://t.me/MuzzSnap','_blank')}><span className="nav-icon">✈️</span><span>Telegram</span></button>
+            <button className="nav-btn" onClick={()=>window.open('https://x.com/MuzzleToken','_blank')}><span className="nav-icon">𝕏</span><span>X.com</span></button>
+            <button className="nav-btn" onClick={()=>location.href='mailto:muzzsnapofficial@gmail.com'}><span className="nav-icon">✉️</span><span>Contact</span></button>
+            <button className="nav-btn active"><span className="nav-icon">🎮</span><span>The Block</span></button>
+          </nav>
+
+          <button className="compose-main" onClick={()=>isAuthorized ? initGame() : location.href='index.html'}>Play Mission</button>
+
+          <div className="profile-mini">
+            <div className="avatar">{me.avatar}</div>
+            <div style={{minWidth:0,flex:1}}>
+              <div className="name">{me.name}</div>
+              <div className="sub">{me.handle}</div>
             </div>
+          </div>
+        </aside>
 
-            <nav className="flex-1 space-y-2">
-              <button onClick={() => window.location.href='chat.html'} className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold text-gray-500 hover:text-white transition-all"><i className="fas fa-comments mr-2 w-5"></i> CHAT</button>
-              <button onClick={() => window.location.href='private.html'} className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold text-gray-500 hover:text-white transition-all"><i className="fas fa-user-shield mr-2 w-5"></i> PRIVATE</button>
-              <button className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold bg-red-600/10 text-red-600 border-l-2 border-red-600"><i className="fas fa-gamepad mr-2 w-5"></i> GAME</button>
-              <button onClick={() => window.location.href='social.html'} className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold text-gray-500 hover:text-white transition-all"><i className="fas fa-share-alt mr-2 w-5"></i> SOCIAL</button>
-            </nav>
-            <div className="mt-auto pt-4 border-t border-white/5 text-[9px] text-gray-600 font-bold uppercase tracking-[0.2em]">Security: MuzzleGate Active</div>
-          </aside>
+        <main className="game-shell card">
+          <div className="game-top">
+            <h2>The Block</h2>
+            <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+              <button className="ghost-btn" onClick={()=>location.href='chat.html'}>Chat</button>
+              <button className="ghost-btn" onClick={()=>alert('Rules: Match 3 equal icons to clear blocks. Match 4+ for combos. Every 1,000 points can add a Muzz bomb in future mode.')}>Rules</button>
+            </div>
+          </div>
 
-          {/* AREA PRINCIPAL */}
-          <main className="flex-1 panel-3d flex flex-col overflow-hidden">
-            <header className="h-16 flex items-center justify-between px-8 bg-white/5 border-b border-white/10 z-[60]">
-                <button onClick={() => setMobileMenu(true)} className="lg:hidden text-red-600"><i className="fas fa-bars"></i></button>
-                <h2 className="text-sm font-black tracking-[0.2em] text-red-600 uppercase italic">/ THE BLOCK</h2>
-            </header>
+          <div className="game-stage">
+            <canvas id="particle-canvas"></canvas>
 
-            <div className="flex-1 relative bg-[#030008]">
-              <canvas id="particle-canvas"></canvas>
-
-              {!isAuthorized ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-[100] bg-black/90 p-6 text-center">
-                  <div className="w-20 h-20 bg-red-600/20 rounded-full flex items-center justify-center mb-6 border border-red-600/50"><i className="fas fa-lock text-red-600 text-3xl"></i></div>
-                  <h3 className="font-orbitron text-2xl font-black mb-2">ACCESS RESTRICTED</h3>
-                  <p className="text-gray-500 text-xs mb-8">{error || "Requiere Wallet con Muzzle Token."}</p>
-                  <button onClick={() => window.location.href='login.html'} className="px-10 py-3 bg-red-600 text-white font-bold rounded-xl">BACK TO LOGING</button>
-                </div>
-              ) : !gameStarted ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-50 text-center">
-                  <h1 className="text-6xl font-black mb-10 font-orbitron tracking-tighter">THE <span className="text-cyan-400">BLOCK</span></h1>
-                  <button onClick={initGame} className="px-16 py-4 bg-cyan-500 text-black font-black font-orbitron text-xl rounded-full hover:scale-110 transition-transform shadow-[0_0_40px_rgba(0,229,255,0.4)]">PLAY MISSION</button>
-                </div>
-              ) : (
-                <div id="game-ui" className="flex flex-col h-full relative z-10">
-                  <div className="h-20 flex items-center justify-around bg-black/60 border-b border-cyan-500/20 backdrop-blur-lg">
-                    <div className="text-center">
-                      <p className="text-[10px] text-cyan-300 font-bold uppercase">Timer</p>
-                      <p id="time-val" className="text-3xl font-bold text-white font-orbitron">60</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[10px] text-cyan-300 font-bold uppercase">Score</p>
-                      <p id="score-val" className="text-3xl font-bold text-white font-orbitron">000</p>
-                    </div>
+            {!isAuthorized ? (
+              <div className="access-screen">
+                <div className="lock-icon"><i className="fas fa-lock"></i></div>
+                <h3 style={{fontFamily:'Orbitron',fontSize:'28px',fontWeight:900,margin:'0 0 8px'}}>ACCESS RESTRICTED</h3>
+                <p style={{color:'var(--muted)',maxWidth:'420px',lineHeight:1.6}}>{error || 'Requires wallet with MuzzleToken.'}</p>
+                <button className="compose-main" style={{marginTop:18,width:'auto'}} onClick={()=>location.href='index.html'}>Back to Login</button>
+              </div>
+            ) : !gameStarted ? (
+              <div className="start-screen">
+                <h1 className="game-title">THE <span>BLOCK</span></h1>
+                <p style={{color:'var(--muted)',maxWidth:'480px',lineHeight:1.6,margin:'0 0 26px'}}>Match icons, clear blocks and build your score inside the MuzzSnap ecosystem.</p>
+                <button className="play-btn" onClick={initGame}>PLAY MISSION</button>
+              </div>
+            ) : (
+              <div id="game-ui" className="game-ui">
+                <div className="hud">
+                  <div>
+                    <small>Timer</small>
+                    <strong id="time-val">60</strong>
                   </div>
-                  <div className="boards-layout">
-                    <div id="board-1-container" className="board"></div>
-                    <div id="board-2-container" className="board"></div>
+                  <div>
+                    <small>Score</small>
+                    <strong id="score-val">000</strong>
                   </div>
                 </div>
-              )}
+                <div className="boards-layout">
+                  <div id="board-1-container" className="board"></div>
+                  <div id="board-2-container" className="board"></div>
+                </div>
+              </div>
+            )}
 
-              <div id="end-screen" className="hidden absolute inset-0 z-[200] bg-black/95 flex items-center justify-center backdrop-blur-xl">
-                  <div className="bg-[#0a0b1e] p-10 rounded-[2rem] text-center border border-cyan-500/30">
-                      <h2 className="font-orbitron text-cyan-300 text-xl mb-4">MISSION COMPLETE</h2>
-                      <p className="text-5xl text-white font-orbitron mb-8" id="final-score">0</p>
-                      <button onClick={() => location.reload()} className="px-12 py-4 bg-cyan-500 text-black font-black font-orbitron rounded-xl uppercase">Restart</button>
-                  </div>
+            <div id="end-screen" className="end-screen hidden">
+              <h2 style={{fontFamily:'Orbitron',color:'var(--cyan)',fontSize:'22px',margin:'0 0 14px'}}>MISSION COMPLETE</h2>
+              <p id="final-score" style={{fontFamily:'Orbitron',fontSize:'54px',fontWeight:900,margin:'0 0 24px'}}>0</p>
+              <button className="play-btn" onClick={()=>location.reload()}>Restart</button>
+            </div>
+          </div>
+        </main>
+
+        <aside className="rightbar card">
+          <section className="widget">
+            <p className="section-title">Mission Rules</p>
+            <ul className="rule-list">
+              <li>Match 3 equal icons to remove blocks.</li>
+              <li>Match 4 or more icons for combo scoring.</li>
+              <li>Every match increases your score.</li>
+              <li>Game access requires wallet + MUZZ balance, admin bypass enabled.</li>
+            </ul>
+          </section>
+
+          <section className="widget">
+            <p className="section-title">Session</p>
+            <div className="follow-row">
+              <div style={{display:'flex',gap:10,alignItems:'center'}}>
+                <div className="avatar" style={{width:42,height:42}}>{me.avatar}</div>
+                <div>
+                  <strong>{me.name}</strong>
+                  <small>{me.handle}</small>
+                </div>
               </div>
             </div>
-          </main>
-        </div>
-      );
+          </section>
+
+          <section className="widget">
+            <p className="section-title">Official Links</p>
+            <div className="trend"><div><strong>X.com</strong><small>@MuzzleToken</small></div><button className="follow-btn" onClick={()=>window.open('https://x.com/MuzzleToken','_blank')}>Open</button></div>
+            <div className="trend"><div><strong>Telegram</strong><small>MuzzSnap community</small></div><button className="follow-btn" onClick={()=>window.open('https://t.me/MuzzSnap','_blank')}>Open</button></div>
+            <div className="trend"><div><strong>Chat</strong><small>MuzzSnap public room</small></div><button className="follow-btn" onClick={()=>location.href='chat.html'}>Open</button></div>
+          </section>
+        </aside>
+      </div>
+
+      <div className="mobile-bottom">
+        <button onClick={()=>location.href='index.html'}>Home</button>
+        <button onClick={()=>location.href='chat.html'}>Chat</button>
+        <button onClick={()=>location.href='private.html'}>Private</button>
+        <button className="active">Game</button>
+        <button onClick={()=>location.href='swap.html'}>Buy</button>
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+/* MOTOR THE BLOCK */
+window.launchGameEngine=function(){
+  const TILE_DATA=[
+    {v:'🔥',b:'#ff2255'},
+    {v:'❄️',b:'#00ccff'},
+    {v:'⚡',b:'#ffcc00'},
+    {v:'💎',b:'#00ff77'},
+    {v:'💀',b:'#cc33ff'}
+  ];
+  const COLS=9,ROWS=10,MATCH_MIN=3;
+  let grids={b1:[],b2:[]};
+  let score=0,gameActive=false,timerInterval,selected=null,resolving=false;
+
+  function randomTile(){return{type:Math.floor(Math.random()*TILE_DATA.length),isBomb:false}}
+  function cloneTile(tile){if(!tile)return null;return{type:tile.type,isBomb:!!tile.isBomb}}
+  function updateScore(points){
+    score+=points;
+    const el=document.getElementById('score-val');
+    if(el)el.innerText=score.toString().padStart(3,'0');
+  }
+  function initGrid(containerId,gk){
+    const container=document.getElementById(containerId);
+    if(!container)return;
+    container.innerHTML='';
+    grids[gk]=[];
+    for(let r=0;r<ROWS;r++){
+      grids[gk][r]=[];
+      for(let c=0;c<COLS;c++){
+        let newTile=randomTile();
+        while(
+          (c>=2&&grids[gk][r][c-1]?.type===newTile.type&&grids[gk][r][c-2]?.type===newTile.type)||
+          (r>=2&&grids[gk][r-1][c]?.type===newTile.type&&grids[gk][r-2][c]?.type===newTile.type)
+        ){newTile=randomTile()}
+        grids[gk][r][c]=newTile;
+        const t=document.createElement('div');
+        t.className='tile';
+        t.id=`${gk}-${r}-${c}`;
+        t.onclick=()=>handleTileClick(gk,r,c);
+        container.appendChild(t);
+      }
     }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-
-    /* MOTOR THE BLOCK */
-    window.launchGameEngine = function() {
-        const TILE_DATA = [
-            { v:'🔥', b:'#ff2255' },
-            { v:'❄️', b:'#00ccff' },
-            { v:'⚡', b:'#ffcc00' },
-            { v:'💎', b:'#00ff77' },
-            { v:'💀', b:'#cc33ff' }
-        ];
-        const COLS = 9, ROWS = 10;
-        const MATCH_MIN = 3;
-        let grids = { b1: [], b2: [] };
-        let score = 0, gameActive = false, timerInterval, selected = null, resolving = false;
-
-        function randomTile() {
-            return { type: Math.floor(Math.random() * TILE_DATA.length), isBomb: false };
+    render(gk);
+  }
+  function render(gk){
+    for(let r=0;r<ROWS;r++){
+      for(let c=0;c<COLS;c++){
+        const el=document.getElementById(`${gk}-${r}-${c}`);
+        const data=grids[gk][r][c];
+        if(!el)continue;
+        el.classList.remove('matched','bomb','selected');
+        el.innerHTML='';
+        el.style.background='rgba(0,229,255,.05)';
+        if(!data){el.style.opacity='0';continue}
+        el.style.opacity='1';
+        if(data.isBomb){el.classList.add('bomb')}
+        else{el.innerHTML=TILE_DATA[data.type].v}
+      }
+    }
+  }
+  function isAdjacent(a,b){return a.gk===b.gk&&(Math.abs(a.r-b.r)+Math.abs(a.c-b.c)===1)}
+  function swapTiles(gk,a,b){
+    const temp=grids[gk][a.r][a.c];
+    grids[gk][a.r][a.c]=grids[gk][b.r][b.c];
+    grids[gk][b.r][b.c]=temp;
+  }
+  function getMatches(gk){
+    const grid=grids[gk];
+    const matched=new Set();
+    for(let r=0;r<ROWS;r++){
+      let runStart=0;
+      for(let c=1;c<=COLS;c++){
+        const current=c<COLS?grid[r][c]:null;
+        const startTile=grid[r][runStart];
+        const sameType=current&&startTile&&current.type===startTile.type;
+        if(!sameType){
+          const runLength=c-runStart;
+          if(startTile&&runLength>=MATCH_MIN){
+            for(let k=runStart;k<c;k++)matched.add(`${r}-${k}`);
+          }
+          runStart=c;
         }
-
-        function cloneTile(tile) {
-            if (!tile) return null;
-            return { type: tile.type, isBomb: !!tile.isBomb };
+      }
+    }
+    for(let c=0;c<COLS;c++){
+      let runStart=0;
+      for(let r=1;r<=ROWS;r++){
+        const current=r<ROWS?grid[r][c]:null;
+        const startTile=grid[runStart]?.[c];
+        const sameType=current&&startTile&&current.type===startTile.type;
+        if(!sameType){
+          const runLength=r-runStart;
+          if(startTile&&runLength>=MATCH_MIN){
+            for(let k=runStart;k<r;k++)matched.add(`${k}-${c}`);
+          }
+          runStart=r;
         }
+      }
+    }
+    return[...matched].map(key=>{const[r,c]=key.split('-').map(Number);return{r,c}});
+  }
+  function markMatches(gk,matches){matches.forEach(({r,c})=>{const el=document.getElementById(`${gk}-${r}-${c}`);if(el)el.classList.add('matched')})}
+  function clearMatches(gk,matches){matches.forEach(({r,c})=>{grids[gk][r][c]=null})}
+  function collapseColumns(gk){
+    const grid=grids[gk];
+    for(let c=0;c<COLS;c++){
+      const remaining=[];
+      for(let r=ROWS-1;r>=0;r--){if(grid[r][c])remaining.push(cloneTile(grid[r][c]))}
+      for(let r=ROWS-1,i=0;r>=0;r--,i++){grid[r][c]=i<remaining.length?remaining[i]:null}
+      for(let r=ROWS-1-remaining.length;r>=0;r--){grid[r][c]=randomTile()}
+    }
+  }
+  async function resolveBoard(gk){
+    let totalCleared=0;
+    while(true){
+      const matches=getMatches(gk);
+      if(!matches.length)break;
+      totalCleared+=matches.length;
+      markMatches(gk,matches);
+      updateScore(matches.length*10);
+      await new Promise(resolve=>setTimeout(resolve,300));
+      clearMatches(gk,matches);
+      render(gk);
+      await new Promise(resolve=>setTimeout(resolve,120));
+      collapseColumns(gk);
+      render(gk);
+      await new Promise(resolve=>setTimeout(resolve,180));
+    }
+    return totalCleared>0;
+  }
+  async function handleTileClick(gk,r,c){
+    if(!gameActive||resolving)return;
+    const el=document.getElementById(`${gk}-${r}-${c}`);
+    if(!selected){selected={gk,r,c,el};el.classList.add('selected');return}
+    if(selected.r===r&&selected.c===c&&selected.gk===gk){
+      selected.el.classList.remove('selected');selected=null;return;
+    }
+    if(!isAdjacent(selected,{gk,r,c})){
+      selected.el.classList.remove('selected');
+      selected={gk,r,c,el};
+      el.classList.add('selected');
+      return;
+    }
+    resolving=true;
+    selected.el.classList.remove('selected');
+    const first={r:selected.r,c:selected.c};
+    const second={r,c};
+    swapTiles(gk,first,second);
+    render(gk);
+    await new Promise(resolve=>setTimeout(resolve,120));
+    const hasMatch=getMatches(gk).length>0;
+    if(!hasMatch){swapTiles(gk,first,second);render(gk)}
+    else{await resolveBoard(gk)}
+    selected=null;
+    resolving=false;
+  }
 
-        function updateScore(points) {
-            score += points;
-            document.getElementById('score-val').innerText = score.toString().padStart(3,'0');
-        }
+  clearInterval(timerInterval);
+  initGrid('board-1-container','b1');
+  initGrid('board-2-container','b2');
+  gameActive=true;
+  let time=60;
+  const timeEl=document.getElementById('time-val');
+  const scoreEl=document.getElementById('score-val');
+  if(timeEl)timeEl.innerText=time;
+  if(scoreEl)scoreEl.innerText='000';
 
-        function initGrid(containerId, gk) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            grids[gk] = [];
+  timerInterval=setInterval(()=>{
+    time--;
+    const el=document.getElementById('time-val');
+    if(el)el.innerText=time;
+    if(time<=0){
+      clearInterval(timerInterval);
+      gameActive=false;
+      const finalScore=document.getElementById('final-score');
+      const end=document.getElementById('end-screen');
+      if(finalScore)finalScore.innerText=score;
+      if(end)end.classList.remove('hidden');
+    }
+  },1000);
+};
 
-            for (let r = 0; r < ROWS; r++) {
-                grids[gk][r] = [];
-                for (let c = 0; c < COLS; c++) {
-                    let newTile = randomTile();
+/* PARTICLES */
+window.addEventListener('load',function(){
+  const canvas=document.getElementById('particle-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  let particles=[];
+  const resize=()=>{
+    const rect=canvas.getBoundingClientRect();
+    canvas.width=rect.width||window.innerWidth;
+    canvas.height=rect.height||window.innerHeight;
+  };
+  window.addEventListener('resize',resize);
+  resize();
 
-                    while (
-                        (c >= 2 && grids[gk][r][c - 1]?.type === newTile.type && grids[gk][r][c - 2]?.type === newTile.type) ||
-                        (r >= 2 && grids[gk][r - 1][c]?.type === newTile.type && grids[gk][r - 2][c]?.type === newTile.type)
-                    ) {
-                        newTile = randomTile();
-                    }
+  class P{
+    constructor(){this.init()}
+    init(){
+      this.x=Math.random()*canvas.width;
+      this.y=Math.random()*canvas.height;
+      this.size=Math.random()*2;
+      this.speedX=(Math.random()-.5)*.5;
+      this.speedY=(Math.random()-.5)*.5;
+      this.opacity=Math.random();
+    }
+    update(){
+      this.x+=this.speedX;
+      this.y+=this.speedY;
+      if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.init();
+    }
+    draw(){
+      ctx.globalAlpha=this.opacity;
+      ctx.fillStyle='#ff2b2b';
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
 
-                    grids[gk][r][c] = newTile;
-                    const t = document.createElement('div');
-                    t.className = 'tile';
-                    t.id = `${gk}-${r}-${c}`;
-                    t.onclick = () => handleTileClick(gk, r, c);
-                    container.appendChild(t);
-                }
-            }
-            render(gk);
-        }
-
-        function render(gk) {
-            for (let r = 0; r < ROWS; r++) {
-                for (let c = 0; c < COLS; c++) {
-                    const el = document.getElementById(`${gk}-${r}-${c}`);
-                    const data = grids[gk][r][c];
-
-                    el.classList.remove('matched', 'bomb', 'selected');
-                    el.innerHTML = '';
-                    el.style.background = 'rgba(0,229,255, 0.05)';
-
-                    if (!data) {
-                        el.style.opacity = '0';
-                        continue;
-                    }
-
-                    el.style.opacity = '1';
-
-                    if (data.isBomb) {
-                        el.classList.add('bomb');
-                    } else {
-                        const conf = TILE_DATA[data.type];
-                        el.innerHTML = conf.v;
-                    }
-                }
-            }
-        }
-
-        function isAdjacent(a, b) {
-            return a.gk === b.gk && (Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1);
-        }
-
-        function swapTiles(gk, a, b) {
-            const temp = grids[gk][a.r][a.c];
-            grids[gk][a.r][a.c] = grids[gk][b.r][b.c];
-            grids[gk][b.r][b.c] = temp;
-        }
-
-        function getMatches(gk) {
-            const grid = grids[gk];
-            const matched = new Set();
-
-            for (let r = 0; r < ROWS; r++) {
-                let runStart = 0;
-                for (let c = 1; c <= COLS; c++) {
-                    const current = c < COLS ? grid[r][c] : null;
-                    const startTile = grid[r][runStart];
-                    const sameType = current && startTile && current.type === startTile.type;
-
-                    if (!sameType) {
-                        const runLength = c - runStart;
-                        if (startTile && runLength >= MATCH_MIN) {
-                            for (let k = runStart; k < c; k++) matched.add(`${r}-${k}`);
-                        }
-                        runStart = c;
-                    }
-                }
-            }
-
-            for (let c = 0; c < COLS; c++) {
-                let runStart = 0;
-                for (let r = 1; r <= ROWS; r++) {
-                    const current = r < ROWS ? grid[r][c] : null;
-                    const startTile = grid[runStart]?.[c];
-                    const sameType = current && startTile && current.type === startTile.type;
-
-                    if (!sameType) {
-                        const runLength = r - runStart;
-                        if (startTile && runLength >= MATCH_MIN) {
-                            for (let k = runStart; k < r; k++) matched.add(`${k}-${c}`);
-                        }
-                        runStart = r;
-                    }
-                }
-            }
-
-            return [...matched].map(key => {
-                const [r, c] = key.split('-').map(Number);
-                return { r, c };
-            });
-        }
-
-        function markMatches(gk, matches) {
-            matches.forEach(({ r, c }) => {
-                const el = document.getElementById(`${gk}-${r}-${c}`);
-                if (el) el.classList.add('matched');
-            });
-        }
-
-        function clearMatches(gk, matches) {
-            matches.forEach(({ r, c }) => {
-                grids[gk][r][c] = null;
-            });
-        }
-
-        function collapseColumns(gk) {
-            const grid = grids[gk];
-
-            for (let c = 0; c < COLS; c++) {
-                const remaining = [];
-                for (let r = ROWS - 1; r >= 0; r--) {
-                    if (grid[r][c]) remaining.push(cloneTile(grid[r][c]));
-                }
-
-                for (let r = ROWS - 1, i = 0; r >= 0; r--, i++) {
-                    grid[r][c] = i < remaining.length ? remaining[i] : null;
-                }
-
-                for (let r = ROWS - 1 - remaining.length; r >= 0; r--) {
-                    grid[r][c] = randomTile();
-                }
-            }
-        }
-
-        async function resolveBoard(gk, fromSwap = false) {
-            let totalCleared = 0;
-
-            while (true) {
-                const matches = getMatches(gk);
-                if (!matches.length) break;
-
-                totalCleared += matches.length;
-                markMatches(gk, matches);
-                updateScore(matches.length * 10);
-
-                await new Promise(resolve => setTimeout(resolve, 300));
-                clearMatches(gk, matches);
-                render(gk);
-
-                await new Promise(resolve => setTimeout(resolve, 120));
-                collapseColumns(gk);
-                render(gk);
-
-                await new Promise(resolve => setTimeout(resolve, 180));
-            }
-
-            return totalCleared > 0;
-        }
-
-        async function handleTileClick(gk, r, c) {
-            if (!gameActive || resolving) return;
-
-            const el = document.getElementById(`${gk}-${r}-${c}`);
-
-            if (!selected) {
-                selected = { gk, r, c, el };
-                el.classList.add('selected');
-                return;
-            }
-
-            if (selected.r === r && selected.c === c && selected.gk === gk) {
-                selected.el.classList.remove('selected');
-                selected = null;
-                return;
-            }
-
-            if (!isAdjacent(selected, { gk, r, c })) {
-                selected.el.classList.remove('selected');
-                selected = { gk, r, c, el };
-                el.classList.add('selected');
-                return;
-            }
-
-            resolving = true;
-            selected.el.classList.remove('selected');
-
-            const first = { r: selected.r, c: selected.c };
-            const second = { r, c };
-
-            swapTiles(gk, first, second);
-            render(gk);
-
-            await new Promise(resolve => setTimeout(resolve, 120));
-
-            const hasMatch = getMatches(gk).length > 0;
-
-            if (!hasMatch) {
-                swapTiles(gk, first, second);
-                render(gk);
-            } else {
-                await resolveBoard(gk, true);
-            }
-
-            selected = null;
-            resolving = false;
-        }
-
-        initGrid('board-1-container', 'b1');
-        initGrid('board-2-container', 'b2');
-
-        gameActive = true;
-        let time = 60;
-        timerInterval = setInterval(() => {
-            time--;
-            document.getElementById('time-val').innerText = time;
-            if (time <= 0) {
-                clearInterval(timerInterval);
-                gameActive = false;
-                document.getElementById('final-score').innerText = score;
-                document.getElementById('end-screen').classList.remove('hidden');
-            }
-        }, 1000);
-    };
-
-    /* PARTICULAS */
-    window.onload = function() {
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-        window.onresize = resize; resize();
-        class P {
-            constructor() { this.init(); }
-            init() {
-                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2; this.speedX = (Math.random() - 0.5) * 0.5;
-                this.speedY = (Math.random() - 0.5) * 0.5; this.opacity = Math.random();
-            }
-            update() { this.x += this.speedX; this.y += this.speedY; }
-            draw() { ctx.globalAlpha = this.opacity; ctx.fillStyle = '#ff0000'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
-        }
-        for(let i=0; i<50; i++) particles.push(new P());
-        const anim = () => { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(anim); };
-        anim();
-    };
-  </script>
+  for(let i=0;i<60;i++)particles.push(new P());
+  const anim=()=>{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{p.update();p.draw()});
+    requestAnimationFrame(anim);
+  };
+  anim();
+});
+</script>
 </body>
 </html>
