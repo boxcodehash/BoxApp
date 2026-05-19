@@ -1,716 +1,1225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MuzzSnap - Terminal Edition</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MuzzSnap - Chat</title>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap');
-    :root{--muzz-red:#ff0000;--ryachu-gold:#ffcc00;--itsuki-blue:#00d4ff}
-    html,body{height:100%;overflow:hidden;margin:0;padding:0}
-    body.dark-theme{background:#050505;color:white}
-    body.light-theme{background:#f0f2f5;color:#1a1a1a}
-    .panel-3d{border-radius:24px;transition:all 0.3s ease;display:flex;flex-direction:column;height:100%}
-    .dark-theme .panel-3d{background:#0c0c0c;border:1px solid rgba(255,0,0,0.15);box-shadow:0 10px 30px rgba(0,0,0,0.8)}
-    .light-theme .panel-3d{background:#ffffff;border:1px solid #e0e0e0;box-shadow:0 10px 30px rgba(0,0,0,0.05)}
-    .bubble-3d{padding:12px 16px;border-radius:20px;font-size:14px;max-width:85%;line-height:1.4;position:relative}
-    .bubble-3d.me{background:linear-gradient(145deg,#ff0000,#b30000);color:white;align-self:flex-end;border-bottom-right-radius:4px}
-    .dark-theme .bubble-3d.other{background:#1a1a1a;border:1px solid rgba(255,255,255,0.05)}
-    .light-theme .bubble-3d.other{background:#ffffff;border:1px solid #e0e0e0;color:black}
-    .bubble-3d.muted{opacity:0.5}
-    .ryachu-name{color:var(--ryachu-gold);font-weight:800}
-    .itsuki-name{color:var(--itsuki-blue);font-weight:800}
-    .esteban-name{color:#ff6b6b;font-weight:800}
-    .hacker-input{font-family:'Fira Code',monospace}
-    .dark-theme .hacker-input{color:#39ff14!important}
-    .emoji-window{max-height:180px;overflow-y:auto;display:grid;grid-template-columns:repeat(7,1fr);gap:10px;padding:15px}
-    .emoji-btn{font-size:1.5rem;cursor:pointer;transition:transform 0.2s;display:flex;justify-content:center}
-    .custom-scroll::-webkit-scrollbar{width:4px}
-    .custom-scroll::-webkit-scrollbar-thumb{background:var(--muzz-red);border-radius:10px}
-    .online-indicator{width:8px;height:8px;background:#39ff14;border-radius:50%;box-shadow:0 0 8px #39ff14}
-    .admin-btn{font-size:10px;padding:8px 12px;border-radius:8px;background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.3);color:#ff0000;font-weight:bold;transition:all 0.3s;cursor:pointer}
-    .admin-btn:hover{background:#ff0000;color:white}
-  </style>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap');
+
+:root{
+  --muzz-red:#ff0000;
+  --ryachu-gold:#ffcc00;
+  --itsuki-blue:#00d4ff;
+  --x-border:#2f3336;
+  --x-bg:#000;
+  --x-text:#e7e9ea;
+  --x-muted:#71767b;
+  --x-red:#f4212e;
+}
+
+html,body{height:100%;overflow:hidden;margin:0;padding:0}
+body.dark-theme{background:#000;color:white}
+body.light-theme{background:#f0f2f5;color:#1a1a1a}
+
+.panel-3d{
+  border-radius:24px;
+  transition:all .3s ease;
+  display:flex;
+  flex-direction:column;
+  height:100%;
+}
+
+.dark-theme .panel-3d{
+  background:#000;
+  border:1px solid var(--x-border);
+  box-shadow:none;
+}
+
+.light-theme .panel-3d{
+  background:#fff;
+  border:1px solid #e0e0e0;
+  box-shadow:0 10px 30px rgba(0,0,0,.05);
+}
+
+.bubble-3d{
+  padding:12px 16px;
+  border-radius:20px;
+  font-size:14px;
+  max-width:85%;
+  line-height:1.4;
+  position:relative;
+}
+
+.bubble-3d.me{
+  background:linear-gradient(145deg,#ff0000,#b30000);
+  color:white;
+  align-self:flex-end;
+  border-bottom-right-radius:4px;
+}
+
+.dark-theme .bubble-3d.other{
+  background:#16181c;
+  border:1px solid rgba(255,255,255,.06);
+}
+
+.light-theme .bubble-3d.other{
+  background:#fff;
+  border:1px solid #e0e0e0;
+  color:black;
+}
+
+.bubble-3d.muted{opacity:.5}
+
+.ryachu-name{color:var(--ryachu-gold);font-weight:800}
+.itsuki-name{color:var(--itsuki-blue);font-weight:800}
+.esteban-name{color:#ff6b6b;font-weight:800}
+
+.hacker-input{font-family:'Fira Code',monospace}
+.dark-theme .hacker-input{color:#39ff14!important}
+
+.emoji-window{
+  max-height:180px;
+  overflow-y:auto;
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:10px;
+  padding:15px;
+}
+
+.emoji-btn{
+  font-size:1.5rem;
+  cursor:pointer;
+  transition:transform .2s;
+  display:flex;
+  justify-content:center;
+}
+
+.custom-scroll::-webkit-scrollbar{width:4px}
+.custom-scroll::-webkit-scrollbar-thumb{background:var(--muzz-red);border-radius:10px}
+
+.online-indicator{
+  width:8px;
+  height:8px;
+  background:#39ff14;
+  border-radius:50%;
+  box-shadow:0 0 8px #39ff14;
+}
+
+.admin-btn{
+  font-size:10px;
+  padding:8px 12px;
+  border-radius:8px;
+  background:rgba(255,0,0,.1);
+  border:1px solid rgba(255,0,0,.3);
+  color:#ff0000;
+  font-weight:bold;
+  transition:all .3s;
+  cursor:pointer;
+}
+
+.admin-btn:hover{background:#ff0000;color:white}
+
+/* X STYLE LAYOUT */
+.x-social-layout{
+  max-width:1265px;
+  margin:0 auto;
+  height:100vh;
+  display:grid;
+  grid-template-columns:275px minmax(0,640px) 350px;
+  overflow:hidden;
+  background:#000;
+  color:var(--x-text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+.x-left-menu{
+  height:100vh;
+  border-right:1px solid var(--x-border);
+  background:#000;
+  padding:14px;
+  overflow-y:auto;
+}
+
+.x-left-menu::-webkit-scrollbar{width:0}
+
+.x-brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+  padding:8px 10px;
+}
+
+.x-brand-icon{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:var(--x-red);
+  font-size:24px;
+}
+
+.x-brand-title{
+  font-family:Orbitron;
+  font-weight:900;
+  font-size:18px;
+  letter-spacing:-.04em;
+}
+
+.x-brand-title span{color:var(--x-red)}
+
+.x-nav{
+  display:grid;
+  gap:4px;
+  margin-bottom:22px;
+}
+
+.x-nav a{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  width:max-content;
+  max-width:100%;
+  padding:12px 16px;
+  border-radius:999px;
+  font-size:19px;
+  color:#e7e9ea;
+  text-decoration:none;
+  transition:.15s;
+}
+
+.x-nav a:hover,.x-nav a.active{background:#181818}
+.x-nav i{width:24px;text-align:center}
+
+.x-post-btn{
+  width:90%;
+  height:50px;
+  border:none;
+  border-radius:999px;
+  background:var(--x-red);
+  color:white;
+  font-size:16px;
+  font-weight:800;
+  margin-bottom:22px;
+}
+
+.x-chat-center{
+  height:100vh;
+  border-right:1px solid var(--x-border);
+  padding:12px;
+  background:#000;
+  overflow:hidden;
+}
+
+.x-chat-card{
+  height:calc(100vh - 24px);
+  border-radius:24px;
+  border:1px solid var(--x-border)!important;
+  background:#000!important;
+  overflow:hidden;
+}
+
+.x-chat-card header{
+  height:53px!important;
+  border-bottom:1px solid var(--x-border)!important;
+  background:rgba(0,0,0,.82)!important;
+  backdrop-filter:blur(12px);
+}
+
+.x-right-panel{
+  height:100vh;
+  position:sticky;
+  top:0;
+  padding:12px 0 12px 20px;
+  background:#000;
+  overflow-y:auto;
+}
+
+.x-right-panel::-webkit-scrollbar{width:0}
+
+.x-search{
+  height:44px;
+  border-radius:999px;
+  background:#202327;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:0 16px;
+  color:var(--x-muted);
+  margin-bottom:16px;
+}
+
+.x-side-card{
+  border:1px solid var(--x-border);
+  border-radius:16px;
+  overflow:hidden;
+  margin-bottom:16px;
+  background:#000;
+}
+
+.x-side-card h3{
+  padding:14px 16px;
+  font-size:20px;
+  font-weight:800;
+}
+
+.x-side-card a{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  border-top:1px solid var(--x-border);
+  color:#e7e9ea;
+  font-weight:700;
+  transition:.15s;
+  text-decoration:none;
+}
+
+.x-side-card a:hover{background:#080808}
+.x-side-card i{width:24px;color:var(--x-red);text-align:center}
+
+.x-session{
+  padding:0 16px 16px;
+}
+
+.x-session-name{
+  color:white;
+  font-weight:900;
+}
+
+.x-session-role{
+  color:var(--x-muted);
+  text-transform:uppercase;
+  font-size:12px;
+}
+
+.x-contract{
+  padding:14px 16px;
+  border-top:1px solid var(--x-border);
+  color:var(--x-muted);
+  font-size:13px;
+  word-break:break-all;
+  line-height:1.45;
+}
+
+/* Mobile */
+@media(max-width:1100px){
+  .x-social-layout{
+    grid-template-columns:88px minmax(0,1fr);
+  }
+
+  .x-right-panel{
+    display:none;
+  }
+
+  .x-left-menu{
+    width:88px!important;
+  }
+
+  .x-brand-title,
+  .x-nav span,
+  .x-left-menu p,
+  .x-left-menu details,
+  .x-left-menu .admin-area,
+  .x-left-menu .channels-label,
+  .x-left-menu .online-area{
+    display:none!important;
+  }
+
+  .x-nav a{
+    width:58px;
+    justify-content:center;
+    padding:14px 0;
+  }
+
+  .x-post-btn{
+    width:58px;
+    font-size:0;
+  }
+
+  .x-post-btn:before{
+    content:"\f303";
+    font-family:"Font Awesome 6 Free";
+    font-weight:900;
+    font-size:18px;
+  }
+}
+
+@media(max-width:900px){
+  .x-social-layout{
+    display:block;
+    height:100vh;
+  }
+
+  .x-left-menu{
+    position:fixed!important;
+    bottom:0;
+    top:auto!important;
+    left:0;
+    right:0;
+    width:100%!important;
+    height:58px;
+    z-index:100;
+    border-right:none;
+    border-top:1px solid var(--x-border);
+    padding:0;
+    overflow:hidden;
+    background:rgba(0,0,0,.94);
+    backdrop-filter:blur(12px);
+  }
+
+  .x-brand,
+  .x-post-btn,
+  .x-left-menu .admin-area,
+  .x-left-menu .channel-area,
+  .x-left-menu .muzz-area,
+  .x-left-menu .online-area,
+  .x-left-menu .disconnect-btn{
+    display:none!important;
+  }
+
+  .x-nav{
+    height:58px;
+    display:flex;
+    overflow-x:auto;
+    gap:0;
+    margin:0;
+  }
+
+  .x-nav::-webkit-scrollbar{display:none}
+
+  .x-nav a{
+    flex:0 0 72px;
+    width:72px;
+    height:58px;
+    justify-content:center;
+    padding:0;
+    border-radius:0;
+    font-size:0;
+  }
+
+  .x-nav i{
+    font-size:22px;
+  }
+
+  .x-chat-center{
+    height:calc(100vh - 58px);
+    padding:0;
+    border-right:none;
+  }
+
+  .x-chat-card{
+    height:calc(100vh - 58px);
+    border-radius:0;
+    border-left:none!important;
+    border-right:none!important;
+  }
+
+  .x-right-panel{
+    display:none;
+  }
+}
+</style>
 </head>
+
 <body class="dark-theme">
-  <div id="root" class="h-full"></div>
+<div id="root" class="h-full"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
 
-    const firebaseConfig = {
-      apiKey: atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
-      authDomain: atob('cHVsc2FyaS5maXJlYmFzZWFwcC5jb20='),
-      databaseURL: atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
-      projectId: atob('cHVsc2FyaQ=='),
-      storageBucket: atob('cHVsc2FyaS5maXJlYmFzZXN0b3JhZ2UuYXBw'),
-      messagingSenderId: atob('ODI0MzA2MzIxMjMz'),
-      appId: atob('MTo4MjQzMDYzMjEyMzM6d2ViOjJjOWJmYTAyMTcwYTE3ZDU2MGI1NzA=')
-    };
+/* LOGIN PROTECTION */
+const sessionWalletGate = sessionStorage.getItem('muzz_wallet_address');
+const loginMethodGate = sessionStorage.getItem('muzz_login_method');
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+if (!sessionWalletGate || !loginMethodGate) {
+  window.location.href = 'index.html';
+}
 
-    const ADMIN_WALLETS = {
-      ryachu: atob('MHgyMDgxNTdiNWVjMzk2NzU5ZTg3NTQwNTgxMDhlY2Y1M2UzMjM5MmZm').toLowerCase(),
-      itsuki: atob('MHhmYWI1ODM1Y2ExNGZiM2Y5Zjk3OGM1ZTRkNzMzNzM0ZTYzOTRlMDNm').toLowerCase(),
-      esteban: '0x875c5a7794b601f273da58e3c1d10671d16130ec'.toLowerCase()
-    };
+const firebaseConfig = {
+  apiKey: atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
+  authDomain: atob('cHVsc2FyaS5maXJlYmFzZWFwcC5jb20='),
+  databaseURL: atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
+  projectId: atob('cHVsc2FyaQ=='),
+  storageBucket: atob('cHVsc2FyaS5maXJlYmFzZXN0b3JhZ2UuYXBw'),
+  messagingSenderId: atob('ODI0MzA2MzIxMjMz'),
+  appId: atob('MTo4MjQzMDYzMjEyMzM6d2ViOjJjOWJmYTAyMTcwYTE3ZDU2MGI1NzA=')
+};
 
-    const ADMIN_ROLES = ['ryachu','itsuki','esteban'];
-    const PRIVATE_GATE = {
-      tokenAddress: '0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0',
-      minRequired: 2000000
-    };
-    const ERC20_ABI = [
-      'function balanceOf(address) view returns (uint256)',
-      'function decimals() view returns (uint8)'
-    ];
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    const EMOJIS = {
-      FACES:["😊","😂","😉","😍","😘","😛","😅","😢","😭","😠","😈","👽","🤖","🤡","💀","👻","💩"],
-      HANDS:["👍","👎","👌","✌️","👏","👋","🙏","💪","☝️","🖖"],
-      OBJECTS:["❤️","⭐","🔥","📚","💻","📱","📷","🔑","🔒","💡","💰","💎"],
-      NATURE:["☀️","☁️","🌈","🌳","🌸","🌵","🐱","🐶","🦁","🦄","🐉","🐍"],
-      FOOD:["🍕","🍔","🌮","🍣","🍰","🍦","☕","🍺","🍷","🍸"],
-      ACTIVITIES:["⚽","🏀","🎾","🎵","🎸","🎮","♟️","🎨","🎬"]
-    };
+const ADMIN_WALLETS = {
+  ryachu: atob('MHgyMDgxNTdiNWVjMzk2NzU5ZTg3NTQwNTgxMDhlY2Y1M2UzMjM5MmZm').toLowerCase(),
+  itsuki: atob('MHhmYWI1ODM1Y2ExNGZiM2Y5Zjk3OGM1ZTRkNzMzNzM0ZTYzOTRlMDNm').toLowerCase(),
+  esteban: '0x875c5a7794b601f273da58e3c1d10671d16130ec'.toLowerCase()
+};
 
-    const CHANNELS = [
-      { id:"general", name:"GENERAL" },
-      { id:"spanish", name:"ESPAÑOL" },
-      { id:"dao", name:"DAO" }
-    ];
+const ADMIN_ROLES = ['ryachu','itsuki','esteban'];
 
-    const safeKey = (value) => String(value || '').replace(/[.#$/\[\]]/g, '_');
-    const makeIdentityKey = (raw) => {
-      const value = String(raw || '').trim().toLowerCase();
-      if (!value) return 'guest_unknown';
-      if (value.startsWith('guest_')) return `guest_${safeKey(value.slice(6) || 'unknown')}`;
-      return `wallet_${safeKey(value)}`;
-    };
+const PRIVATE_GATE = {
+  tokenAddress: '0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0',
+  minRequired: 2000000
+};
 
-    const pinPathForChannel = (channelId) => `settings/pinned/${channelId}`;
+const ERC20_ABI = [
+  'function balanceOf(address) view returns (uint256)',
+  'function decimals() view returns (uint8)'
+];
 
-    function App(){
-      const [me, setMe] = useState(null);
-      const [messages, setMessages] = useState([]);
-      const [onlineUsers, setOnlineUsers] = useState([]);
-      const [mutedMap, setMutedMap] = useState({});
-      const [pinnedMessage, setPinnedMessage] = useState("");
-      const [messageText, setMessageText] = useState("");
-      const [darkMode, setDarkMode] = useState(true);
-      const [showEmoji, setShowEmoji] = useState(false);
-      const [emojiTab, setEmojiTab] = useState("FACES");
-      const [activeChannel, setActiveChannel] = useState(CHANNELS[0]);
-      const [mobileMenu, setMobileMenu] = useState(false);
-      const [pinMode, setPinMode] = useState(false);
-      const [banPanel, setBanPanel] = useState(false);
-      const [mutePanel, setMutePanel] = useState(false);
-      const [notice, setNotice] = useState({show:false,title:"",desc:"",tone:"red"});
-      const bottomRef = useRef(null);
+const EMOJIS = {
+  FACES:["😊","😂","😉","😍","😘","😛","😅","😢","😭","😠","😈","👽","🤖","🤡","💀","👻","💩"],
+  HANDS:["👍","👎","👌","✌️","👏","👋","🙏","💪","☝️","🖖"],
+  OBJECTS:["❤️","⭐","🔥","📚","💻","📱","📷","🔑","🔒","💡","💰","💎"],
+  NATURE:["☀️","☁️","🌈","🌳","🌸","🌵","🐱","🐶","🦁","🦄","🐉","🐍"],
+  FOOD:["🍕","🍔","🌮","🍣","🍰","🍦","☕","🍺","🍷","🍸"],
+  ACTIVITIES:["⚽","🏀","🎾","🎵","🎸","🎮","♟️","🎨","🎬"]
+};
 
-      const toggleTheme = () => {
-        setDarkMode((prev) => {
-          const next = !prev;
-          document.body.className = next ? 'dark-theme' : 'light-theme';
-          return next;
-        });
-      };
+const CHANNELS = [
+  { id:"general", name:"GENERAL" },
+  { id:"spanish", name:"ESPAÑOL" },
+  { id:"dao", name:"DAO" }
+];
 
-      const isAdmin = !!me && ADMIN_ROLES.includes(me.role);
-      const mutedUntilForMe = me?.identityKey ? mutedMap[me.identityKey] : null;
-      const iAmMuted = !!(mutedUntilForMe && mutedUntilForMe > Date.now());
+const safeKey = (value) => String(value || '').replace(/[.#$/\[\]]/g, '_');
 
-      const showNotice = (title, desc, tone='red') => setNotice({show:true,title,desc,tone});
-      const closeNotice = () => setNotice({show:false,title:"",desc:"",tone:"red"});
+const makeIdentityKey = (raw) => {
+  const value = String(raw || '').trim().toLowerCase();
+  if (!value) return 'guest_unknown';
+  if (value.startsWith('guest_')) return `guest_${safeKey(value.slice(6) || 'unknown')}`;
+  return `wallet_${safeKey(value)}`;
+};
 
-      const roleClass = (role, fallback='text-gray-400') => {
-        if (role === 'ryachu') return 'ryachu-name';
-        if (role === 'itsuki') return 'itsuki-name';
-        if (role === 'esteban') return 'esteban-name';
-        return fallback;
-      };
+const pinPathForChannel = (channelId) => `settings/pinned/${channelId}`;
 
-      const roleBadge = (role) => {
-        if (role === 'ryachu') return '👑 ';
-        if (role === 'itsuki') return '💎 ';
-        if (role === 'esteban') return '🛡️ ';
-        return '';
-      };
+function App(){
+  const [me, setMe] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [mutedMap, setMutedMap] = useState({});
+  const [pinnedMessage, setPinnedMessage] = useState("");
+  const [messageText, setMessageText] = useState("");
+  const [darkMode, setDarkMode] = useState(true);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [emojiTab, setEmojiTab] = useState("FACES");
+  const [activeChannel, setActiveChannel] = useState(CHANNELS[0]);
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [pinMode, setPinMode] = useState(false);
+  const [banPanel, setBanPanel] = useState(false);
+  const [mutePanel, setMutePanel] = useState(false);
+  const [notice, setNotice] = useState({show:false,title:"",desc:"",tone:"red"});
+  const bottomRef = useRef(null);
 
-      const requireAdmin = () => {
-        if (!isAdmin) {
-          alert('Admin only.');
-          return false;
+  const toggleTheme = () => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      document.body.className = next ? 'dark-theme' : 'light-theme';
+      return next;
+    });
+  };
+
+  const isAdmin = !!me && ADMIN_ROLES.includes(me.role);
+  const mutedUntilForMe = me?.identityKey ? mutedMap[me.identityKey] : null;
+  const iAmMuted = !!(mutedUntilForMe && mutedUntilForMe > Date.now());
+
+  const showNotice = (title, desc, tone='red') => setNotice({show:true,title,desc,tone});
+  const closeNotice = () => setNotice({show:false,title:"",desc:"",tone:"red"});
+
+  const roleClass = (role, fallback='text-gray-400') => {
+    if (role === 'ryachu') return 'ryachu-name';
+    if (role === 'itsuki') return 'itsuki-name';
+    if (role === 'esteban') return 'esteban-name';
+    return fallback;
+  };
+
+  const roleBadge = (role) => {
+    if (role === 'ryachu') return '👑 ';
+    if (role === 'itsuki') return '💎 ';
+    if (role === 'esteban') return '🛡️ ';
+    return '';
+  };
+
+  const requireAdmin = () => {
+    if (!isAdmin) {
+      alert('Admin only.');
+      return false;
+    }
+    return true;
+  };
+
+  useEffect(() => {
+    const sessionWallet = sessionStorage.getItem('muzz_wallet_address');
+
+    if (!sessionWallet) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    let statusRef = null;
+    let statusListRef = null;
+    let bannedRef = null;
+    let mutedRef = null;
+    let registryRef = null;
+
+    firebase.auth().signInAnonymously().then(({ user }) => {
+      const isWallet = !sessionWallet.startsWith('guest_');
+      const wallet = isWallet ? sessionWallet.toLowerCase() : '';
+      let username = '';
+      let role = 'user';
+
+      if (isWallet) {
+        if (wallet === ADMIN_WALLETS.ryachu) {
+          username = 'Ryachu';
+          role = 'ryachu';
+        } else if (wallet === ADMIN_WALLETS.itsuki) {
+          username = 'Itsuki';
+          role = 'itsuki';
+        } else if (wallet === ADMIN_WALLETS.esteban) {
+          username = 'Esteban';
+          role = 'esteban';
+        } else {
+          username = `Node_${sessionWallet.slice(-4)}`;
+          role = 'user';
         }
-        return true;
-      };
-
-      useEffect(() => {
-        const sessionWallet = sessionStorage.getItem('muzz_wallet_address');
-        if (!sessionWallet) {
-          window.location.href = 'login.html';
-          return;
-        }
-
-        let statusRef = null;
-        let statusListRef = null;
-        let bannedRef = null;
-        let mutedRef = null;
-        let registryRef = null;
-
-        firebase.auth().signInAnonymously().then(({ user }) => {
-          const isWallet = !sessionWallet.startsWith('guest_');
-          const wallet = isWallet ? sessionWallet.toLowerCase() : '';
-          let username = '';
-          let role = 'user';
-
-          if (isWallet) {
-            if (wallet === ADMIN_WALLETS.ryachu) {
-              username = 'Ryachu';
-              role = 'ryachu';
-            } else if (wallet === ADMIN_WALLETS.itsuki) {
-              username = 'Itsuki';
-              role = 'itsuki';
-            } else if (wallet === ADMIN_WALLETS.esteban) {
-              username = 'Esteban';
-              role = 'esteban';
-            } else {
-              username = `Node_${sessionWallet.slice(-4)}`;
-              role = 'user';
-            }
-          } else {
-            username = sessionWallet.replace('guest_','');
-            role = 'guest';
-          }
-
-          const identityKey = makeIdentityKey(sessionWallet);
-          const currentUser = {
-            uid: user.uid,
-            username,
-            role,
-            isWallet,
-            wallet,
-            identityKey
-          };
-          setMe(currentUser);
-
-          statusRef = db.ref(`status/${user.uid}`);
-          statusRef.onDisconnect().remove();
-          statusRef.set({
-            uid: user.uid,
-            username,
-            role,
-            wallet: wallet || null,
-            identityKey,
-            lastSeen: Date.now()
-          });
-
-          statusListRef = db.ref('status');
-          statusListRef.on('value', (snap) => {
-            setOnlineUsers(snap.val() ? Object.values(snap.val()) : []);
-          });
-
-          mutedRef = db.ref('muted');
-          mutedRef.on('value', (snap) => setMutedMap(snap.val() || {}));
-
-          bannedRef = db.ref(`banned/${identityKey}`);
-          bannedRef.on('value', (snap) => {
-            if (snap.val()) {
-              alert('Your account has been banned from public chat.');
-              sessionStorage.clear();
-              window.location.href = 'login.html';
-            }
-          });
-
-          if (isWallet && wallet) {
-            registryRef = db.ref(`walletRegistry/${wallet}`);
-            registryRef.once('value').then((snap) => {
-              const prev = snap.val() || {};
-              registryRef.update({
-                wallet,
-                username,
-                role,
-                isAdmin: ADMIN_ROLES.includes(role),
-                isWallet: true,
-                firstSeen: prev.firstSeen || firebase.database.ServerValue.TIMESTAMP,
-                lastLogin: firebase.database.ServerValue.TIMESTAMP,
-                lastSeen: firebase.database.ServerValue.TIMESTAMP,
-                active: true
-              });
-            }).catch((err) => console.error('walletRegistry update failed:', err));
-            registryRef.child('active').onDisconnect().set(false);
-            registryRef.child('lastSeen').onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
-          }
-        }).catch((err) => {
-          console.error('Anonymous sign-in failed:', err);
-          alert('Authentication failed. Please reload and try again.');
-          window.location.href = 'login.html';
-        });
-
-        return () => {
-          try { if (statusRef) statusRef.off(); } catch {}
-          try { if (statusListRef) statusListRef.off(); } catch {}
-          try { if (bannedRef) bannedRef.off(); } catch {}
-          try { if (mutedRef) mutedRef.off(); } catch {}
-          try { if (registryRef) registryRef.off(); } catch {}
-        };
-      }, []);
-
-      useEffect(() => {
-        if (!me) return;
-        const pinRef = db.ref(pinPathForChannel(activeChannel.id));
-        pinRef.on('value', (snap) => setPinnedMessage(snap.val() || ""));
-        return () => pinRef.off();
-      }, [me, activeChannel]);
-
-      useEffect(() => {
-        if (!me) return;
-        const ref = db.ref(`messages/${activeChannel.id}`).limitToLast(50);
-        ref.on('value', (snap) => {
-          const data = snap.val();
-          setMessages(data ? Object.keys(data).map((id) => ({ id, ...data[id] })) : []);
-        });
-        return () => ref.off();
-      }, [me, activeChannel]);
-
-      useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior:'smooth' });
-      }, [messages]);
-
-      const goToPrivate = async () => {
-        if (!me) return;
-
-        if (ADMIN_ROLES.includes(me.role)) {
-          window.location.href = 'private.html';
-          return;
-        }
-
-        if (!me.isWallet) {
-          showNotice('WALLET REQUIRED', 'MUZZ PRIVATE is only available for users logged in with a crypto wallet.', 'yellow');
-          return;
-        }
-
-        const walletAddress = (sessionStorage.getItem('muzz_wallet_address') || '').toLowerCase();
-        if (!walletAddress || walletAddress.startsWith('guest_')) {
-          showNotice('WALLET REQUIRED', 'You must sign in with a crypto wallet to access MUZZ PRIVATE.', 'yellow');
-          return;
-        }
-
-        if (typeof window.ethereum === 'undefined' || typeof ethers === 'undefined') {
-          showNotice('WEB3 REQUIRED', 'No Web3 wallet was detected. Please open the site with MetaMask or another wallet-enabled browser.', 'yellow');
-          return;
-        }
-
-        try {
-          showNotice('VERIFYING ACCESS', 'Checking your MUZZ token balance for private access...', 'blue');
-          const chainId = await window.ethereum.request({ method:'eth_chainId' });
-
-          if (chainId !== '0x1') {
-            try {
-              await window.ethereum.request({
-                method:'wallet_switchEthereumChain',
-                params:[{ chainId:'0x1' }]
-              });
-            } catch {
-              showNotice('WRONG NETWORK', 'Please switch to Ethereum Mainnet to validate your MUZZ balance.', 'yellow');
-              return;
-            }
-          }
-
-          const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const token = new ethers.Contract(PRIVATE_GATE.tokenAddress, ERC20_ABI, provider);
-          const [rawBalance, decimals] = await Promise.all([
-            token.balanceOf(walletAddress),
-            token.decimals()
-          ]);
-
-          const formattedBalance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
-          if (formattedBalance >= PRIVATE_GATE.minRequired) {
-            window.location.href = 'private.html';
-            return;
-          }
-
-          showNotice(
-            'INSUFFICIENT MUZZ BALANCE',
-            `Access to MUZZ PRIVATE requires at least 2,000,000 MUZZ tokens. Your current balance is ${formattedBalance.toLocaleString(undefined,{maximumFractionDigits:2})} MUZZ.`,
-            'red'
-          );
-        } catch (err) {
-          console.error('Private access check failed:', err);
-          showNotice('VERIFICATION ERROR', 'Your MUZZ balance could not be verified. Please reopen your wallet and try again.', 'red');
-        }
-      };
-
-      const goToGame = () => {
-        window.location.href = 'game.html';
-      };
-
-      const sendMessage = async () => {
-        if (!messageText.trim() || !me) return;
-        if (iAmMuted) {
-          alert('Estás silenciado temporalmente');
-          return;
-        }
-
-        try {
-          if (pinMode) {
-            if (!requireAdmin()) return;
-            await db.ref(pinPathForChannel(activeChannel.id)).set(messageText);
-            setPinMode(false);
-            setMessageText('');
-            alert('Pinned message updated.');
-            return;
-          }
-
-          await db.ref(`messages/${activeChannel.id}`).push({
-            content: messageText,
-            username: me.username,
-            role: me.role,
-            userId: me.uid,
-            identityKey: me.identityKey,
-            wallet: me.wallet || null,
-            timestamp: Date.now()
-          });
-
-          setMessageText('');
-          setShowEmoji(false);
-        } catch (err) {
-          console.error('send message failed:', err);
-          alert(`Operation failed: ${err.message || err}`);
-        }
-      };
-
-      const adminActions = {
-        enablePinMode: () => {
-          if (!requireAdmin()) return;
-          setPinMode(true);
-          setMessageText('');
-        },
-        clearChat: async () => {
-          if (!requireAdmin()) return;
-          if (!confirm('¿Borrar todo el historial del chat?')) return;
-          try {
-            await db.ref(`messages/${activeChannel.id}`).set(null);
-            setMessages([]);
-            alert('Public chat cleared successfully.');
-          } catch (err) {
-            console.error('clearChat failed:', err);
-            alert(`Could not clear this chat: ${err.message || err}`);
-          }
-        },
-        removePin: async () => {
-          if (!requireAdmin()) return;
-          try {
-            await db.ref(pinPathForChannel(activeChannel.id)).remove();
-            alert('Pinned message removed.');
-          } catch (err) {
-            console.error('removePin failed:', err);
-            alert(`Could not remove pinned message: ${err.message || err}`);
-          }
-        },
-        openBanPanel: () => {
-          if (!requireAdmin()) return;
-          setBanPanel(true);
-        },
-        openMutePanel: () => {
-          if (!requireAdmin()) return;
-          setMutePanel(true);
-        },
-        banUser: async (target) => {
-          if (!requireAdmin()) return;
-          if (!target?.identityKey) {
-            alert('This user has no stable identity key.');
-            return;
-          }
-          if (!confirm(`¿Banear permanentemente a ${target.username}?`)) {
-            setBanPanel(false);
-            return;
-          }
-          try {
-            await db.ref(`banned/${target.identityKey}`).set({
-              username: target.username,
-              role: target.role || 'user',
-              uid: target.uid || null,
-              wallet: target.wallet || null,
-              bannedAt: Date.now(),
-              bannedBy: me?.username || 'admin'
-            });
-            if (target.uid) await db.ref(`status/${target.uid}`).remove();
-            alert(`${target.username} has been banned.`);
-          } catch (err) {
-            console.error('banUser failed:', err);
-            alert(`Could not ban user: ${err.message || err}`);
-          }
-          setBanPanel(false);
-        },
-        muteUser: async (target) => {
-          if (!requireAdmin()) return;
-          if (!target?.identityKey) {
-            alert('This user has no stable identity key.');
-            return;
-          }
-          try {
-            await db.ref(`muted/${target.identityKey}`).set(Date.now() + 60000);
-            alert(`${target.username} has been muted for 1 minute.`);
-          } catch (err) {
-            console.error('muteUser failed:', err);
-            alert(`Could not mute user: ${err.message || err}`);
-          }
-          setMutePanel(false);
-        }
-      };
-
-      if (!me) {
-        return <div className="h-full flex items-center justify-center text-red-600 font-orbitron animate-pulse">CONNECTING...</div>;
+      } else {
+        username = sessionWallet.replace('guest_','');
+        role = 'guest';
       }
 
-      return (
-        <div className="flex h-screen p-2 md:p-4 lg:p-6 gap-4 md:gap-6 max-w-[1600px] mx-auto overflow-hidden">
-          <aside className={`fixed lg:relative z-50 inset-y-0 left-0 w-72 lg:w-64 transition-all duration-300 transform panel-3d p-6 flex flex-col ${mobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none'}`}>
-            <div className="mb-8 flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
-                <i className="fas fa-ghost text-white text-sm"></i>
-              </div>
-              <h1 className="font-orbitron font-black text-xl italic tracking-tighter">MUZZ<span className="text-red-600">SNAP</span></h1>
-            </div>
+      const identityKey = makeIdentityKey(sessionWallet);
 
-            <div className="flex-1 overflow-y-auto custom-scroll space-y-8 pr-2">
-              {isAdmin && (
-                <div>
-                  <p className="text-[9px] text-red-600 font-bold tracking-[0.3em] mb-4 uppercase">Admin Console</p>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <button onClick={adminActions.enablePinMode} className="admin-btn"><i className="fas fa-thumbtack mr-1"></i>FIJAR</button>
-                    <button onClick={adminActions.clearChat} className="admin-btn"><i className="fas fa-trash mr-1"></i>LIMPIAR</button>
-                  </div>
-                  <details className="bg-red-600/5 border border-red-600/20 rounded-lg">
-                    <summary className="cursor-pointer px-3 py-2 text-[9px] font-bold text-red-500 uppercase tracking-wider">Moderación ▼</summary>
-                    <div className="p-3 space-y-2 border-t border-red-600/20">
-                      <button onClick={adminActions.openBanPanel} className="w-full admin-btn text-left"><i className="fas fa-user-slash mr-2"></i>Banear Usuario</button>
-                      <button onClick={adminActions.openMutePanel} className="w-full admin-btn text-left"><i className="fas fa-volume-mute mr-2"></i>Mutear 1min</button>
-                    </div>
-                  </details>
+      const currentUser = {
+        uid: user.uid,
+        username,
+        role,
+        isWallet,
+        wallet,
+        identityKey
+      };
+
+      setMe(currentUser);
+
+      statusRef = db.ref(`status/${user.uid}`);
+      statusRef.onDisconnect().remove();
+      statusRef.set({
+        uid:user.uid,
+        username,
+        role,
+        wallet:wallet || null,
+        identityKey,
+        lastSeen:Date.now()
+      });
+
+      statusListRef = db.ref('status');
+      statusListRef.on('value', (snap) => {
+        setOnlineUsers(snap.val() ? Object.values(snap.val()) : []);
+      });
+
+      mutedRef = db.ref('muted');
+      mutedRef.on('value', (snap) => setMutedMap(snap.val() || {}));
+
+      bannedRef = db.ref(`banned/${identityKey}`);
+      bannedRef.on('value', (snap) => {
+        if (snap.val()) {
+          alert('Your account has been banned from public chat.');
+          sessionStorage.clear();
+          window.location.href = 'index.html';
+        }
+      });
+
+      if (isWallet && wallet) {
+        registryRef = db.ref(`walletRegistry/${wallet}`);
+        registryRef.once('value').then((snap) => {
+          const prev = snap.val() || {};
+          registryRef.update({
+            wallet,
+            username,
+            role,
+            isAdmin:ADMIN_ROLES.includes(role),
+            isWallet:true,
+            firstSeen:prev.firstSeen || firebase.database.ServerValue.TIMESTAMP,
+            lastLogin:firebase.database.ServerValue.TIMESTAMP,
+            lastSeen:firebase.database.ServerValue.TIMESTAMP,
+            active:true
+          });
+        }).catch((err) => console.error('walletRegistry update failed:', err));
+
+        registryRef.child('active').onDisconnect().set(false);
+        registryRef.child('lastSeen').onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
+      }
+    }).catch((err) => {
+      console.error('Anonymous sign-in failed:', err);
+      alert('Authentication failed. Please reload and try again.');
+      window.location.href = 'index.html';
+    });
+
+    return () => {
+      try { if (statusRef) statusRef.off(); } catch {}
+      try { if (statusListRef) statusListRef.off(); } catch {}
+      try { if (bannedRef) bannedRef.off(); } catch {}
+      try { if (mutedRef) mutedRef.off(); } catch {}
+      try { if (registryRef) registryRef.off(); } catch {}
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!me) return;
+    const pinRef = db.ref(pinPathForChannel(activeChannel.id));
+    pinRef.on('value', (snap) => setPinnedMessage(snap.val() || ""));
+    return () => pinRef.off();
+  }, [me, activeChannel]);
+
+  useEffect(() => {
+    if (!me) return;
+    const ref = db.ref(`messages/${activeChannel.id}`).limitToLast(50);
+    ref.on('value', (snap) => {
+      const data = snap.val();
+      setMessages(data ? Object.keys(data).map((id) => ({ id, ...data[id] })) : []);
+    });
+    return () => ref.off();
+  }, [me, activeChannel]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior:'smooth' });
+  }, [messages]);
+
+  const goToPrivate = async () => {
+    if (!me) return;
+
+    if (ADMIN_ROLES.includes(me.role)) {
+      window.location.href = 'private.html';
+      return;
+    }
+
+    if (!me.isWallet) {
+      showNotice('WALLET REQUIRED','MUZZ PRIVATE is only available for users logged in with a crypto wallet.','yellow');
+      return;
+    }
+
+    const walletAddress = (sessionStorage.getItem('muzz_wallet_address') || '').toLowerCase();
+
+    if (!walletAddress || walletAddress.startsWith('guest_')) {
+      showNotice('WALLET REQUIRED','You must sign in with a crypto wallet to access MUZZ PRIVATE.','yellow');
+      return;
+    }
+
+    if (typeof window.ethereum === 'undefined' || typeof ethers === 'undefined') {
+      showNotice('WEB3 REQUIRED','No Web3 wallet was detected. Please open the site with MetaMask or another wallet-enabled browser.','yellow');
+      return;
+    }
+
+    try {
+      showNotice('VERIFYING ACCESS','Checking your MUZZ token balance for private access...','blue');
+
+      const chainId = await window.ethereum.request({ method:'eth_chainId' });
+
+      if (chainId !== '0x1') {
+        try {
+          await window.ethereum.request({
+            method:'wallet_switchEthereumChain',
+            params:[{ chainId:'0x1' }]
+          });
+        } catch {
+          showNotice('WRONG NETWORK','Please switch to Ethereum Mainnet to validate your MUZZ balance.','yellow');
+          return;
+        }
+      }
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const token = new ethers.Contract(PRIVATE_GATE.tokenAddress, ERC20_ABI, provider);
+
+      const [rawBalance, decimals] = await Promise.all([
+        token.balanceOf(walletAddress),
+        token.decimals()
+      ]);
+
+      const formattedBalance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
+
+      if (formattedBalance >= PRIVATE_GATE.minRequired) {
+        window.location.href = 'private.html';
+        return;
+      }
+
+      showNotice(
+        'INSUFFICIENT MUZZ BALANCE',
+        `Access to MUZZ PRIVATE requires at least 2,000,000 MUZZ tokens. Your current balance is ${formattedBalance.toLocaleString(undefined,{maximumFractionDigits:2})} MUZZ.`,
+        'red'
+      );
+    } catch (err) {
+      console.error('Private access check failed:', err);
+      showNotice('VERIFICATION ERROR','Your MUZZ balance could not be verified. Please reopen your wallet and try again.','red');
+    }
+  };
+
+  const goToGame = () => {
+    window.location.href = 'game.html';
+  };
+
+  const sendMessage = async () => {
+    if (!messageText.trim() || !me) return;
+
+    if (iAmMuted) {
+      alert('Estás silenciado temporalmente');
+      return;
+    }
+
+    try {
+      if (pinMode) {
+        if (!requireAdmin()) return;
+
+        await db.ref(pinPathForChannel(activeChannel.id)).set(messageText);
+        setPinMode(false);
+        setMessageText('');
+        alert('Pinned message updated.');
+        return;
+      }
+
+      await db.ref(`messages/${activeChannel.id}`).push({
+        content:messageText,
+        username:me.username,
+        role:me.role,
+        userId:me.uid,
+        identityKey:me.identityKey,
+        wallet:me.wallet || null,
+        timestamp:Date.now()
+      });
+
+      setMessageText('');
+      setShowEmoji(false);
+    } catch (err) {
+      console.error('send message failed:', err);
+      alert(`Operation failed: ${err.message || err}`);
+    }
+  };
+
+  const adminActions = {
+    enablePinMode: () => {
+      if (!requireAdmin()) return;
+      setPinMode(true);
+      setMessageText('');
+    },
+
+    clearChat: async () => {
+      if (!requireAdmin()) return;
+      if (!confirm('¿Borrar todo el historial del chat?')) return;
+
+      try {
+        await db.ref(`messages/${activeChannel.id}`).set(null);
+        setMessages([]);
+        alert('Public chat cleared successfully.');
+      } catch (err) {
+        console.error('clearChat failed:', err);
+        alert(`Could not clear this chat: ${err.message || err}`);
+      }
+    },
+
+    removePin: async () => {
+      if (!requireAdmin()) return;
+
+      try {
+        await db.ref(pinPathForChannel(activeChannel.id)).remove();
+        alert('Pinned message removed.');
+      } catch (err) {
+        console.error('removePin failed:', err);
+        alert(`Could not remove pinned message: ${err.message || err}`);
+      }
+    },
+
+    openBanPanel: () => {
+      if (!requireAdmin()) return;
+      setBanPanel(true);
+    },
+
+    openMutePanel: () => {
+      if (!requireAdmin()) return;
+      setMutePanel(true);
+    },
+
+    banUser: async (target) => {
+      if (!requireAdmin()) return;
+
+      if (!target?.identityKey) {
+        alert('This user has no stable identity key.');
+        return;
+      }
+
+      if (!confirm(`¿Banear permanentemente a ${target.username}?`)) {
+        setBanPanel(false);
+        return;
+      }
+
+      try {
+        await db.ref(`banned/${target.identityKey}`).set({
+          username:target.username,
+          role:target.role || 'user',
+          uid:target.uid || null,
+          wallet:target.wallet || null,
+          bannedAt:Date.now(),
+          bannedBy:me?.username || 'admin'
+        });
+
+        if (target.uid) await db.ref(`status/${target.uid}`).remove();
+
+        alert(`${target.username} has been banned.`);
+      } catch (err) {
+        console.error('banUser failed:', err);
+        alert(`Could not ban user: ${err.message || err}`);
+      }
+
+      setBanPanel(false);
+    },
+
+    muteUser: async (target) => {
+      if (!requireAdmin()) return;
+
+      if (!target?.identityKey) {
+        alert('This user has no stable identity key.');
+        return;
+      }
+
+      try {
+        await db.ref(`muted/${target.identityKey}`).set(Date.now() + 60000);
+        alert(`${target.username} has been muted for 1 minute.`);
+      } catch (err) {
+        console.error('muteUser failed:', err);
+        alert(`Could not mute user: ${err.message || err}`);
+      }
+
+      setMutePanel(false);
+    }
+  };
+
+  if (!me) {
+    return <div className="h-full flex items-center justify-center text-red-600 font-orbitron animate-pulse">CONNECTING...</div>;
+  }
+
+  return (
+    <div className="x-social-layout">
+
+      <aside className={`x-left-menu fixed lg:sticky z-50 inset-y-0 left-0 w-72 lg:w-[275px] transition-all duration-300 transform ${mobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none'}`}>
+
+        <div className="x-brand">
+          <div className="x-brand-icon">
+            <i className="fas fa-bolt"></i>
+          </div>
+          <div className="x-brand-title">MUZZ<span>SNAP</span></div>
+        </div>
+
+        <nav className="x-nav">
+          <a href="index.html"><i className="fas fa-house"></i><span>Home</span></a>
+          <a href="whitepaper.html"><i className="fas fa-file-lines"></i><span>Whitepaper</span></a>
+          <a href="muzzsnap.html"><i className="fas fa-bolt"></i><span>MuzzSnap</span></a>
+          <a href="social.html"><i className="fas fa-rss"></i><span>Social</span></a>
+          <a href="muzzstudio.html"><i className="fas fa-clapperboard"></i><span>MuzzStudio</span></a>
+          <a href="swap.html"><i className="fas fa-cart-shopping"></i><span>Buy Muzz</span></a>
+          <a href="https://t.me/MuzzSnap" target="_blank"><i className="fab fa-telegram"></i><span>Telegram</span></a>
+          <a href="https://x.com/MuzzleToken" target="_blank"><i className="fab fa-x-twitter"></i><span>X.com</span></a>
+          <a href="mailto:muzzsnapofficial@gmail.com"><i className="fas fa-envelope"></i><span>Contact</span></a>
+        </nav>
+
+        <button className="x-post-btn">Post</button>
+
+        <div className="admin-area">
+          {isAdmin && (
+            <div>
+              <p className="text-[9px] text-red-600 font-bold tracking-[0.3em] mb-4 uppercase">Admin Console</p>
+
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <button onClick={adminActions.enablePinMode} className="admin-btn"><i className="fas fa-thumbtack mr-1"></i>FIJAR</button>
+                <button onClick={adminActions.clearChat} className="admin-btn"><i className="fas fa-trash mr-1"></i>LIMPIAR</button>
+              </div>
+
+              <details className="bg-red-600/5 border border-red-600/20 rounded-lg">
+                <summary className="cursor-pointer px-3 py-2 text-[9px] font-bold text-red-500 uppercase tracking-wider">Moderación ▼</summary>
+
+                <div className="p-3 space-y-2 border-t border-red-600/20">
+                  <button onClick={adminActions.openBanPanel} className="w-full admin-btn text-left"><i className="fas fa-user-slash mr-2"></i>Banear Usuario</button>
+                  <button onClick={adminActions.openMutePanel} className="w-full admin-btn text-left"><i className="fas fa-volume-mute mr-2"></i>Mutear 1min</button>
                 </div>
-              )}
-
-              <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Channels</p>
-                {CHANNELS.map((channel) => (
-                  <button
-                    key={channel.id}
-                    onClick={() => { setActiveChannel(channel); setMobileMenu(false); }}
-                    className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all ${activeChannel.id === channel.id ? 'bg-red-600/10 text-red-600 border-l-2 border-red-600 shadow-lg shadow-red-600/5' : 'text-gray-500 hover:text-white'}`}
-                  >
-                    # {channel.name}
-                  </button>
-                ))}
-              </div>
-
-              <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Muzz</p>
-                <button onClick={goToPrivate} className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all text-gray-500 hover:text-white hover:bg-red-600/5 border border-white/5">
-                  <i className={`fas ${me.isWallet ? 'fa-user-secret' : 'fa-lock'} mr-2`}></i>
-                  PRIVATE
-                </button>
-                <button onClick={goToGame} className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all text-gray-500 hover:text-white hover:bg-red-600/5 border border-white/5">
-                  <i className="fas fa-gamepad mr-2"></i>
-                  GAME
-                </button>
-                <p className="text-[9px] text-gray-600 px-1 uppercase tracking-wider">Wallet + 2M MUZZLE · Admin bypass</p>
-              </div>
-
-              <div>
-                <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Online — {onlineUsers.length}</p>
-                <div className="space-y-3">
-                  {onlineUsers.map((user, idx) => (
-                    <div key={`${user.uid || user.identityKey || idx}`} className="flex items-center gap-3 px-2">
-                      <span className="online-indicator"></span>
-                      <span className={`text-[11px] truncate font-bold uppercase flex-1 ${roleClass(user.role,'text-gray-400')}`}>
-                        {roleBadge(user.role)}{user.username}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              </details>
             </div>
+          )}
+        </div>
 
-            <button onClick={() => { sessionStorage.clear(); window.location.href = 'login.html'; }} className="mt-6 w-full py-3 text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black tracking-widest hover:bg-red-600/5 transition-all">
-              <i className="fas fa-power-off mr-2"></i>Disconnect
+        <div className="channel-area mt-6">
+          <p className="channels-label text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Channels</p>
+
+          {CHANNELS.map((channel) => (
+            <button
+              key={channel.id}
+              onClick={() => { setActiveChannel(channel); setMobileMenu(false); }}
+              className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all ${activeChannel.id === channel.id ? 'bg-red-600/10 text-red-600 border-l-2 border-red-600 shadow-lg shadow-red-600/5' : 'text-gray-500 hover:text-white'}`}
+            >
+              # {channel.name}
             </button>
-          </aside>
+          ))}
+        </div>
 
-          <main className="flex-1 panel-3d flex flex-col overflow-hidden border border-white/5 h-full relative">
-            {pinnedMessage && (
-              <div className="bg-red-600/10 border-b border-red-600/30 py-2 px-6 flex items-center gap-4 flex-shrink-0">
-                <i className="fas fa-thumbtack text-red-600 text-[10px] animate-pulse"></i>
-                <marquee className="text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase flex-1">{pinnedMessage}</marquee>
-                {isAdmin && (
-                  <button onClick={adminActions.removePin} className="text-[8px] text-red-400 hover:text-red-600">
+        <div className="muzz-area mt-6">
+          <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Muzz</p>
+
+          <button onClick={goToPrivate} className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all text-gray-500 hover:text-white hover:bg-red-600/5 border border-white/5">
+            <i className={`fas ${me.isWallet ? 'fa-user-secret' : 'fa-lock'} mr-2`}></i>
+            PRIVATE
+          </button>
+
+          <button onClick={goToGame} className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold mb-1 transition-all text-gray-500 hover:text-white hover:bg-red-600/5 border border-white/5">
+            <i className="fas fa-gamepad mr-2"></i>
+            GAME
+          </button>
+
+          <p className="text-[9px] text-gray-600 px-1 uppercase tracking-wider">Wallet + 2M MUZZLE · Admin bypass</p>
+        </div>
+
+        <div className="online-area mt-6">
+          <p className="text-[10px] text-gray-500 font-bold tracking-[0.3em] mb-4 uppercase">Online — {onlineUsers.length}</p>
+
+          <div className="space-y-3">
+            {onlineUsers.map((user, idx) => (
+              <div key={`${user.uid || user.identityKey || idx}`} className="flex items-center gap-3 px-2">
+                <span className="online-indicator"></span>
+                <span className={`text-[11px] truncate font-bold uppercase flex-1 ${roleClass(user.role,'text-gray-400')}`}>
+                  {roleBadge(user.role)}{user.username}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button onClick={() => { sessionStorage.clear(); window.location.href = 'index.html'; }} className="disconnect-btn mt-6 w-full py-3 text-[10px] border border-red-900/30 text-red-600 rounded-xl uppercase font-black tracking-widest hover:bg-red-600/5 transition-all">
+          <i className="fas fa-power-off mr-2"></i>Disconnect
+        </button>
+      </aside>
+
+      <main className="x-chat-center">
+        <div className="x-chat-card panel-3d flex flex-col overflow-hidden relative">
+
+          {pinnedMessage && (
+            <div className="bg-red-600/10 border-b border-red-600/30 py-2 px-6 flex items-center gap-4 flex-shrink-0">
+              <i className="fas fa-thumbtack text-red-600 text-[10px] animate-pulse"></i>
+              <marquee className="text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase flex-1">{pinnedMessage}</marquee>
+
+              {isAdmin && (
+                <button onClick={adminActions.removePin} className="text-[8px] text-red-400 hover:text-red-600">
+                  <i className="fas fa-times"></i>
+                </button>
+              )}
+            </div>
+          )}
+
+          <header className="h-16 flex items-center justify-between px-8 bg-white/5 border-b border-white/5 flex-shrink-0">
+            <div className="flex items-center gap-4">
+              <button onClick={() => setMobileMenu(true)} className="lg:hidden text-red-600"><i className="fas fa-bars"></i></button>
+              <h2 className="text-sm font-black tracking-[0.2em] text-red-600 uppercase italic">/ {activeChannel.name}</h2>
+            </div>
+
+            <button onClick={toggleTheme} className="w-10 h-10 rounded-xl border border-red-600/20 flex items-center justify-center hover:bg-red-600/5 transition-all">
+              {darkMode ? <i className="fas fa-sun text-yellow-500"></i> : <i className="fas fa-moon text-blue-500"></i>}
+            </button>
+          </header>
+
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-5 custom-scroll">
+            {messages.map((msg, index) => {
+              const muted = !!(msg.identityKey && mutedMap[msg.identityKey] && mutedMap[msg.identityKey] > Date.now());
+              const date = new Date(msg.timestamp);
+              const prev = index > 0 ? messages[index - 1] : null;
+              const prevDate = prev ? new Date(prev.timestamp) : null;
+              const showDay = !prevDate || date.toDateString() !== prevDate.toDateString();
+
+              const formatDay = (d) => {
+                const now = new Date();
+                const yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                if (d.toDateString() === now.toDateString()) return 'HOY';
+                if (d.toDateString() === yesterday.toDateString()) return 'AYER';
+
+                return d.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+              };
+
+              return (
+                <React.Fragment key={msg.id}>
+                  {showDay && (
+                    <div className="flex items-center gap-4 my-4">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-red-600/30 to-transparent"></div>
+                      <span className="text-[9px] font-black tracking-[0.3em] text-red-600/70 px-4 py-1.5 bg-red-600/5 rounded-full border border-red-600/20">{formatDay(date)}</span>
+                      <div className="flex-1 h-px bg-gradient-to-r from-red-600/30 via-transparent to-transparent"></div>
+                    </div>
+                  )}
+
+                  <div className={`flex flex-col ${msg.userId === me.uid ? 'items-end' : 'items-start'}`}>
+                    <span className={`text-[10px] font-black mb-1.5 uppercase px-2 ${roleClass(msg.role,'text-gray-500')}`}>
+                      {roleBadge(msg.role)}{msg.username} {muted && '🔇'}
+                    </span>
+
+                    <div className={`bubble-3d shadow-xl ${msg.userId === me.uid ? 'me' : 'other'} ${muted ? 'muted' : ''}`}>
+                      {msg.content}
+                    </div>
+                  </div>
+                </React.Fragment>
+              );
+            })}
+
+            <div ref={bottomRef}></div>
+          </div>
+
+          <div className={`p-4 md:p-6 ${darkMode ? 'bg-black/40' : 'bg-gray-50'} border-t border-white/5 flex-shrink-0`}>
+            {notice.show && (
+              <div className={`mb-3 px-4 py-3 rounded-xl border text-xs ${notice.tone === 'blue' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : notice.tone === 'yellow' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-red-600/10 border-red-600/30 text-red-300'}`}>
+                <div className="flex items-start gap-3">
+                  <i className={`fas ${notice.tone === 'blue' ? 'fa-shield-alt' : notice.tone === 'yellow' ? 'fa-lock' : 'fa-ban'} mt-0.5`}></i>
+
+                  <div className="flex-1">
+                    <p className="font-black uppercase tracking-wider mb-1">{notice.title}</p>
+                    <p className="leading-relaxed">{notice.desc}</p>
+                  </div>
+
+                  <button onClick={closeNotice} className="opacity-70 hover:opacity-100">
                     <i className="fas fa-times"></i>
                   </button>
-                )}
+                </div>
               </div>
             )}
 
-            <header className="h-16 flex items-center justify-between px-8 bg-white/5 border-b border-white/5 flex-shrink-0">
-              <div className="flex items-center gap-4">
-                <button onClick={() => setMobileMenu(true)} className="lg:hidden text-red-600"><i className="fas fa-bars"></i></button>
-                <h2 className="text-sm font-black tracking-[0.2em] text-red-600 uppercase italic">/ {activeChannel.name}</h2>
+            {pinMode && (
+              <div className="mb-3 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-500 text-xs font-bold flex items-center gap-2">
+                <i className="fas fa-thumbtack animate-pulse"></i>
+                MODO FIJAR MENSAJE ACTIVADO - Escribe y envía
+                <button onClick={() => setPinMode(false)} className="ml-auto text-yellow-500 hover:text-yellow-300">
+                  <i className="fas fa-times"></i>
+                </button>
               </div>
-              <button onClick={toggleTheme} className="w-10 h-10 rounded-xl border border-red-600/20 flex items-center justify-center hover:bg-red-600/5 transition-all">
-                {darkMode ? <i className="fas fa-sun text-yellow-500"></i> : <i className="fas fa-moon text-blue-500"></i>}
+            )}
+
+            {banPanel && (
+              <div className="mb-3 panel-3d border border-red-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
+                <div className="flex justify-between items-center mb-3">
+                  <p className="text-xs font-bold text-red-500 uppercase">Seleccionar usuario para banear</p>
+                  <button onClick={() => setBanPanel(false)} className="text-gray-500 hover:text-red-500">
+                    <i className="fas fa-times"></i>
+                  </button>
+                </div>
+
+                {onlineUsers.filter((user) => !ADMIN_ROLES.includes(user.role)).map((user) => (
+                  <button key={user.uid} onClick={() => adminActions.banUser(user)} className="w-full text-left px-3 py-2 text-xs hover:bg-red-600/10 rounded mb-1 flex items-center gap-2">
+                    <i className="fas fa-user-slash text-red-500"></i>
+                    <span className="font-bold">{user.username}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {mutePanel && (
+              <div className="mb-3 panel-3d border border-yellow-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
+                <div className="flex justify-between items-center mb-3">
+                  <p className="text-xs font-bold text-yellow-500 uppercase">Seleccionar usuario para mutear</p>
+                  <button onClick={() => setMutePanel(false)} className="text-gray-500 hover:text-yellow-500">
+                    <i className="fas fa-times"></i>
+                  </button>
+                </div>
+
+                {onlineUsers.filter((user) => !ADMIN_ROLES.includes(user.role)).map((user) => (
+                  <button key={user.uid} onClick={() => adminActions.muteUser(user)} className="w-full text-left px-3 py-2 text-xs hover:bg-yellow-600/10 rounded mb-1 flex items-center gap-2">
+                    <i className="fas fa-volume-mute text-yellow-500"></i>
+                    <span className="font-bold">{user.username}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {showEmoji && (
+              <div className="mb-4 panel-3d border border-red-600/20 overflow-hidden shadow-2xl h-auto flex-shrink-0">
+                <div className="flex bg-black/10 border-b border-white/5 overflow-x-auto custom-scroll">
+                  {Object.keys(EMOJIS).map((tab) => (
+                    <button key={tab} onClick={() => setEmojiTab(tab)} className={`px-4 py-2 text-[9px] font-black uppercase tracking-tighter ${emojiTab === tab ? 'text-red-600 bg-red-600/5' : 'text-gray-500'}`}>
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="emoji-window custom-scroll">
+                  {EMOJIS[emojiTab].map((emoji) => (
+                    <span key={emoji} onClick={() => setMessageText((prev) => prev + emoji)} className="emoji-btn">{emoji}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2.5 pl-5 focus-within:border-red-600/50 transition-all shadow-inner">
+              <button onClick={() => setShowEmoji((prev) => !prev)} className="text-gray-500 hover:text-red-600 transition-colors mr-3">
+                <i className="far fa-laugh-beam text-xl"></i>
               </button>
-            </header>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-5 custom-scroll">
-              {messages.map((msg, index) => {
-                const muted = !!(msg.identityKey && mutedMap[msg.identityKey] && mutedMap[msg.identityKey] > Date.now());
-                const date = new Date(msg.timestamp);
-                const prev = index > 0 ? messages[index - 1] : null;
-                const prevDate = prev ? new Date(prev.timestamp) : null;
-                const showDay = !prevDate || date.toDateString() !== prevDate.toDateString();
+              <input
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                placeholder={iAmMuted ? 'Estás silenciado...' : pinMode ? 'Escribe el mensaje a fijar...' : 'Transmit message...'}
+                disabled={iAmMuted}
+                className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input"
+              />
 
-                const formatDay = (d) => {
-                  const now = new Date();
-                  const yesterday = new Date(now);
-                  yesterday.setDate(yesterday.getDate() - 1);
-                  if (d.toDateString() === now.toDateString()) return 'HOY';
-                  if (d.toDateString() === yesterday.toDateString()) return 'AYER';
-                  return d.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
-                };
-
-                return (
-                  <React.Fragment key={msg.id}>
-                    {showDay && (
-                      <div className="flex items-center gap-4 my-4">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-red-600/30 to-transparent"></div>
-                        <span className="text-[9px] font-black tracking-[0.3em] text-red-600/70 px-4 py-1.5 bg-red-600/5 rounded-full border border-red-600/20">{formatDay(date)}</span>
-                        <div className="flex-1 h-px bg-gradient-to-r from-red-600/30 via-transparent to-transparent"></div>
-                      </div>
-                    )}
-
-                    <div className={`flex flex-col ${msg.userId === me.uid ? 'items-end' : 'items-start'}`}>
-                      <span className={`text-[10px] font-black mb-1.5 uppercase px-2 ${roleClass(msg.role,'text-gray-500')}`}>
-                        {roleBadge(msg.role)}{msg.username} {muted && '🔇'}
-                      </span>
-                      <div className={`bubble-3d shadow-xl ${msg.userId === me.uid ? 'me' : 'other'} ${muted ? 'muted' : ''}`}>
-                        {msg.content}
-                      </div>
-                    </div>
-                  </React.Fragment>
-                );
-              })}
-              <div ref={bottomRef}></div>
+              <button onClick={sendMessage} className={`w-12 h-12 ${pinMode ? 'bg-yellow-600' : 'bg-red-600'} rounded-xl flex items-center justify-center hover:bg-red-500 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)]`}>
+                <i className={`fas ${pinMode ? 'fa-thumbtack' : 'fa-paper-plane'} text-white`}></i>
+              </button>
             </div>
-
-            <div className={`p-4 md:p-6 ${darkMode ? 'bg-black/40' : 'bg-gray-50'} border-t border-white/5 flex-shrink-0`}>
-              {notice.show && (
-                <div className={`mb-3 px-4 py-3 rounded-xl border text-xs ${notice.tone === 'blue' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : notice.tone === 'yellow' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300' : 'bg-red-600/10 border-red-600/30 text-red-300'}`}>
-                  <div className="flex items-start gap-3">
-                    <i className={`fas ${notice.tone === 'blue' ? 'fa-shield-alt' : notice.tone === 'yellow' ? 'fa-lock' : 'fa-ban'} mt-0.5`}></i>
-                    <div className="flex-1">
-                      <p className="font-black uppercase tracking-wider mb-1">{notice.title}</p>
-                      <p className="leading-relaxed">{notice.desc}</p>
-                    </div>
-                    <button onClick={closeNotice} className="opacity-70 hover:opacity-100"><i className="fas fa-times"></i></button>
-                  </div>
-                </div>
-              )}
-
-              {pinMode && (
-                <div className="mb-3 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-500 text-xs font-bold flex items-center gap-2">
-                  <i className="fas fa-thumbtack animate-pulse"></i>
-                  MODO FIJAR MENSAJE ACTIVADO - Escribe y envía
-                  <button onClick={() => setPinMode(false)} className="ml-auto text-yellow-500 hover:text-yellow-300"><i className="fas fa-times"></i></button>
-                </div>
-              )}
-
-              {banPanel && (
-                <div className="mb-3 panel-3d border border-red-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
-                  <div className="flex justify-between items-center mb-3">
-                    <p className="text-xs font-bold text-red-500 uppercase">Seleccionar usuario para banear</p>
-                    <button onClick={() => setBanPanel(false)} className="text-gray-500 hover:text-red-500"><i className="fas fa-times"></i></button>
-                  </div>
-                  {onlineUsers.filter((user) => !ADMIN_ROLES.includes(user.role)).map((user) => (
-                    <button key={user.uid} onClick={() => adminActions.banUser(user)} className="w-full text-left px-3 py-2 text-xs hover:bg-red-600/10 rounded mb-1 flex items-center gap-2">
-                      <i className="fas fa-user-slash text-red-500"></i>
-                      <span className="font-bold">{user.username}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {mutePanel && (
-                <div className="mb-3 panel-3d border border-yellow-600/30 p-4 max-h-48 overflow-y-auto custom-scroll">
-                  <div className="flex justify-between items-center mb-3">
-                    <p className="text-xs font-bold text-yellow-500 uppercase">Seleccionar usuario para mutear</p>
-                    <button onClick={() => setMutePanel(false)} className="text-gray-500 hover:text-yellow-500"><i className="fas fa-times"></i></button>
-                  </div>
-                  {onlineUsers.filter((user) => !ADMIN_ROLES.includes(user.role)).map((user) => (
-                    <button key={user.uid} onClick={() => adminActions.muteUser(user)} className="w-full text-left px-3 py-2 text-xs hover:bg-yellow-600/10 rounded mb-1 flex items-center gap-2">
-                      <i className="fas fa-volume-mute text-yellow-500"></i>
-                      <span className="font-bold">{user.username}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {showEmoji && (
-                <div className="mb-4 panel-3d border border-red-600/20 overflow-hidden shadow-2xl h-auto flex-shrink-0">
-                  <div className="flex bg-black/10 border-b border-white/5 overflow-x-auto custom-scroll">
-                    {Object.keys(EMOJIS).map((tab) => (
-                      <button key={tab} onClick={() => setEmojiTab(tab)} className={`px-4 py-2 text-[9px] font-black uppercase tracking-tighter ${emojiTab === tab ? 'text-red-600 bg-red-600/5' : 'text-gray-500'}`}>
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="emoji-window custom-scroll">
-                    {EMOJIS[emojiTab].map((emoji) => (
-                      <span key={emoji} onClick={() => setMessageText((prev) => prev + emoji)} className="emoji-btn">{emoji}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl p-2.5 pl-5 focus-within:border-red-600/50 transition-all shadow-inner">
-                <button onClick={() => setShowEmoji((prev) => !prev)} className="text-gray-500 hover:text-red-600 transition-colors mr-3">
-                  <i className="far fa-laugh-beam text-xl"></i>
-                </button>
-
-                <input
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                  placeholder={iAmMuted ? 'Estás silenciado...' : pinMode ? 'Escribe el mensaje a fijar...' : 'Transmit message...'}
-                  disabled={iAmMuted}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-sm hacker-input"
-                />
-
-                <button onClick={sendMessage} className={`w-12 h-12 ${pinMode ? 'bg-yellow-600' : 'bg-red-600'} rounded-xl flex items-center justify-center hover:bg-red-500 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)]`}>
-                  <i className={`fas ${pinMode ? 'fa-thumbtack' : 'fa-paper-plane'} text-white`}></i>
-                </button>
-              </div>
-            </div>
-          </main>
-
-          {mobileMenu && <div onClick={() => setMobileMenu(false)} className="fixed inset-0 bg-black/90 z-40 lg:hidden backdrop-blur-md"></div>}
+          </div>
         </div>
-      );
-    }
+      </main>
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
+      <aside className="x-right-panel">
+        <div className="x-search">
+          <i className="fas fa-search"></i>
+          Search MuzzSnap
+        </div>
+
+        <div className="x-side-card">
+          <h3>Official Links</h3>
+          <a href="index.html"><i className="fas fa-house"></i> Home</a>
+          <a href="whitepaper.html"><i className="fas fa-file-lines"></i> Whitepaper</a>
+          <a href="muzzsnap.html"><i className="fas fa-bolt"></i> MuzzSnap</a>
+          <a href="social.html"><i className="fas fa-rss"></i> Social</a>
+          <a href="muzzstudio.html"><i className="fas fa-clapperboard"></i> MuzzStudio</a>
+          <a href="swap.html"><i className="fas fa-cart-shopping"></i> Buy Muzz</a>
+          <a href="https://t.me/MuzzSnap" target="_blank"><i className="fab fa-telegram"></i> Telegram</a>
+          <a href="https://x.com/MuzzleToken" target="_blank"><i className="fab fa-x-twitter"></i> X.com</a>
+          <a href="mailto:muzzsnapofficial@gmail.com"><i className="fas fa-envelope"></i> Contact</a>
+
+          <div className="x-contract">
+            Contract:<br/>
+            0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0
+          </div>
+        </div>
+
+        <div className="x-side-card">
+          <h3>Session</h3>
+          <div className="x-session">
+            <p className="x-session-name">{me.username}</p>
+            <p className="x-session-role">{me.role}</p>
+          </div>
+        </div>
+      </aside>
+
+      {mobileMenu && <div onClick={() => setMobileMenu(false)} className="fixed inset-0 bg-black/90 z-40 lg:hidden backdrop-blur-md"></div>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
 </body>
 </html>
