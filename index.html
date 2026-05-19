@@ -535,7 +535,7 @@ a{text-decoration:none;color:inherit}
     </a>
   </nav>
 
-  <button class="post-main">Post</button>
+  <button class="post-main" onclick="goToChat(event)">Post</button>
 
   <div class="profile-mini">
     <div class="avatar">MS</div>
@@ -773,6 +773,24 @@ function accessWithGuest(){
   setTimeout(()=>{
     window.location.href = 'chat.html';
   },500);
+}
+
+function goToChat(event){
+  event.preventDefault();
+
+  const wallet = sessionStorage.getItem("muzz_wallet_address");
+  const method = sessionStorage.getItem("muzz_login_method");
+
+  if(wallet && method){
+    window.location.href = "chat.html";
+  }else{
+    const status = document.getElementById("statusText");
+    if(status){
+      status.innerText = "Login required to access MuzzChat.";
+    }else{
+      alert("Please login first to access MuzzChat.");
+    }
+  }
 }
 </script>
 
