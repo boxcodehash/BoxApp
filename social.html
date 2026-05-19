@@ -1,135 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>MuzzSnap Private</title>
-<meta name="theme-color" content="#111418" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>MuzzSnap Social</title>
+  <meta name="theme-color" content="#111418" />
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-<style>
-:root{
-  --bg:#20262d;--panel:#12171d;--soft:#1a2028;--soft-2:#232b35;
-  --line:rgba(255,255,255,.08);--text:#eef2f7;--muted:#93a0b3;
-  --red:#ff2b2b;--red-2:#b40000;--red-soft:rgba(255,43,43,.14);
-  --green:#4ade80;--blue:#60a5fa;--yellow:#facc15;
-  --shadow:0 18px 50px rgba(0,0,0,.35);--radius:22px;
-  --safe-top:env(safe-area-inset-top,0px);--safe-right:env(safe-area-inset-right,0px);
-  --safe-bottom:env(safe-area-inset-bottom,0px);--safe-left:env(safe-area-inset-left,0px)
-}
-*{box-sizing:border-box}html,body{height:100%}
-body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(circle at top right,rgba(255,43,43,.10),transparent 24%),radial-gradient(circle at bottom left,rgba(96,165,250,.07),transparent 20%),var(--bg);color:var(--text);overflow:hidden;font-size:14px}
-button,input,textarea{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}
-.app{display:grid;grid-template-columns:280px minmax(0,720px) 340px;gap:18px;height:100vh;max-width:1450px;margin:0 auto;padding:18px}
-.card{background:rgba(18,23,29,.92);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(10px)}
-.sidebar,.rightbar,.chat-shell{min-height:0;display:flex;flex-direction:column}.sidebar,.rightbar{padding:18px}
-.brand{display:flex;align-items:center;gap:12px;padding:6px 4px 18px;margin-bottom:8px}.brand-badge{width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(145deg,#ff3b3b,#9d1111);box-shadow:0 0 24px rgba(255,43,43,.25);font-size:20px}.brand h1{margin:0;font-size:24px;letter-spacing:-.04em;font-weight:900;font-style:italic}.brand span{color:var(--red)}
-.nav{display:flex;flex-direction:column;gap:8px;margin:6px 0 16px}.nav-btn{border:none;background:transparent;color:var(--text);display:flex;align-items:center;gap:14px;padding:12px 13px;border-radius:18px;transition:.2s ease;text-align:left;width:100%}.nav-btn:hover,.nav-btn.active{background:var(--red-soft);color:#fff}.nav-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.05);font-size:15px;flex-shrink:0}.compose-main{margin:10px 0 18px;padding:14px 18px;border:none;border-radius:18px;font-weight:800;color:#fff;background:linear-gradient(145deg,#ff3d3d,#b10f0f);box-shadow:0 12px 30px rgba(255,43,43,.22)}
-.profile-mini{margin-top:auto;display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:var(--soft);border:1px solid var(--line)}.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#3a4552,#19202a);border:1px solid rgba(255,255,255,.08);font-weight:800;flex-shrink:0}.avatar.red{background:linear-gradient(145deg,var(--red),var(--red-2))}.name{font-weight:800}.sub,.muted{color:var(--muted)}.small{font-size:12px}
-.chat-shell{overflow:hidden}.chat-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);background:rgba(18,23,29,.84);backdrop-filter:blur(14px);border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}.chat-title{display:flex;align-items:center;gap:12px;min-width:0}.chat-top h2{margin:0;font-size:18px;letter-spacing:-.03em}.status-dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:#5f6b7a;box-shadow:none}.status-dot.online{background:var(--green);box-shadow:0 0 10px var(--green)}.pill{padding:7px 11px;border-radius:999px;background:rgba(255,43,43,.10);border:1px solid rgba(255,43,43,.18);font-size:11px;color:#ff9a9a;font-weight:800;white-space:nowrap}
-.messages{flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px;min-height:0}.day{align-self:center;padding:7px 12px;border-radius:999px;background:rgba(255,43,43,.08);border:1px solid rgba(255,43,43,.15);font-size:10px;letter-spacing:.22em;color:#ff8080;font-weight:800}.msg-wrap{display:flex;gap:10px;align-items:flex-end;max-width:86%}.msg-wrap.me{align-self:flex-end;flex-direction:row-reverse}.bubble{padding:12px 14px;border-radius:20px;background:var(--soft);border:1px solid rgba(255,255,255,.05);line-height:1.45;box-shadow:0 8px 20px rgba(0,0,0,.16);word-break:break-word;font-size:14px}.msg-wrap.me .bubble{background:linear-gradient(145deg,#ff3d3d,#b10f0f);border-color:transparent}.meta{font-size:10px;color:var(--muted);margin:2px 6px}.empty{display:grid;place-items:center;height:100%;padding:24px;text-align:center;color:var(--muted);line-height:1.6}.composer{padding:16px 18px;border-top:1px solid var(--line);background:rgba(255,255,255,.02)}.composer-box{display:flex;gap:12px;align-items:flex-end;background:#0b1015;border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:10px 10px 10px 16px}textarea{flex:1;resize:none;background:transparent;border:none;outline:none;color:var(--text);font:inherit;font-size:14px;line-height:1.4;min-height:24px;max-height:140px;padding:6px 0;appearance:none}textarea::placeholder{color:#6f7c8e}.send{width:50px;height:50px;border-radius:16px;border:none;background:linear-gradient(145deg,var(--red),var(--red-2));color:#fff;font-size:18px;flex:0 0 auto}
-.search{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}.search input{width:100%;border:none;outline:none;background:transparent;color:var(--text)}.widget{padding:16px;border-radius:20px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.24em;color:var(--muted);margin:0 0 14px;font-weight:800}.contact-list{display:flex;flex-direction:column;gap:8px;overflow:auto;min-height:0}.contact{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;border:1px solid transparent;background:rgba(255,255,255,.02);transition:.2s;text-align:left;color:var(--text)}.contact:hover{background:rgba(255,255,255,.04)}.contact.active{background:rgba(255,43,43,.10);border-color:rgba(255,43,43,.18)}.contact small{display:block;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.add-wallet{display:grid;gap:10px}.add-wallet input{height:44px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:0 12px;outline:none}.btn{border:none;border-radius:16px;padding:12px 14px;font-weight:800;color:#fff;background:linear-gradient(145deg,#ff3d3d,#b10f0f)}.btn.ghost{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--text)}.notice{padding:12px;border-radius:16px;border:1px solid rgba(250,204,21,.25);background:rgba(250,204,21,.08);color:#fde68a;line-height:1.5}.error{border-color:rgba(255,43,43,.3);background:rgba(255,43,43,.10);color:#ffb4b4}.mobile-bottom{display:none;position:fixed;left:calc(12px + var(--safe-left));right:calc(12px + var(--safe-right));bottom:calc(12px + var(--safe-bottom));z-index:30;background:rgba(18,23,29,.92);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:10px;grid-template-columns:repeat(5,1fr);gap:6px}.mobile-bottom button{border:none;background:transparent;color:var(--muted);padding:10px 6px;border-radius:14px;font-size:11px}.mobile-bottom button.active{background:var(--red-soft);color:#fff}
-@media(max-width:1180px){.app{grid-template-columns:250px minmax(0,1fr) 300px}}
-@media(max-width:980px){body{overflow:auto}.app{height:auto;min-height:100dvh;grid-template-columns:1fr;padding:calc(12px + var(--safe-top)) calc(12px + var(--safe-right)) calc(104px + var(--safe-bottom)) calc(12px + var(--safe-left))}.sidebar,.rightbar{display:none}.chat-shell{height:calc(100dvh - 116px)}.mobile-bottom{display:grid}.messages{padding:14px}.post-text,.post-media,.post-actions{margin-left:0}.chat-top{position:sticky}.composer{padding:12px calc(12px + var(--safe-right)) calc(12px + var(--safe-bottom)) calc(12px + var(--safe-left))}.msg-wrap{max-width:92%}}
-</style>
+  <style>
+    :root{
+      --bg:#20262d;--panel:#12171d;--soft:#1a2028;--soft-2:#232b35;
+      --line:rgba(255,255,255,.08);--text:#eef2f7;--muted:#93a0b3;
+      --red:#ff2b2b;--red-soft:rgba(255,43,43,.14);--green:#4ade80;--blue:#60a5fa;
+      --shadow:0 18px 50px rgba(0,0,0,.35);--radius:22px;
+      --safe-top:env(safe-area-inset-top,0px);--safe-right:env(safe-area-inset-right,0px);
+      --safe-bottom:env(safe-area-inset-bottom,0px);--safe-left:env(safe-area-inset-left,0px);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at top right,rgba(255,43,43,.10),transparent 24%),
+      radial-gradient(circle at bottom left,rgba(96,165,250,.07),transparent 20%),var(--bg);
+      color:var(--text);overflow:hidden;font-size:14px;
+    }
+    button,input,textarea{font:inherit} a{text-decoration:none;color:inherit}
+    .app{display:grid;grid-template-columns:280px minmax(0,720px) 340px;gap:18px;height:100vh;max-width:1450px;margin:0 auto;padding:18px}
+    .card{background:rgba(18,23,29,.92);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+    .sidebar,.rightbar,.feed-shell{min-height:0;display:flex;flex-direction:column}.sidebar,.rightbar{padding:18px}
+    .brand{display:flex;align-items:center;gap:12px;padding:6px 4px 18px;margin-bottom:8px}
+    .brand-badge{width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(145deg,#ff3b3b,#9d1111);box-shadow:0 0 24px rgba(255,43,43,.25);font-size:20px}
+    .brand h1{margin:0;font-size:24px;letter-spacing:-.04em;font-weight:900;font-style:italic}.brand span{color:var(--red)}
+    .nav{display:flex;flex-direction:column;gap:8px;margin:6px 0 16px}
+    .nav-btn{border:none;background:transparent;color:var(--text);display:flex;align-items:center;gap:14px;padding:12px 13px;border-radius:18px;cursor:pointer;transition:.2s ease;text-align:left;width:100%}
+    .nav-btn:hover,.nav-btn.active{background:var(--red-soft);color:#fff}
+    .nav-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.05);font-size:15px;flex-shrink:0}
+    .compose-main{margin:10px 0 18px;padding:14px 18px;border:none;border-radius:18px;font-weight:800;color:#fff;background:linear-gradient(145deg,#ff3d3d,#b10f0f);cursor:pointer;box-shadow:0 12px 30px rgba(255,43,43,.22)}
+    .profile-mini{margin-top:auto;display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:var(--soft);border:1px solid var(--line)}
+    .avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#3a4552,#19202a);border:1px solid rgba(255,255,255,.08);font-weight:800;flex-shrink:0}
+    .profile-mini .name{font-weight:800}.profile-mini .sub{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}
+    .feed-shell{overflow:hidden}.feed-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);background:rgba(18,23,29,.84);backdrop-filter:blur(14px);border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}
+    .feed-top h2{margin:0;font-size:18px;letter-spacing:-.03em}.ghost-btn{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:10px 14px;border-radius:14px;cursor:pointer}
+    .feed-scroll{overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px;min-height:0}
+    .composer{padding:18px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01))}
+    .composer-head{display:flex;gap:14px;align-items:flex-start}.composer textarea{width:100%;min-height:88px;resize:none;border:none;outline:none;background:transparent;color:var(--text);font-size:15px;line-height:1.4}
+    .composer-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap}
+    .tools-left{display:flex;gap:8px;flex-wrap:wrap}.tool-pill{padding:9px 12px;border-radius:999px;background:rgba(96,165,250,.12);color:#bfdbfe;font-size:12px;border:1px solid rgba(96,165,250,.18)}
+    .post-btn{border:none;padding:12px 18px;border-radius:14px;color:#fff;font-weight:800;background:linear-gradient(145deg,#ff3d3d,#b10f0f);cursor:pointer}.count{color:var(--muted);font-size:12px}
+    .post{border:1px solid var(--line);border-radius:24px;padding:18px;background:rgba(255,255,255,.02);margin-bottom:14px}
+    .post-head{display:flex;gap:12px;align-items:flex-start}.post-meta{min-width:0;flex:1}.post-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+    .post-name{font-weight:900}.post-handle,.post-time{color:var(--muted);font-size:13px}.verified{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--blue);color:#07111d;font-size:11px;font-weight:900}
+    .post-text{margin:12px 0 14px 60px;color:#edf2f7;line-height:1.6;font-size:15px;white-space:pre-wrap;word-wrap:break-word}
+    .post-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-left:60px}
+    .action-btn{border:none;background:transparent;color:var(--muted);padding:10px 12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s ease}
+    .action-btn:hover{background:rgba(255,255,255,.04);color:#fff}.action-btn.liked{color:#ff7b95;background:rgba(255,123,149,.12)}.action-btn.reposted{color:var(--green);background:rgba(74,222,128,.12)}.action-btn.shared{color:#bfdbfe;background:rgba(96,165,250,.12)}
+    .comments{margin:14px 0 0 60px;border-top:1px solid var(--line);padding-top:12px;display:none}.comments.open{display:block}.comment{padding:10px 0;border-top:1px solid rgba(255,255,255,.05)}.comment:first-child{border-top:none}.comment strong{font-size:13px}.comment p{margin:4px 0 0;color:#dbeafe;font-size:13px;line-height:1.45}
+    .comment-box{display:flex;gap:8px;margin-top:10px}.comment-box input{flex:1;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);border-radius:14px;padding:10px 12px;outline:none}.comment-box button{border:none;border-radius:14px;background:linear-gradient(145deg,#ff3d3d,#b10f0f);color:white;font-weight:800;padding:10px 14px;cursor:pointer}
+    .section-title{font-size:12px;text-transform:uppercase;letter-spacing:.24em;color:var(--muted);margin:0 0 14px;font-weight:800}
+    .search{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}.search input{width:100%;border:none;outline:none;background:transparent;color:var(--text)}
+    .widget{padding:16px;border-radius:20px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}.trend,.follow-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,.06)}.trend:first-of-type,.follow-row:first-of-type{border-top:none;padding-top:0}.trend small,.follow-row small{display:block;color:var(--muted);margin-top:4px}.follow-btn{border:none;border-radius:999px;padding:10px 14px;font-weight:800;cursor:pointer;background:#fff;color:#111}
+    .mobile-bottom{display:none;position:fixed;left:calc(12px + env(safe-area-inset-left,0px));right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;background:rgba(18,23,29,.92);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:10px;grid-template-columns:repeat(5,1fr);gap:6px}.mobile-bottom button{border:none;background:transparent;color:var(--muted);padding:10px 6px;border-radius:14px;cursor:pointer;font-size:11px}.mobile-bottom button.active{background:var(--red-soft);color:#fff}
+    .fab{display:none;position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px));width:64px;height:64px;border-radius:22px;border:none;color:#fff;font-size:22px;background:linear-gradient(145deg,#ff3d3d,#b10f0f);box-shadow:0 14px 34px rgba(255,43,43,.28);z-index:31;cursor:pointer}
+    @media(max-width:1180px){.app{grid-template-columns:250px minmax(0,1fr) 300px}}
+    @media(max-width:980px){body{overflow:auto}.app{height:auto;min-height:100dvh;grid-template-columns:1fr;padding:calc(12px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) calc(104px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-left,0px))}.sidebar,.rightbar{display:none}.feed-shell{min-height:0}.mobile-bottom,.fab{display:grid}.fab{display:block}.post-text,.post-actions,.comments{margin-left:0}.feed-top{position:sticky}}
+  </style>
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar card">
-    <div class="brand"><div class="brand-badge">👻</div><h1>MUZZ<span>PRIVATE</span></h1></div>
-    <nav class="nav">
-      <button class="nav-btn" onclick="location.href='index.html'"><span class="nav-icon">🏠</span><span>Home</span></button>
-      <button class="nav-btn" onclick="location.href='chat.html'"><span class="nav-icon">💬</span><span>Public Chat</span></button>
-      <button class="nav-btn active"><span class="nav-icon">🔐</span><span>Private</span></button>
-      <button class="nav-btn" onclick="location.href='social.html'"><span class="nav-icon">🌐</span><span>Social</span></button>
-      <button class="nav-btn" onclick="location.href='swap.html'"><span class="nav-icon">🛒</span><span>Buy Muzz</span></button>
-    </nav>
-    <button class="compose-main" onclick="document.getElementById('walletInput').focus()">New Private Chat</button>
-    <div class="profile-mini"><div class="avatar red" id="meAvatar">M</div><div style="min-width:0;flex:1"><div class="name" id="meName">Connecting...</div><div class="sub" id="meHandle">wallet required</div></div></div>
-  </aside>
+  <div class="app">
+    <aside class="sidebar card">
+      <div class="brand"><div class="brand-badge">👻</div><h1>MUZZ<span>SOCIAL</span></h1></div>
+      <nav class="nav">
+        <button class="nav-btn" onclick="location.href='index.html'"><span class="nav-icon">🏠</span><span>Home</span></button>
+        <button class="nav-btn active"><span class="nav-icon">🌐</span><span>Social</span></button>
+        <button class="nav-btn" onclick="goToChat(event)"><span class="nav-icon">💬</span><span>Chat</span></button>
+        <button class="nav-btn" onclick="location.href='private.html'"><span class="nav-icon">🔒</span><span>Private</span></button>
+        <button class="nav-btn" onclick="location.href='game.html'"><span class="nav-icon">🎮</span><span>Game</span></button>
+      </nav>
+      <button class="compose-main" id="openComposer">Post something</button>
+      <div class="profile-mini"><div class="avatar" id="meAvatar">MZ</div><div style="min-width:0;flex:1"><div class="name" id="meName">Muzz User</div><div class="sub" id="meHandle">@muzzuser</div></div></div>
+    </aside>
 
-  <main class="chat-shell card">
-    <div class="chat-top" id="chatHeader"><div class="chat-title"><div class="avatar">🔐</div><div><h2>Private Messages</h2><div class="small muted">Select or add a wallet to start.</div></div></div><div class="pill">Firebase Inbox</div></div>
-    <div class="messages" id="messages"><div class="empty">Loading private inbox...</div></div>
-    <div class="composer">
-      <div class="composer-box">
-        <textarea id="messageInput" placeholder="Write a private message..." disabled></textarea>
-        <button class="send" id="sendBtn" disabled>➤</button>
+    <main class="feed-shell card">
+      <div class="feed-top"><h2>Social</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="ghost-btn" onclick="goToChat(event)">Chat</button><button class="ghost-btn" id="refreshBtn">Refresh</button></div></div>
+      <div class="feed-scroll" id="feedScroll">
+        <section class="composer" id="composerCard">
+          <div class="composer-head"><div class="avatar" id="composerAvatar">MZ</div><div style="flex:1;min-width:0"><textarea id="postInput" maxlength="280" placeholder="What’s happening in MUZZ world?"></textarea><div class="composer-tools"><div class="tools-left"><span class="tool-pill">Crypto</span><span class="tool-pill">Community</span><span class="tool-pill">Project update</span></div><div style="display:flex;align-items:center;gap:12px"><span class="count" id="charCount">0 / 280</span><button class="post-btn" id="publishBtn">Post</button></div></div></div></div>
+        </section>
+        <div id="feed"></div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <aside class="rightbar card">
-    <div class="search"><span>🔎</span><input id="searchInput" type="text" placeholder="Search wallet or username"></div>
-    <section class="widget add-wallet">
-      <p class="section-title">Send to Wallet</p>
-      <input id="walletInput" placeholder="0x... wallet address">
-      <button class="btn" onclick="startWalletChat()">Start Private Chat</button>
-      <div id="noticeBox" class="notice" style="display:none"></div>
-    </section>
-    <section class="widget" style="min-height:0;display:flex;flex-direction:column;flex:1">
-      <p class="section-title">Conversations</p>
-      <div class="contact-list" id="contactList"></div>
-    </section>
-  </aside>
-</div>
+    <aside class="rightbar card">
+      <div class="search"><span>🔎</span><input type="text" placeholder="Search Muzz Social" id="searchInput"></div>
+      <section class="widget"><p class="section-title">Live counters</p><div class="trend"><div><strong id="postTotal">0 posts</strong><small>Firebase synced</small></div><span style="color:var(--muted)">LIVE</span></div><div class="trend"><div><strong id="actionTotal">0 actions</strong><small>Likes · RT · Share</small></div><span style="color:var(--muted)">REAL</span></div></section>
+      <section class="widget"><p class="section-title">Official Links</p><div class="trend"><div><strong>X.com</strong><small>@MuzzleToken</small></div><button class="follow-btn" onclick="window.open('https://x.com/MuzzleToken','_blank')">Open</button></div><div class="trend"><div><strong>Telegram</strong><small>MuzzSnap community</small></div><button class="follow-btn" onclick="window.open('https://t.me/MuzzSnap','_blank')">Open</button></div></section>
+    </aside>
+  </div>
 
-<div class="mobile-bottom">
-  <button onclick="location.href='index.html'">Home</button>
-  <button onclick="location.href='chat.html'">Chat</button>
-  <button class="active">Private</button>
-  <button onclick="location.href='social.html'">Social</button>
-  <button onclick="location.href='swap.html'">Buy</button>
-</div>
+  <div class="mobile-bottom"><button onclick="location.href='index.html'">Home</button><button class="active">Social</button><button onclick="goToChat(event)">Chat</button><button onclick="location.href='private.html'">Private</button><button onclick="location.href='game.html'">Game</button></div>
+  <button class="fab" id="fabBtn">＋</button>
 
-<script>
-const firebaseConfig={apiKey:atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),authDomain:atob('cHVsc2FyaS5maXJlYmFzZWFwcC5jb20='),databaseURL:atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),projectId:atob('cHVsc2FyaQ=='),storageBucket:atob('cHVsc2FyaS5maXJlYmFzZXN0b3JhZ2UuYXBw'),messagingSenderId:atob('ODI0MzA2MzIxMjMz'),appId:atob('MTo4MjQzMDYzMjEyMzM6d2ViOjJjOWJmYTAyMTcwYTE3ZDU2MGI1NzA=')};
-if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
-const db=firebase.database();
-const ADMIN_WALLETS=['0x208157b5ec396759e8754058108ecf53e32392ff','0xfab5835ca14fb3f9f978c5e4d733734e6394e03f','0x875c5a7794b601f273da58e3c1d10671d16130ec'];
-let me={uid:null,wallet:null,name:'',role:'user'},activeWallet=null,activeConversationId=null,contacts={},statusMap={},messagesRef=null,contactsRef=null,statusRef=null,registryRef=null;
-const $=id=>document.getElementById(id);
-function normalizeAddress(a){return String(a||'').trim().toLowerCase()}
-function isWallet(a){return /^0x[a-fA-F0-9]{40}$/.test(String(a||'').trim())}
-function safeKey(v){return String(v||'').replace(/[.#$/\[\]]/g,'_')}
-function initials(t){return String(t||'M').replace(/[^a-zA-Z0-9]/g,'').slice(0,2).toUpperCase()||'M'}
-function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function shortWallet(w){return w?`${w.slice(0,6)}...${w.slice(-4)}`:'unknown'}
-function conversationId(a,b){return [normalizeAddress(a),normalizeAddress(b)].sort().map(safeKey).join('__')}
-function nowTime(ts=Date.now()){return new Date(ts).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})}
-function showNotice(text,type='warn'){const box=$('noticeBox');box.className='notice '+(type==='error'?'error':'');box.textContent=text;box.style.display='block'}
-function clearNotice(){const box=$('noticeBox');box.style.display='none';box.textContent=''}
-function getDisplayName(wallet, fallback){const reg=contacts[wallet]?.registry;return reg?.username || fallback || `Node_${wallet.slice(-4)}`}
-function renderMe(){ $('meName').textContent=me.name; $('meHandle').textContent=shortWallet(me.wallet); $('meAvatar').textContent=initials(me.name); }
-async function boot(){
-  const sessionWallet=normalizeAddress(sessionStorage.getItem('muzz_wallet_address'));
-  const method=sessionStorage.getItem('muzz_login_method');
-  if(!sessionWallet||!method||sessionWallet.startsWith('guest_')||!isWallet(sessionWallet)){alert('Private messages require wallet login.');location.href='index.html';return;}
-  await firebase.auth().signInAnonymously();
-  me.uid=firebase.auth().currentUser.uid; me.wallet=sessionWallet;
-  me.role=ADMIN_WALLETS.includes(sessionWallet)?'admin':'user'; me.name=me.role==='admin'?'Muzz Admin':`Node_${sessionWallet.slice(-4)}`;
-  if(sessionWallet===ADMIN_WALLETS[0])me.name='Ryachu'; if(sessionWallet===ADMIN_WALLETS[1])me.name='Itsuki'; if(sessionWallet===ADMIN_WALLETS[2])me.name='Esteban';
-  renderMe();
-  statusRef=db.ref(`status/${me.uid}`); statusRef.onDisconnect().remove(); statusRef.set({uid:me.uid,username:me.name,role:me.role,wallet:me.wallet,identityKey:`wallet_${safeKey(me.wallet)}`,lastSeen:firebase.database.ServerValue.TIMESTAMP});
-  registryRef=db.ref(`walletRegistry/${me.wallet}`); registryRef.update({wallet:me.wallet,username:me.name,role:me.role,isWallet:true,isAdmin:me.role==='admin',active:true,lastLogin:firebase.database.ServerValue.TIMESTAMP,lastSeen:firebase.database.ServerValue.TIMESTAMP}); registryRef.child('active').onDisconnect().set(false); registryRef.child('lastSeen').onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
-  db.ref('status').on('value',snap=>{statusMap={}; const val=snap.val()||{}; Object.values(val).forEach(u=>{if(u.wallet)statusMap[normalizeAddress(u.wallet)]=u}); renderContacts(); if(activeWallet)renderHeader();});
-  contactsRef=db.ref(`privateContacts/${safeKey(me.wallet)}`); contactsRef.on('value',async snap=>{const val=snap.val()||{}; contacts={}; Object.keys(val).forEach(k=>{const c=val[k]; contacts[normalizeAddress(c.wallet)]=c}); await loadRegistryForContacts(); renderContacts(); if(!activeWallet){const first=Object.keys(contacts)[0]; if(first)selectContact(first)}});
-}
-async function loadRegistryForContacts(){const wallets=Object.keys(contacts); await Promise.all(wallets.map(async w=>{try{const snap=await db.ref(`walletRegistry/${w}`).once('value');contacts[w].registry=snap.val()||null}catch(e){}}));}
-async function startWalletChat(){clearNotice(); const target=normalizeAddress($('walletInput').value); if(!isWallet(target)){showNotice('Enter a valid Ethereum wallet address.', 'error');return} if(target===me.wallet){showNotice('You cannot send a private message to yourself.', 'error');return} await addContact(target); $('walletInput').value=''; selectContact(target);}
-async function addContact(target){const cid=conversationId(me.wallet,target); const contactForMe={wallet:target,conversationId:cid,updatedAt:firebase.database.ServerValue.TIMESTAMP}; const contactForThem={wallet:me.wallet,conversationId:cid,updatedAt:firebase.database.ServerValue.TIMESTAMP}; await Promise.all([db.ref(`privateContacts/${safeKey(me.wallet)}/${safeKey(target)}`).update(contactForMe),db.ref(`privateContacts/${safeKey(target)}/${safeKey(me.wallet)}`).update(contactForThem),db.ref(`privateConversations/${cid}/members/${safeKey(me.wallet)}`).set(true),db.ref(`privateConversations/${cid}/members/${safeKey(target)}`).set(true),db.ref(`privateConversations/${cid}/updatedAt`).set(firebase.database.ServerValue.TIMESTAMP)]);}
-function selectContact(wallet){activeWallet=normalizeAddress(wallet);activeConversationId=conversationId(me.wallet,activeWallet); if(messagesRef)messagesRef.off(); messagesRef=db.ref(`privateConversations/${activeConversationId}/messages`).limitToLast(100); messagesRef.on('value',snap=>renderMessages(snap.val()||{})); renderContacts(); renderHeader(); $('messageInput').disabled=false; $('sendBtn').disabled=false; $('messageInput').focus();}
-function renderContacts(){const list=$('contactList'); if(!list)return; const query=normalizeAddress($('searchInput')?.value||''); const arr=Object.values(contacts).filter(c=>{const w=normalizeAddress(c.wallet); const name=getDisplayName(w); return !query||w.includes(query)||name.toLowerCase().includes(query)}).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)); if(!arr.length){list.innerHTML='<div class="empty" style="height:auto;padding:18px">No private conversations yet.<br>Add a wallet address to start.</div>';return} list.innerHTML=arr.map(c=>{const w=normalizeAddress(c.wallet); const online=!!statusMap[w]; const name=getDisplayName(w); return `<button class="contact ${w===activeWallet?'active':''}" onclick="selectContact('${w}')"><div class="avatar">${initials(name)}</div><div style="min-width:0;flex:1"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(name)}</strong><span class="status-dot ${online?'online':''}"></span></div><small>${escapeHtml(shortWallet(w))} · ${online?'Online':'Offline'}</small></div></button>`}).join('');}
-function renderHeader(){const w=activeWallet; if(!w)return; const online=!!statusMap[w]; const name=getDisplayName(w); $('chatHeader').innerHTML=`<div class="chat-title"><div class="avatar">${initials(name)}</div><div style="min-width:0"><h2>${escapeHtml(name)}</h2><div class="small muted"><span class="status-dot ${online?'online':''}"></span> ${online?'Online':'Offline'} · ${escapeHtml(shortWallet(w))}</div></div></div><div class="pill">Stored inbox</div>`;}
-function renderMessages(data){const box=$('messages'); const arr=Object.keys(data).map(id=>({id,...data[id]})).sort((a,b)=>(a.timestamp||0)-(b.timestamp||0)); if(!arr.length){box.innerHTML='<div class="empty">No messages yet.<br>Messages are stored in Firebase and stay available while the recipient is offline.</div>';return} let html='<div class="day">PRIVATE</div>'; arr.forEach(m=>{const mine=normalizeAddress(m.fromWallet)===me.wallet; const sender=mine?me.name:getDisplayName(normalizeAddress(m.fromWallet)); html+=`<div class="msg-wrap ${mine?'me':''}"><div class="avatar ${mine?'red':''}" style="width:36px;height:36px;font-size:13px">${initials(sender)}</div><div><div class="meta">${escapeHtml(sender)} · ${escapeHtml(nowTime(m.timestamp))}</div><div class="bubble">${escapeHtml(m.text)}</div></div></div>`}); box.innerHTML=html; box.scrollTop=box.scrollHeight;}
-async function sendMessage(){const input=$('messageInput'); const text=input.value.trim(); if(!text||!activeWallet||!activeConversationId)return; const msg={text,fromWallet:me.wallet,toWallet:activeWallet,fromName:me.name,timestamp:firebase.database.ServerValue.TIMESTAMP,read:false}; const updates={}; const key=db.ref().push().key; updates[`privateConversations/${activeConversationId}/messages/${key}`]=msg; updates[`privateConversations/${activeConversationId}/updatedAt`]=firebase.database.ServerValue.TIMESTAMP; updates[`privateContacts/${safeKey(me.wallet)}/${safeKey(activeWallet)}/updatedAt`]=firebase.database.ServerValue.TIMESTAMP; updates[`privateContacts/${safeKey(activeWallet)}/${safeKey(me.wallet)}/updatedAt`]=firebase.database.ServerValue.TIMESTAMP; updates[`privateInbox/${safeKey(activeWallet)}/${key}`]={conversationId:activeConversationId,fromWallet:me.wallet,fromName:me.name,text,timestamp:firebase.database.ServerValue.TIMESTAMP,read:false}; await db.ref().update(updates); input.value=''; autoResizeInput();}
-const input=$('messageInput'); function autoResizeInput(){input.style.height='26px'; input.style.height=Math.min(input.scrollHeight,140)+'px'}
-$('sendBtn').addEventListener('click',sendMessage); input.addEventListener('input',autoResizeInput); input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}); $('searchInput').addEventListener('input',renderContacts); window.addEventListener('resize',autoResizeInput);
-window.selectContact=selectContact; window.startWalletChat=startWalletChat; window.addEventListener('beforeunload',()=>{try{if(statusRef)statusRef.remove()}catch(e){}});
-boot().catch(err=>{console.error(err);alert('Private chat failed to load. Check Firebase rules and login session.');});
-</script>
+  <script>
+    const firebaseConfig = {
+      apiKey: atob('QUl6YVN5QWUxLUpmTmRlME5LSU1kRTdwaGZFWGxtOUphcVVIMGpZ'),
+      authDomain: atob('cHVsc2FyaS5maXJlYmFzZWFwcC5jb20='),
+      databaseURL: atob('aHR0cHM6Ly9wdWxzYXJpLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=='),
+      projectId: atob('cHVsc2FyaQ=='),
+      storageBucket: atob('cHVsc2FyaS5maXJlYmFzZXN0b3JhZ2UuYXBw'),
+      messagingSenderId: atob('ODI0MzA2MzIxMjMz'),
+      appId: atob('MTo4MjQzMDYzMjEyMzM6d2ViOjJjOWJmYTAyMTcwYTE3ZDU2MGI1NzA=')
+    };
+    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const wallet = sessionStorage.getItem('muzz_wallet_address');
+    const loginMethod = sessionStorage.getItem('muzz_login_method');
+    if(!wallet || !loginMethod){ location.href='index.html'; }
+
+    const safeKey = v => String(v||'').replace(/[.#$/\[\]]/g,'_').toLowerCase();
+    const userKey = safeKey(wallet);
+    const savedName = sessionStorage.getItem('muzz_username');
+    const isGuest = wallet.startsWith('guest_');
+    const meName = savedName || (isGuest ? wallet.replace('guest_','') : 'Node_' + wallet.slice(-4));
+    const meHandle = '@' + meName.toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,18);
+
+    document.getElementById('meName').textContent = meName;
+    document.getElementById('meHandle').textContent = meHandle;
+    document.getElementById('meAvatar').textContent = meName.slice(0,2).toUpperCase();
+    document.getElementById('composerAvatar').textContent = meName.slice(0,2).toUpperCase();
+
+    let posts = {};
+    let commentsByPost = {};
+    let actionsByPost = {};
+    let searchTerm = '';
+
+    function goToChat(e){ if(e) e.preventDefault(); location.href='chat.html'; }
+    function goComposer(){ document.getElementById('composerCard').scrollIntoView({behavior:'smooth',block:'start'}); document.getElementById('postInput').focus(); }
+
+    function escapeHtml(str){ return String(str||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+    function shortTime(ts){ if(!ts) return 'now'; const diff=Date.now()-ts; if(diff<60000)return'now'; if(diff<3600000)return Math.floor(diff/60000)+'m'; if(diff<86400000)return Math.floor(diff/3600000)+'h'; return Math.floor(diff/86400000)+'d'; }
+    function count(obj){ return obj ? Object.keys(obj).length : 0; }
+    function isMineAction(postId,type){ return !!(actionsByPost[postId] && actionsByPost[postId][type] && actionsByPost[postId][type][userKey]); }
+
+    function renderPosts(){
+      let arr = Object.entries(posts || {}).map(([id,p])=>({id,...p})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+      if(searchTerm) arr = arr.filter(p => (p.text||'').toLowerCase().includes(searchTerm) || (p.username||'').toLowerCase().includes(searchTerm));
+      document.getElementById('postTotal').textContent = arr.length + ' posts';
+
+      let totalActions = 0;
+      Object.values(actionsByPost || {}).forEach(a => totalActions += count(a.likes)+count(a.reposts)+count(a.shares));
+      document.getElementById('actionTotal').textContent = totalActions + ' actions';
+
+      document.getElementById('feed').innerHTML = arr.map(post=>{
+        const a = actionsByPost[post.id] || {};
+        const comments = commentsByPost[post.id] || {};
+        const likes = count(a.likes);
+        const reposts = count(a.reposts);
+        const shares = count(a.shares);
+        const commentCount = count(comments);
+        const liked = isMineAction(post.id,'likes');
+        const reposted = isMineAction(post.id,'reposts');
+        const shared = isMineAction(post.id,'shares');
+        const commentsHtml = Object.entries(comments).sort((x,y)=>(x[1].createdAt||0)-(y[1].createdAt||0)).map(([cid,c])=>`
+          <div class="comment"><strong>${escapeHtml(c.username)}</strong><p>${escapeHtml(c.text)}</p></div>
+        `).join('');
+
+        return `
+          <article class="post" id="post-${post.id}">
+            <div class="post-head">
+              <div class="avatar">${escapeHtml((post.username||'MU').slice(0,2).toUpperCase())}</div>
+              <div class="post-meta"><div class="post-name-row"><span class="post-name">${escapeHtml(post.username)}</span><span class="verified">✓</span><span class="post-handle">${escapeHtml(post.handle || '')}</span><span class="post-time">· ${shortTime(post.createdAt)}</span></div></div>
+            </div>
+            <div class="post-text">${escapeHtml(post.text)}</div>
+            <div class="post-actions">
+              <button class="action-btn" onclick="toggleComments('${post.id}')">💬 <span>${commentCount}</span></button>
+              <button class="action-btn ${reposted?'reposted':''}" onclick="toggleAction('${post.id}','reposts')">🔁 <span>${reposts}</span></button>
+              <button class="action-btn ${liked?'liked':''}" onclick="toggleAction('${post.id}','likes')">❤ <span>${likes}</span></button>
+              <button class="action-btn ${shared?'shared':''}" onclick="sharePost('${post.id}')">↗ <span>${shares}</span></button>
+            </div>
+            <div class="comments" id="comments-${post.id}">
+              ${commentsHtml || '<div class="comment"><p>No comments yet.</p></div>'}
+              <div class="comment-box"><input id="comment-input-${post.id}" placeholder="Write a comment..."><button onclick="addComment('${post.id}')">Reply</button></div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function publishPost(){
+      const input = document.getElementById('postInput');
+      const text = input.value.trim();
+      if(!text) return;
+      const ref = db.ref('social/posts').push();
+      ref.set({
+        username: meName,
+        handle: meHandle,
+        wallet,
+        userKey,
+        text,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      input.value = '';
+      updateCount();
+      document.getElementById('feedScroll').scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function toggleAction(postId,type){
+      const ref = db.ref(`social/actions/${postId}/${type}/${userKey}`);
+      const snap = await ref.once('value');
+      if(snap.exists()) ref.remove();
+      else ref.set({ wallet, username: meName, at: firebase.database.ServerValue.TIMESTAMP });
+    }
+
+    async function sharePost(postId){
+      await db.ref(`social/actions/${postId}/shares/${userKey}`).set({ wallet, username: meName, at: firebase.database.ServerValue.TIMESTAMP });
+      const post = posts[postId];
+      const text = post ? `${post.username}: ${post.text}\n\nMuzzSnap Social` : 'MuzzSnap Social';
+      if(navigator.share){ navigator.share({title:'MuzzSnap Social', text}).catch(()=>{}); }
+      else{ navigator.clipboard.writeText(text).then(()=>alert('Post copied to clipboard.')).catch(()=>alert(text)); }
+    }
+
+    function toggleComments(postId){
+      const el = document.getElementById(`comments-${postId}`);
+      if(el) el.classList.toggle('open');
+    }
+
+    function addComment(postId){
+      const input = document.getElementById(`comment-input-${postId}`);
+      const text = input.value.trim();
+      if(!text) return;
+      db.ref(`social/comments/${postId}`).push({
+        username: meName,
+        handle: meHandle,
+        wallet,
+        userKey,
+        text,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      input.value = '';
+    }
+
+    function updateCount(){ document.getElementById('charCount').textContent = `${document.getElementById('postInput').value.length} / 280`; }
+
+    window.toggleAction = toggleAction;
+    window.sharePost = sharePost;
+    window.toggleComments = toggleComments;
+    window.addComment = addComment;
+    window.goToChat = goToChat;
+
+    firebase.auth().signInAnonymously().then(()=>{
+      db.ref(`social/users/${userKey}`).update({
+        wallet, username: meName, handle: meHandle,
+        lastSeen: firebase.database.ServerValue.TIMESTAMP
+      });
+      db.ref('social/posts').limitToLast(100).on('value', snap => { posts = snap.val() || {}; renderPosts(); });
+      db.ref('social/actions').on('value', snap => { actionsByPost = snap.val() || {}; renderPosts(); });
+      db.ref('social/comments').on('value', snap => { commentsByPost = snap.val() || {}; renderPosts(); });
+    }).catch(err => {
+      alert('Firebase auth failed. Check Firebase Auth Anonymous provider.');
+      console.error(err);
+    });
+
+    document.getElementById('publishBtn').addEventListener('click', publishPost);
+    document.getElementById('postInput').addEventListener('input', updateCount);
+    document.getElementById('postInput').addEventListener('keydown', e => { if((e.ctrlKey||e.metaKey)&&e.key==='Enter') publishPost(); });
+    document.getElementById('openComposer').addEventListener('click', goComposer);
+    document.getElementById('fabBtn').addEventListener('click', goComposer);
+    document.getElementById('refreshBtn').addEventListener('click', renderPosts);
+    document.getElementById('searchInput').addEventListener('input', e => { searchTerm = e.target.value.trim().toLowerCase(); renderPosts(); });
+    updateCount();
+  </script>
 </body>
 </html>
