@@ -1293,15 +1293,18 @@ function App(){
         </div>
 
         <nav className="x-nav">
-          <a href="index.html"><i className="fas fa-house"></i><span>Home</span></a>
-          <a href="whitepaper.html"><i className="fas fa-file-lines"></i><span>Whitepaper</span></a>
-          <a href="muzzsnap.html"><i className="fas fa-bolt"></i><span>MuzzSnap</span></a>
-          <a href="social.html"><i className="fas fa-rss"></i><span>Social</span></a>
-          <a href="muzzstudio.html"><i className="fas fa-clapperboard"></i><span>MuzzStudio</span></a>
-          <a href="swap.html"><i className="fas fa-cart-shopping"></i><span>Buy Muzz</span></a>
-          <a href="https://t.me/MuzzSnap" target="_blank"><i className="fab fa-telegram"></i><span>Telegram</span></a>
-          <a href="https://x.com/MuzzleToken" target="_blank"><i className="fab fa-x-twitter"></i><span>X.com</span></a>
-          <a href="mailto:muzzsnapofficial@gmail.com"><i className="fas fa-envelope"></i><span>Contact</span></a>
+          <button class="nav-btn active" onclick="location.href='index.html'"><span class="nav-icon">🏠</span><span>Home</span></button>
+      <button class="nav-btn" onclick="location.href='white.html'"><span class="nav-icon">📄</span><span>Whitepaper</span></button>
+      <button class="nav-btn" onclick="showMuzzLogin()"><span class="nav-icon">⚡</span><span>MuzzSnap</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('chat.html')"><span class="nav-icon">💬</span><span>Chat</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('social.html')"><span class="nav-icon">🌐</span><span>Social</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('private.html')"><span class="nav-icon">🔒</span><span>Private</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('game.html')"><span class="nav-icon">🎮</span><span>Game</span></button>
+      <button class="nav-btn" onclick="location.href='muzzstudio.html'"><span class="nav-icon">🎬</span><span>MuzzStudio</span></button>
+      <button class="nav-btn" onclick="location.href='swap.html'"><span class="nav-icon">🛒</span><span>Buy Muzz</span></button>
+      <button class="nav-btn" onclick="window.open('https://t.me/MuzzSnap','_blank')"><span class="nav-icon">✈️</span><span>Telegram</span></button>
+      <button class="nav-btn" onclick="window.open('https://x.com/MuzzleToken','_blank')"><span class="nav-icon">𝕏</span><span>X.com</span></button>
+      <button class="nav-btn" onclick="location.href='mailto:muzzsnapofficial@gmail.com'"><span class="nav-icon">✉️</span><span>Contact</span></button>
         </nav>
 
         <button className="x-post-btn">Post</button>
