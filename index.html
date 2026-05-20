@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>MuzzSnap</title>
 <meta name="theme-color" content="#111418">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-
 <style>
 :root{
   --bg:#20262d;--panel:#12171d;--soft:#1a2028;--soft-2:#232b35;
@@ -25,150 +23,51 @@ body{
   radial-gradient(circle at bottom left,rgba(96,165,250,.07),transparent 20%),var(--bg);
   color:var(--text);overflow:hidden;font-size:14px;
 }
-button,input,textarea{font:inherit}
-a{text-decoration:none;color:inherit}
+button,input,textarea{font:inherit}a{text-decoration:none;color:inherit}
 .app{display:grid;grid-template-columns:280px minmax(0,720px) 340px;gap:18px;height:100vh;max-width:1450px;margin:0 auto;padding:18px}
 .card{background:rgba(18,23,29,.92);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(10px)}
-.sidebar,.rightbar,.feed-shell{min-height:0;display:flex;flex-direction:column}
-.sidebar,.rightbar{padding:18px}
-.brand{display:flex;align-items:center;gap:12px;padding:6px 4px 18px;margin-bottom:8px}
-.brand-badge{width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(145deg,#ff3b3b,#9d1111);box-shadow:0 0 24px rgba(255,43,43,.25);font-size:20px}
-.brand h1{margin:0;font-size:24px;letter-spacing:-.04em;font-weight:900;font-style:italic}
-.brand span{color:var(--red)}
-.nav{display:flex;flex-direction:column;gap:8px;margin:6px 0 16px}
-.nav-btn{
-  border:none;background:transparent;color:var(--text);display:flex;align-items:center;gap:14px;
-  padding:12px 13px;border-radius:18px;cursor:pointer;transition:.2s ease;text-align:left;width:100%;
-}
-.nav-btn:hover,.nav-btn.active{background:var(--red-soft);color:#fff}
-.nav-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.05);font-size:15px;flex-shrink:0}
+.sidebar,.rightbar,.feed-shell{min-height:0;display:flex;flex-direction:column}.sidebar,.rightbar{padding:18px}
+.brand{display:flex;align-items:center;gap:12px;padding:6px 4px 18px;margin-bottom:8px}.brand-badge{width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(145deg,#ff3b3b,#9d1111);box-shadow:0 0 24px rgba(255,43,43,.25);font-size:20px}.brand h1{margin:0;font-size:24px;letter-spacing:-.04em;font-weight:900;font-style:italic}.brand span{color:var(--red)}
+.nav{display:flex;flex-direction:column;gap:8px;margin:6px 0 16px}.nav-btn{border:none;background:transparent;color:var(--text);display:flex;align-items:center;gap:14px;padding:12px 13px;border-radius:18px;cursor:pointer;transition:.2s ease;text-align:left;width:100%}.nav-btn:hover,.nav-btn.active{background:var(--red-soft);color:#fff}.nav-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.05);font-size:15px;flex-shrink:0}
 .compose-main{margin:10px 0 18px;padding:14px 18px;border:none;border-radius:18px;font-weight:800;color:#fff;background:linear-gradient(145deg,#ff3d3d,#b10f0f);cursor:pointer;box-shadow:0 12px 30px rgba(255,43,43,.22)}
-.profile-mini{margin-top:auto;display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:var(--soft);border:1px solid var(--line)}
-.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#3a4552,#19202a);border:1px solid rgba(255,255,255,.08);font-weight:800;flex-shrink:0}
-.profile-mini .name{font-weight:800}.profile-mini .sub{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}
-.feed-shell{overflow:hidden}
-.feed-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);background:rgba(18,23,29,.84);backdrop-filter:blur(14px);border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}
-.feed-top h2{margin:0;font-size:18px;letter-spacing:-.03em}
-.ghost-btn{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:10px 14px;border-radius:14px;cursor:pointer}
-.feed-scroll{overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px;min-height:0}
-.composer{padding:18px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01))}
-.composer-head{display:flex;gap:14px;align-items:flex-start}
-.composer textarea{width:100%;min-height:88px;resize:none;border:none;outline:none;background:transparent;color:var(--text);font-size:15px;line-height:1.4}
-.composer-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap}
-.tools-left{display:flex;gap:8px;flex-wrap:wrap}
-.tool-pill{padding:9px 12px;border-radius:999px;background:rgba(96,165,250,.12);color:#bfdbfe;font-size:12px;border:1px solid rgba(96,165,250,.18)}
-.post-btn{border:none;padding:12px 18px;border-radius:14px;color:#fff;font-weight:800;background:linear-gradient(145deg,#ff3d3d,#b10f0f);cursor:pointer}
-.count{color:var(--muted);font-size:12px}
-.post{border:1px solid var(--line);border-radius:24px;padding:18px;background:rgba(255,255,255,.02)}
-.post-head{display:flex;gap:12px;align-items:flex-start}
-.post-meta{min-width:0;flex:1}.post-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
-.post-name{font-weight:900}.post-handle,.post-time{color:var(--muted);font-size:13px}
-.verified{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--blue);color:#07111d;font-size:11px;font-weight:900}
-.post-text{margin:12px 0 14px 60px;color:#edf2f7;line-height:1.6;font-size:15px;white-space:pre-wrap;word-wrap:break-word}
-.post-media{margin:0 0 14px 60px;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,43,43,.14),rgba(96,165,250,.14));min-height:190px;display:grid;place-items:center;color:#fff}
-.media-demo{padding:30px;text-align:center}.media-demo strong{display:block;font-size:24px;letter-spacing:-.04em}.media-demo span{display:block;margin-top:10px;color:#dbeafe}
-.post-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-left:60px}
-.action-btn{border:none;background:transparent;color:var(--muted);padding:10px 12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s ease}
-.action-btn:hover{background:rgba(255,255,255,.04);color:#fff}.action-btn.liked{color:#ff7b95;background:rgba(255,123,149,.12)}.action-btn.reposted{color:var(--green);background:rgba(74,222,128,.12)}
-.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.24em;color:var(--muted);margin:0 0 14px;font-weight:800}
-.search{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}
-.search input{width:100%;border:none;outline:none;background:transparent;color:var(--text)}
-.widget{padding:16px;border-radius:20px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}
-.trend,.follow-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,.06)}
-.trend:first-of-type,.follow-row:first-of-type{border-top:none;padding-top:0}
-.trend small,.follow-row small{display:block;color:var(--muted);margin-top:4px}
-.follow-btn{border:none;border-radius:999px;padding:10px 14px;font-weight:800;cursor:pointer;background:#fff;color:#111}
-.login-panel{display:none}
-.login-panel.active{display:block}
-.login-logo{width:112px;height:112px;margin:0 auto 14px;position:relative;cursor:pointer}
-.login-logo img{width:100%;height:100%;object-fit:cover;border-radius:24px;border:1px solid var(--line);box-shadow:0 0 34px rgba(255,43,43,.22)}
-.login-panel h2{text-align:center;margin:0 0 6px;font-size:24px;font-weight:900;font-style:italic}
-.login-panel h2 span{color:var(--red)}
-.login-status{text-align:center;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.22em;line-height:1.5;margin:0 0 14px}
-.login-input{width:100%;height:44px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#39ff14;text-align:center;padding:0 14px;outline:none;margin-bottom:10px}
-.login-btn,.back-btn{width:100%;height:42px;border-radius:999px;border:none;font-weight:900;cursor:pointer;margin-top:8px}
-.login-btn{background:#fff;color:#111}.back-btn{background:transparent;color:var(--text);border:1px solid var(--line)}
-.error-box{display:none;margin-top:12px;padding:10px;border-radius:14px;background:rgba(255,43,43,.12);border:1px solid rgba(255,43,43,.35);color:#ff9aa0}
-.error-box small{display:block;color:var(--muted);margin-top:4px}
-.hidden-loader{display:none;position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:24px;align-items:center;justify-content:center}
-.loading-spinner{width:36px;height:36px;border:3px solid transparent;border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.mobile-bottom{display:none;position:fixed;left:calc(12px + var(--safe-left));right:calc(12px + var(--safe-right));bottom:calc(12px + var(--safe-bottom));z-index:30;background:rgba(18,23,29,.92);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:10px;grid-template-columns:repeat(5,1fr);gap:6px}
-.mobile-bottom button{border:none;background:transparent;color:var(--muted);padding:10px 6px;border-radius:14px;cursor:pointer;font-size:11px}
-.mobile-bottom button.active{background:var(--red-soft);color:#fff}
-.fab{display:none;position:fixed;right:calc(18px + var(--safe-right));bottom:calc(86px + var(--safe-bottom));width:64px;height:64px;border-radius:22px;border:none;color:#fff;font-size:22px;background:linear-gradient(145deg,#ff3d3d,#b10f0f);box-shadow:0 14px 34px rgba(255,43,43,.28);z-index:31;cursor:pointer}
+.profile-mini{margin-top:auto;display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:var(--soft);border:1px solid var(--line)}.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#3a4552,#19202a);border:1px solid rgba(255,255,255,.08);font-weight:800;flex-shrink:0}.profile-mini .name{font-weight:800}.profile-mini .sub{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.feed-shell{overflow:hidden}.feed-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);background:rgba(18,23,29,.84);backdrop-filter:blur(14px);border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}.feed-top h2{margin:0;font-size:18px;letter-spacing:-.03em}.ghost-btn{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:10px 14px;border-radius:14px;cursor:pointer}
+.feed-scroll{overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px;min-height:0}.composer{padding:18px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01))}.composer-head{display:flex;gap:14px;align-items:flex-start}.composer textarea{width:100%;min-height:88px;resize:none;border:none;outline:none;background:transparent;color:var(--text);font-size:15px;line-height:1.4}.composer-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap}.tools-left{display:flex;gap:8px;flex-wrap:wrap}.tool-pill{padding:9px 12px;border-radius:999px;background:rgba(96,165,250,.12);color:#bfdbfe;font-size:12px;border:1px solid rgba(96,165,250,.18)}.post-btn{border:none;padding:12px 18px;border-radius:14px;color:#fff;font-weight:800;background:linear-gradient(145deg,#ff3d3d,#b10f0f);cursor:pointer}.count{color:var(--muted);font-size:12px}
+.post{border:1px solid var(--line);border-radius:24px;padding:18px;background:rgba(255,255,255,.02)}.post-head{display:flex;gap:12px;align-items:flex-start}.post-meta{min-width:0;flex:1}.post-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}.post-name{font-weight:900}.post-handle,.post-time{color:var(--muted);font-size:13px}.verified{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--blue);color:#07111d;font-size:11px;font-weight:900}.post-text{margin:12px 0 14px 60px;color:#edf2f7;line-height:1.6;font-size:15px;white-space:pre-wrap;word-wrap:break-word}.post-media{margin:0 0 14px 60px;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,43,43,.14),rgba(96,165,250,.14));min-height:190px;display:grid;place-items:center;color:#fff}.media-demo{padding:30px;text-align:center}.media-demo strong{display:block;font-size:24px;letter-spacing:-.04em}.media-demo span{display:block;margin-top:10px;color:#dbeafe}.post-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-left:60px}.action-btn{border:none;background:transparent;color:var(--muted);padding:10px 12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s ease}.action-btn:hover{background:rgba(255,255,255,.04);color:#fff}.action-btn.liked{color:#ff7b95;background:rgba(255,123,149,.12)}.action-btn.reposted{color:var(--green);background:rgba(74,222,128,.12)}
+.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.24em;color:var(--muted);margin:0 0 14px;font-weight:800}.search{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}.search input{width:100%;border:none;outline:none;background:transparent;color:var(--text)}.widget{padding:16px;border-radius:20px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}.trend,.follow-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,.06)}.trend:first-of-type,.follow-row:first-of-type{border-top:none;padding-top:0}.trend small,.follow-row small{display:block;color:var(--muted);margin-top:4px}.follow-btn{border:none;border-radius:999px;padding:10px 14px;font-weight:800;cursor:pointer;background:#fff;color:#111}
+.login-panel{display:none}.login-panel.active{display:block}.login-logo{width:112px;height:112px;margin:0 auto 14px;position:relative;cursor:pointer}.login-logo img{width:100%;height:100%;object-fit:cover;border-radius:24px;border:1px solid var(--line);box-shadow:0 0 34px rgba(255,43,43,.22)}.login-panel h2{text-align:center;margin:0 0 6px;font-size:24px;font-weight:900;font-style:italic}.login-panel h2 span{color:var(--red)}.login-status{text-align:center;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.22em;line-height:1.5;margin:0 0 14px}.login-input{width:100%;height:44px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#39ff14;text-align:center;padding:0 14px;outline:none;margin-bottom:10px}.login-btn,.back-btn{width:100%;height:42px;border-radius:999px;border:none;font-weight:900;cursor:pointer;margin-top:8px}.login-btn{background:#fff;color:#111}.back-btn{background:transparent;color:var(--text);border:1px solid var(--line)}.error-box{display:none;margin-top:12px;padding:10px;border-radius:14px;background:rgba(255,43,43,.12);border:1px solid rgba(255,43,43,.35);color:#ff9aa0}.error-box small{display:block;color:var(--muted);margin-top:4px}.hidden-loader{display:none;position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:24px;align-items:center;justify-content:center}.loading-spinner{width:36px;height:36px;border:3px solid transparent;border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.mobile-bottom{display:none;position:fixed;left:calc(12px + var(--safe-left));right:calc(12px + var(--safe-right));bottom:calc(12px + var(--safe-bottom));z-index:30;background:rgba(18,23,29,.92);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:10px;grid-template-columns:repeat(5,1fr);gap:6px}.mobile-bottom button{border:none;background:transparent;color:var(--muted);padding:10px 6px;border-radius:14px;cursor:pointer;font-size:11px}.mobile-bottom button.active{background:var(--red-soft);color:#fff}.fab{display:none;position:fixed;right:calc(18px + var(--safe-right));bottom:calc(86px + var(--safe-bottom));width:64px;height:64px;border-radius:22px;border:none;color:#fff;font-size:22px;background:linear-gradient(145deg,#ff3d3d,#b10f0f);box-shadow:0 14px 34px rgba(255,43,43,.28);z-index:31;cursor:pointer}
 @media(max-width:1180px){.app{grid-template-columns:250px minmax(0,1fr) 300px}}
-@media(max-width:980px){
-  body{overflow:auto}
-  .app{height:auto;min-height:100dvh;grid-template-columns:1fr;padding:calc(12px + var(--safe-top)) calc(12px + var(--safe-right)) calc(104px + var(--safe-bottom)) calc(12px + var(--safe-left))}
-  .sidebar,.rightbar{display:none}
-  .feed-shell{min-height:0}
-  .mobile-bottom,.fab{display:grid}.fab{display:block}
-  .post-text,.post-media,.post-actions{margin-left:0}
-  .feed-top{position:sticky}
-}
+@media(max-width:980px){body{overflow:auto}.app{height:auto;min-height:100dvh;grid-template-columns:1fr;padding:calc(12px + var(--safe-top)) calc(12px + var(--safe-right)) calc(104px + var(--safe-bottom)) calc(12px + var(--safe-left))}.sidebar{display:none}.rightbar{display:flex;min-height:auto}.feed-shell{min-height:0}.mobile-bottom,.fab{display:grid}.fab{display:block}.post-text,.post-media,.post-actions{margin-left:0}.feed-top{position:sticky}#socialPanel{display:none}#loginPanel.active{display:block}}
 </style>
 </head>
-
 <body>
 <div class="app">
   <aside class="sidebar card">
-    <div class="brand">
-      <div class="brand-badge">👻</div>
-      <h1>MUZZ<span>SNAP</span></h1>
-    </div>
-
+    <div class="brand"><div class="brand-badge">👻</div><h1>MUZZ<span>SNAP</span></h1></div>
     <nav class="nav">
       <button class="nav-btn active" onclick="location.href='index.html'"><span class="nav-icon">🏠</span><span>Home</span></button>
       <button class="nav-btn" onclick="location.href='whitepaper.html'"><span class="nav-icon">📄</span><span>Whitepaper</span></button>
       <button class="nav-btn" onclick="showMuzzLogin()"><span class="nav-icon">⚡</span><span>MuzzSnap</span></button>
-      <button class="nav-btn" onclick="location.href='social.html'"><span class="nav-icon">🌐</span><span>Social</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('chat.html')"><span class="nav-icon">💬</span><span>Chat</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('social.html')"><span class="nav-icon">🌐</span><span>Social</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('private.html')"><span class="nav-icon">🔒</span><span>Private</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('game.html')"><span class="nav-icon">🎮</span><span>Game</span></button>
       <button class="nav-btn" onclick="location.href='muzzstudio.html'"><span class="nav-icon">🎬</span><span>MuzzStudio</span></button>
       <button class="nav-btn" onclick="location.href='swap.html'"><span class="nav-icon">🛒</span><span>Buy Muzz</span></button>
       <button class="nav-btn" onclick="window.open('https://t.me/MuzzSnap','_blank')"><span class="nav-icon">✈️</span><span>Telegram</span></button>
       <button class="nav-btn" onclick="window.open('https://x.com/MuzzleToken','_blank')"><span class="nav-icon">𝕏</span><span>X.com</span></button>
       <button class="nav-btn" onclick="location.href='mailto:muzzsnapofficial@gmail.com'"><span class="nav-icon">✉️</span><span>Contact</span></button>
     </nav>
-
-    <button class="compose-main" onclick="goToChat(event)">Open MuzzChat</button>
-
-    <div class="profile-mini">
-      <div class="avatar" id="meAvatar">MS</div>
-      <div style="min-width:0;flex:1">
-        <div class="name" id="meName">MuzzSnap</div>
-        <div class="sub" id="meHandle">@muzzsnap</div>
-      </div>
-    </div>
+    <button class="compose-main" onclick="requireWalletPage('chat.html')">Open MuzzChat</button>
+    <div class="profile-mini"><div class="avatar" id="meAvatar">MS</div><div style="min-width:0;flex:1"><div class="name" id="meName">MuzzSnap</div><div class="sub" id="meHandle">@muzzsnap</div></div></div>
   </aside>
 
   <main class="feed-shell card">
-    <div class="feed-top">
-      <h2>MuzzSnap</h2>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="ghost-btn" onclick="goToChat(event)">Chat</button>
-        <button class="ghost-btn" id="demoFill">Load demo</button>
-      </div>
-    </div>
-
+    <div class="feed-top"><h2>MuzzSnap</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="ghost-btn" onclick="requireWalletPage('chat.html')">Chat</button><button class="ghost-btn" id="demoFill">Load demo</button></div></div>
     <div class="feed-scroll" id="feedScroll">
       <section class="composer" id="composerCard">
-        <div class="composer-head">
-          <div class="avatar" id="composerAvatar">MS</div>
-          <div style="flex:1;min-width:0">
-            <textarea id="postInput" maxlength="280" placeholder="What’s happening in MUZZ world?"></textarea>
-            <div class="composer-tools">
-              <div class="tools-left">
-                <span class="tool-pill">Crypto</span>
-                <span class="tool-pill">Community</span>
-                <span class="tool-pill">Project update</span>
-              </div>
-              <div style="display:flex;align-items:center;gap:12px">
-                <span class="count" id="charCount">0 / 280</span>
-                <button class="post-btn" id="publishBtn">Post</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="composer-head"><div class="avatar" id="composerAvatar">MS</div><div style="flex:1;min-width:0"><textarea id="postInput" maxlength="280" placeholder="What’s happening in MUZZ world?"></textarea><div class="composer-tools"><div class="tools-left"><span class="tool-pill">Crypto</span><span class="tool-pill">Community</span><span class="tool-pill">Project update</span></div><div style="display:flex;align-items:center;gap:12px"><span class="count" id="charCount">0 / 280</span><button class="post-btn" id="publishBtn">Post</button></div></div></div></div>
       </section>
       <div id="feed"></div>
     </div>
@@ -176,221 +75,41 @@ a{text-decoration:none;color:inherit}
 
   <aside class="rightbar card">
     <div class="search"><span>🔎</span><input type="text" placeholder="Search MuzzSnap"></div>
-
     <div id="socialPanel">
-      <section class="widget">
-        <p class="section-title">Official Links</p>
-        <div class="trend"><div><strong>X.com</strong><small>@MuzzleToken</small></div><button class="follow-btn" onclick="window.open('https://x.com/MuzzleToken','_blank')">Open</button></div>
-        <div class="trend"><div><strong>Telegram</strong><small>MuzzSnap community</small></div><button class="follow-btn" onclick="window.open('https://t.me/MuzzSnap','_blank')">Open</button></div>
-        <div class="trend"><div><strong>Email</strong><small>muzzsnapofficial@gmail.com</small></div><button class="follow-btn" onclick="location.href='mailto:muzzsnapofficial@gmail.com'">Mail</button></div>
-      </section>
-
-      <section class="widget">
-        <p class="section-title">Token</p>
-        <div style="color:var(--muted);line-height:1.65;font-size:13px;word-break:break-all">
-          Contract:<br>0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0
-        </div>
-      </section>
+      <section class="widget"><p class="section-title">Official Links</p><div class="trend"><div><strong>X.com</strong><small>@MuzzleToken</small></div><button class="follow-btn" onclick="window.open('https://x.com/MuzzleToken','_blank')">Open</button></div><div class="trend"><div><strong>Telegram</strong><small>MuzzSnap community</small></div><button class="follow-btn" onclick="window.open('https://t.me/MuzzSnap','_blank')">Open</button></div><div class="trend"><div><strong>Email</strong><small>muzzsnapofficial@gmail.com</small></div><button class="follow-btn" onclick="location.href='mailto:muzzsnapofficial@gmail.com'">Mail</button></div></section>
+      <section class="widget"><p class="section-title">Token</p><div style="color:var(--muted);line-height:1.65;font-size:13px;word-break:break-all">Contract:<br>0xef3dAa5fDa8Ad7aabFF4658f1F78061fd626B8f0</div></section>
     </div>
-
     <section id="loginPanel" class="widget login-panel">
-      <div id="btnConnect" class="login-logo" onclick="accessWithWallet()">
-        <div id="loadingUI" class="hidden-loader"><div class="loading-spinner"></div></div>
-        <img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440" alt="MuzzSnap">
-      </div>
-
-      <h2>MUZZ<span>SNAP</span></h2>
-      <p id="statusText" class="login-status">Tap logo for wallet or use guest below</p>
-      <input id="usernameInput" class="login-input" placeholder="ENTER_NICKNAME...">
-      <button onclick="accessWithGuest()" class="login-btn">Initialize Guest Protocol</button>
-      <button onclick="showSocialPanel()" class="back-btn">Back to Links</button>
-
-      <div id="errorBox" class="error-box">
-        <strong id="errorTitle"></strong>
-        <small id="errorDesc"></small>
-      </div>
+      <div id="btnConnect" class="login-logo" onclick="accessWithWallet()"><div id="loadingUI" class="hidden-loader"><div class="loading-spinner"></div></div><img src="https://img1.wsimg.com/isteam/ip/ac9578cb-a6ce-417e-8ad5-b2d6701462eb/1000030902.png/:/rs=w:1440,h:1440" alt="MuzzSnap"></div>
+      <h2>MUZZ<span>SNAP</span></h2><p id="statusText" class="login-status">Wallet required for Chat, Social, Private and Game</p><input id="usernameInput" class="login-input" placeholder="GUEST_PREVIEW_NAME..."><button onclick="accessWithWallet()" class="login-btn">Connect Wallet</button><button onclick="accessWithGuest()" class="back-btn">Guest Preview Only</button><button onclick="showSocialPanel()" class="back-btn">Back to Links</button><div id="errorBox" class="error-box"><strong id="errorTitle"></strong><small id="errorDesc"></small></div>
     </section>
   </aside>
 </div>
 
-<div class="mobile-bottom">
-  <button class="active" onclick="document.getElementById('feedScroll').scrollTo({top:0,behavior:'smooth'})">Home</button>
-  <button onclick="showMuzzLoginMobile()">Login</button>
-  <button onclick="goToChat(event)">Chat</button>
-  <button onclick="location.href='social.html'">Social</button>
-  <button onclick="location.href='swap.html'">Buy</button>
-</div>
-
+<div class="mobile-bottom"><button class="active" onclick="document.getElementById('feedScroll').scrollTo({top:0,behavior:'smooth'})">Home</button><button onclick="showMuzzLoginMobile()">Login</button><button onclick="requireWalletPage('chat.html')">Chat</button><button onclick="requireWalletPage('social.html')">Social</button><button onclick="requireWalletPage('game.html')">Game</button></div>
 <button class="fab" onclick="goComposer()">＋</button>
 
 <script>
-const ADMIN_WALLETS=[
-  '0x208157b5ec396759e8754058108ecf53e32392ff',
-  '0xfab5835ca14fb3f9f978c5e4d733734e6394e03f',
-  '0x875c5a7794b601f273da58e3c1d10671d16130ec'
-];
-
-function showMuzzLogin(){
-  document.getElementById('socialPanel').style.display='none';
-  document.getElementById('loginPanel').classList.add('active');
-}
-function showSocialPanel(){
-  document.getElementById('loginPanel').classList.remove('active');
-  document.getElementById('socialPanel').style.display='block';
-}
-function showMuzzLoginMobile(){
-  alert('On mobile, use desktop/right panel login or open wallet login from the main MuzzSnap page.');
-}
+const ADMIN_WALLETS=['0x208157b5ec396759e8754058108ecf53e32392ff','0xfab5835ca14fb3f9f978c5e4d733734e6394e03f','0x875c5a7794b601f273da58e3c1d10671d16130ec'];
+function hasWalletLogin(){const wallet=sessionStorage.getItem('muzz_wallet_address');const method=sessionStorage.getItem('muzz_login_method');const isGuest=sessionStorage.getItem('muzz_is_guest');return !!(wallet&&method==='wallet'&&isGuest!=='true'&&!wallet.startsWith('guest_'))}
+function requireWalletPage(page){if(hasWalletLogin()){window.location.href=page;return}showMuzzLogin();const status=document.getElementById('statusText');if(status)status.innerText='Wallet login required to access this section.';const login=document.getElementById('loginPanel');if(login)login.scrollIntoView({behavior:'smooth',block:'center'});}
+function showMuzzLogin(){document.getElementById('socialPanel').style.display='none';document.getElementById('loginPanel').classList.add('active')}
+function showSocialPanel(){document.getElementById('loginPanel').classList.remove('active');document.getElementById('socialPanel').style.display='block'}
+function showMuzzLoginMobile(){showMuzzLogin();const login=document.getElementById('loginPanel');if(login)login.scrollIntoView({behavior:'smooth',block:'center'});}
 function normalizeAddress(address){return String(address||'').trim().toLowerCase()}
-function showError(title,desc){
-  const errorBox=document.getElementById('errorBox');
-  errorBox.style.display='block';
-  document.getElementById('errorTitle').innerText=title;
-  document.getElementById('errorDesc').innerText=desc;
-  document.getElementById('statusText').innerText=title;
-  document.getElementById('loadingUI').style.display='none';
-}
-function saveUserSession(address){
-  const normalized=normalizeAddress(address);
-  const isAdmin=ADMIN_WALLETS.includes(normalized);
-  sessionStorage.setItem('muzz_wallet_address',normalized);
-  sessionStorage.setItem('muzz_user_role',isAdmin?'admin':'user');
-  sessionStorage.setItem('muzz_is_admin',isAdmin?'true':'false');
-  sessionStorage.setItem('muzz_login_method','wallet');
-  sessionStorage.setItem('muzz_is_guest','false');
-}
-async function accessWithWallet(){
-  document.getElementById('errorBox').style.display='none';
-  document.getElementById('statusText').innerText='Connecting wallet...';
-
-  if(typeof window.ethereum!=='undefined'){
-    try{
-      document.getElementById('loadingUI').style.display='flex';
-      const accounts=await window.ethereum.request({method:'eth_requestAccounts'});
-      if(!accounts||!accounts.length){showError('AUTH_FAILED','No wallet account detected.');return}
-      saveUserSession(accounts[0]);
-      document.getElementById('statusText').innerText='Wallet connected. Opening MuzzSnap...';
-      setTimeout(()=>{window.location.href='chat.html'},500);
-    }catch(err){
-      showError('AUTH_FAILED','Connection rejected.');
-    }
-  }else{
-    const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if(isMobile){
-      const dappUrl=window.location.href.split('//')[1];
-      window.location.href=`https://metamask.app.link/dapp/${dappUrl}`;
-    }else{
-      showError('NO_WALLET','Install MetaMask or use a Web3 browser.');
-    }
-  }
-}
-function accessWithGuest(){
-  const user=document.getElementById('usernameInput').value.trim();
-  if(!user){showError('REQUIRED','Enter a nickname.');return}
-  sessionStorage.setItem('muzz_wallet_address',`guest_${user}`);
-  sessionStorage.setItem('muzz_user_role','guest');
-  sessionStorage.setItem('muzz_is_admin','false');
-  sessionStorage.setItem('muzz_login_method','guest');
-  sessionStorage.setItem('muzz_is_guest','true');
-  sessionStorage.setItem('muzz_username',user);
-  document.getElementById('statusText').innerText='Guest access granted. Opening MuzzSnap...';
-  setTimeout(()=>{window.location.href='chat.html'},500);
-}
-function goToChat(event){
-  if(event)event.preventDefault();
-  const wallet=sessionStorage.getItem('muzz_wallet_address');
-  const method=sessionStorage.getItem('muzz_login_method');
-  if(wallet&&method){window.location.href='chat.html';return}
-  showMuzzLogin();
-  document.getElementById('statusText').innerText='Login required to access MuzzChat.';
-}
-
-const STORAGE_KEY='muzz_social_demo_posts_v1';
-const wallet=sessionStorage.getItem('muzz_wallet_address')||'guest_muzz';
-const savedName=sessionStorage.getItem('muzz_username');
-
-function getIdentity(){
-  const isGuest=wallet.startsWith('guest_');
-  let username='Muzz User';
-  if(savedName)username=savedName;else if(isGuest)username=wallet.replace('guest_','')||'Guest';else username='Node_'+wallet.slice(-4);
-  const handle='@'+username.toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,18);
-  return{username,handle,isGuest};
-}
-const me=getIdentity();
-document.getElementById('meName').textContent=me.username;
-document.getElementById('meHandle').textContent=me.handle;
-document.getElementById('meAvatar').textContent=(me.username||'MU').slice(0,2).toUpperCase();
-document.getElementById('composerAvatar').textContent=(me.username||'MU').slice(0,2).toUpperCase();
-
-const seedPosts=[
-{id:1,name:'MuzzSnap',handle:'@muzzsnap',time:'2h',text:'MuzzSnap is a crypto-native social gateway for private messaging, wallet identity, community access and Web3 users.',verified:true,likes:41,reposts:9,comments:12,liked:false,reposted:false},
-{id:2,name:'Muzzle Token',handle:'@muzzletoken',time:'4h',text:'Community first. Privacy, chat, social and ecosystem tools can live inside the same clean mobile friendly experience.',verified:true,likes:63,reposts:18,comments:20,liked:false,reposted:false,media:true},
-{id:3,name:'Galaxy Builder',handle:'@galaxyverse',time:'7h',text:'Next steps: profiles, comments, Firebase feed sync, follows, search and notifications. This version is lightweight for GitHub Pages.',verified:false,likes:26,reposts:5,comments:7,liked:false,reposted:false}
-];
-
-function loadPosts(){
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw){localStorage.setItem(STORAGE_KEY,JSON.stringify(seedPosts));return[...seedPosts]}
-    const parsed=JSON.parse(raw);
-    return Array.isArray(parsed)&&parsed.length?parsed:[...seedPosts];
-  }catch(e){return[...seedPosts]}
-}
-let posts=loadPosts();
-const feed=document.getElementById('feed');
-const postInput=document.getElementById('postInput');
-const charCount=document.getElementById('charCount');
-function savePosts(){localStorage.setItem(STORAGE_KEY,JSON.stringify(posts))}
-function escapeHtml(str){return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function renderPosts(){
-  feed.innerHTML=posts.map(post=>`
-    <article class="post">
-      <div class="post-head">
-        <div class="avatar">${escapeHtml(post.name.slice(0,2).toUpperCase())}</div>
-        <div class="post-meta">
-          <div class="post-name-row">
-            <span class="post-name">${escapeHtml(post.name)}</span>
-            ${post.verified?'<span class="verified">✓</span>':''}
-            <span class="post-handle">${escapeHtml(post.handle)}</span>
-            <span class="post-time">· ${escapeHtml(post.time)}</span>
-          </div>
-        </div>
-      </div>
-      <div class="post-text">${escapeHtml(post.text)}</div>
-      ${post.media?`<div class="post-media"><div class="media-demo"><strong>MUZZ SOCIAL</strong><span>Clean social showcase panel</span></div></div>`:''}
-      <div class="post-actions">
-        <button class="action-btn" onclick="commentPost(${post.id})">💬 <span>${post.comments}</span></button>
-        <button class="action-btn ${post.reposted?'reposted':''}" onclick="repostPost(${post.id})">🔁 <span>${post.reposts}</span></button>
-        <button class="action-btn ${post.liked?'liked':''}" onclick="likePost(${post.id})">❤ <span>${post.likes}</span></button>
-        <button class="action-btn" onclick="sharePost(${post.id})">↗ <span>Share</span></button>
-      </div>
-    </article>`).join('');
-}
-function publishPost(){
-  const text=postInput.value.trim();
-  if(!text)return;
-  posts.unshift({id:Date.now(),name:me.username,handle:me.handle,time:'now',text,verified:false,likes:0,reposts:0,comments:0,liked:false,reposted:false});
-  savePosts();renderPosts();postInput.value='';updateCount();
-  document.getElementById('feedScroll').scrollTo({top:0,behavior:'smooth'});
-}
-function goComposer(){document.getElementById('composerCard').scrollIntoView({behavior:'smooth',block:'start'});postInput.focus()}
-function updateCount(){charCount.textContent=`${postInput.value.length} / 280`}
-function likePost(id){posts=posts.map(p=>p.id!==id?p:{...p,liked:!p.liked,likes:!p.liked?p.likes+1:Math.max(0,p.likes-1)});savePosts();renderPosts()}
-function repostPost(id){posts=posts.map(p=>p.id!==id?p:{...p,reposted:!p.reposted,reposts:!p.reposted?p.reposts+1:Math.max(0,p.reposts-1)});savePosts();renderPosts()}
-function commentPost(){alert('Comments can be connected later with Firebase.')}
-function sharePost(id){
-  const post=posts.find(p=>p.id===id);if(!post)return;
-  const text=`${post.name}: ${post.text}`;
-  if(navigator.share){navigator.share({title:'MuzzSnap',text}).catch(()=>{})}
-  else{navigator.clipboard.writeText(text).then(()=>alert('Post copied to clipboard.')).catch(()=>alert(text))}
-}
-function resetDemo(){posts=[...seedPosts];savePosts();renderPosts()}
-window.likePost=likePost;window.repostPost=repostPost;window.commentPost=commentPost;window.sharePost=sharePost;
-document.getElementById('publishBtn').addEventListener('click',publishPost);
-postInput.addEventListener('input',updateCount);
-postInput.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')publishPost()});
-document.getElementById('demoFill').addEventListener('click',resetDemo);
-updateCount();renderPosts();
+function showError(title,desc){const errorBox=document.getElementById('errorBox');errorBox.style.display='block';document.getElementById('errorTitle').innerText=title;document.getElementById('errorDesc').innerText=desc;document.getElementById('statusText').innerText=title;document.getElementById('loadingUI').style.display='none'}
+function saveUserSession(address){const normalized=normalizeAddress(address);const isAdmin=ADMIN_WALLETS.includes(normalized);sessionStorage.setItem('muzz_wallet_address',normalized);sessionStorage.setItem('muzz_user_role',isAdmin?'admin':'user');sessionStorage.setItem('muzz_is_admin',isAdmin?'true':'false');sessionStorage.setItem('muzz_login_method','wallet');sessionStorage.setItem('muzz_is_guest','false')}
+async function accessWithWallet(){document.getElementById('errorBox').style.display='none';document.getElementById('statusText').innerText='Connecting wallet...';if(typeof window.ethereum!=='undefined'){try{document.getElementById('loadingUI').style.display='flex';const accounts=await window.ethereum.request({method:'eth_requestAccounts'});if(!accounts||!accounts.length){showError('AUTH_FAILED','No wallet account detected.');return}saveUserSession(accounts[0]);document.getElementById('statusText').innerText='Wallet connected. Opening MuzzSnap...';setTimeout(()=>{window.location.href='chat.html'},500)}catch(err){showError('AUTH_FAILED','Connection rejected.')}}else{const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);if(isMobile){const dappUrl=window.location.href.split('//')[1];window.location.href=`https://metamask.app.link/dapp/${dappUrl}`}else{showError('NO_WALLET','Install MetaMask or use a Web3 browser.')}}}
+function accessWithGuest(){const user=document.getElementById('usernameInput').value.trim();if(!user){showError('REQUIRED','Enter a nickname.');return}sessionStorage.setItem('muzz_wallet_address',`guest_${user}`);sessionStorage.setItem('muzz_user_role','guest');sessionStorage.setItem('muzz_is_admin','false');sessionStorage.setItem('muzz_login_method','guest');sessionStorage.setItem('muzz_is_guest','true');sessionStorage.setItem('muzz_username',user);document.getElementById('statusText').innerText='Guest saved for preview only. Wallet required for protected sections.'}
+const STORAGE_KEY='muzz_social_demo_posts_v1';const wallet=sessionStorage.getItem('muzz_wallet_address')||'guest_muzz';const savedName=sessionStorage.getItem('muzz_username');function getIdentity(){const isGuest=wallet.startsWith('guest_');let username='Muzz User';if(savedName)username=savedName;else if(isGuest)username=wallet.replace('guest_','')||'Guest';else username='Node_'+wallet.slice(-4);const handle='@'+username.toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,18);return{username,handle,isGuest}}
+const me=getIdentity();document.getElementById('meName').textContent=me.username;document.getElementById('meHandle').textContent=me.handle;document.getElementById('meAvatar').textContent=(me.username||'MU').slice(0,2).toUpperCase();document.getElementById('composerAvatar').textContent=(me.username||'MU').slice(0,2).toUpperCase();
+const seedPosts=[{id:1,name:'MuzzSnap',handle:'@muzzsnap',time:'2h',text:'MuzzSnap is a crypto-native social gateway for private messaging, wallet identity, community access and Web3 users.',verified:true,likes:41,reposts:9,comments:12,liked:false,reposted:false},{id:2,name:'Muzzle Token',handle:'@muzzletoken',time:'4h',text:'Community first. Privacy, chat, social and ecosystem tools can live inside the same clean mobile friendly experience.',verified:true,likes:63,reposts:18,comments:20,liked:false,reposted:false,media:true},{id:3,name:'Galaxy Builder',handle:'@galaxyverse',time:'7h',text:'Protected sections now require wallet login only. Guest mode is preview only.',verified:false,likes:26,reposts:5,comments:7,liked:false,reposted:false}];
+function loadPosts(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw){localStorage.setItem(STORAGE_KEY,JSON.stringify(seedPosts));return[...seedPosts]}const parsed=JSON.parse(raw);return Array.isArray(parsed)&&parsed.length?parsed:[...seedPosts]}catch(e){return[...seedPosts]}}
+let posts=loadPosts();const feed=document.getElementById('feed');const postInput=document.getElementById('postInput');const charCount=document.getElementById('charCount');function savePosts(){localStorage.setItem(STORAGE_KEY,JSON.stringify(posts))}function escapeHtml(str){return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function renderPosts(){feed.innerHTML=posts.map(post=>`<article class="post"><div class="post-head"><div class="avatar">${escapeHtml(post.name.slice(0,2).toUpperCase())}</div><div class="post-meta"><div class="post-name-row"><span class="post-name">${escapeHtml(post.name)}</span>${post.verified?'<span class="verified">✓</span>':''}<span class="post-handle">${escapeHtml(post.handle)}</span><span class="post-time">· ${escapeHtml(post.time)}</span></div></div></div><div class="post-text">${escapeHtml(post.text)}</div>${post.media?`<div class="post-media"><div class="media-demo"><strong>MUZZ SOCIAL</strong><span>Clean social showcase panel</span></div></div>`:''}<div class="post-actions"><button class="action-btn" onclick="commentPost(${post.id})">💬 <span>${post.comments}</span></button><button class="action-btn ${post.reposted?'reposted':''}" onclick="repostPost(${post.id})">🔁 <span>${post.reposts}</span></button><button class="action-btn ${post.liked?'liked':''}" onclick="likePost(${post.id})">❤ <span>${post.likes}</span></button><button class="action-btn" onclick="sharePost(${post.id})">↗ <span>Share</span></button></div></article>`).join('')}
+function publishPost(){const text=postInput.value.trim();if(!text)return;posts.unshift({id:Date.now(),name:me.username,handle:me.handle,time:'now',text,verified:false,likes:0,reposts:0,comments:0,liked:false,reposted:false});savePosts();renderPosts();postInput.value='';updateCount();document.getElementById('feedScroll').scrollTo({top:0,behavior:'smooth'})}
+function goComposer(){document.getElementById('composerCard').scrollIntoView({behavior:'smooth',block:'start'});postInput.focus()}function updateCount(){charCount.textContent=`${postInput.value.length} / 280`}function likePost(id){posts=posts.map(p=>p.id!==id?p:{...p,liked:!p.liked,likes:!p.liked?p.likes+1:Math.max(0,p.likes-1)});savePosts();renderPosts()}function repostPost(id){posts=posts.map(p=>p.id!==id?p:{...p,reposted:!p.reposted,reposts:!p.reposted?p.reposts+1:Math.max(0,p.reposts-1)});savePosts();renderPosts()}function commentPost(){requireWalletPage('social.html')}function sharePost(id){const post=posts.find(p=>p.id===id);if(!post)return;const text=`${post.name}: ${post.text}`;if(navigator.share){navigator.share({title:'MuzzSnap',text}).catch(()=>{})}else{navigator.clipboard.writeText(text).then(()=>alert('Post copied to clipboard.')).catch(()=>alert(text))}}
+function resetDemo(){posts=[...seedPosts];savePosts();renderPosts()}window.likePost=likePost;window.repostPost=repostPost;window.commentPost=commentPost;window.sharePost=sharePost;document.getElementById('publishBtn').addEventListener('click',publishPost);postInput.addEventListener('input',updateCount);postInput.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')publishPost()});document.getElementById('demoFill').addEventListener('click',resetDemo);updateCount();renderPosts();
 </script>
 </body>
 </html>
