@@ -73,11 +73,18 @@
     <aside class="sidebar card">
       <div class="brand"><div class="brand-badge">👻</div><h1>MUZZ<span>SOCIAL</span></h1></div>
       <nav class="nav">
-        <button class="nav-btn" onclick="location.href='index.html'"><span class="nav-icon">🏠</span><span>Home</span></button>
-        <button class="nav-btn active"><span class="nav-icon">🌐</span><span>Social</span></button>
-        <button class="nav-btn" onclick="goToChat(event)"><span class="nav-icon">💬</span><span>Chat</span></button>
-        <button class="nav-btn" onclick="location.href='private.html'"><span class="nav-icon">🔒</span><span>Private</span></button>
-        <button class="nav-btn" onclick="location.href='game.html'"><span class="nav-icon">🎮</span><span>Game</span></button>
+        <<button class="nav-btn active" onclick="location.href='index.html'"><span class="nav-icon">🏠</span><span>Home</span></button>
+      <button class="nav-btn" onclick="location.href='white.html'"><span class="nav-icon">📄</span><span>Whitepaper</span></button>
+      <button class="nav-btn" onclick="showMuzzLogin()"><span class="nav-icon">⚡</span><span>MuzzSnap</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('chat.html')"><span class="nav-icon">💬</span><span>Chat</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('social.html')"><span class="nav-icon">🌐</span><span>Social</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('private.html')"><span class="nav-icon">🔒</span><span>Private</span></button>
+      <button class="nav-btn" onclick="requireWalletPage('game.html')"><span class="nav-icon">🎮</span><span>Game</span></button>
+      <button class="nav-btn" onclick="location.href='muzzstudio.html'"><span class="nav-icon">🎬</span><span>MuzzStudio</span></button>
+      <button class="nav-btn" onclick="location.href='swap.html'"><span class="nav-icon">🛒</span><span>Buy Muzz</span></button>
+      <button class="nav-btn" onclick="window.open('https://t.me/MuzzSnap','_blank')"><span class="nav-icon">✈️</span><span>Telegram</span></button>
+      <button class="nav-btn" onclick="window.open('https://x.com/MuzzleToken','_blank')"><span class="nav-icon">𝕏</span><span>X.com</span></button>
+      <button class="nav-btn" onclick="location.href='mailto:muzzsnapofficial@gmail.com'"><span class="nav-icon">✉️</span><span>Contact</span></button>
       </nav>
       <button class="compose-main" id="openComposer">Post something</button>
       <div class="profile-mini"><div class="avatar" id="meAvatar">MZ</div><div style="min-width:0;flex:1"><div class="name" id="meName">Muzz User</div><div class="sub" id="meHandle">@muzzuser</div></div></div>
